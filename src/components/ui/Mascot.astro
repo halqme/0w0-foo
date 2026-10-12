@@ -1,0 +1,645 @@
+<div
+  class="mascot-root"
+  data-mascot-root
+  transition:persist="mascot"
+  transition:name="mascot"
+  transition:animate="none"
+>
+  <button
+    class="mascot"
+    type="button"
+    aria-label="マスコットを喜ばせる"
+    data-mascot
+  >
+    <span class="face-breath" data-face aria-hidden="true">
+      0w0
+    </span>
+  </button>
+  <span class="mascot mascot-follower" data-follower aria-hidden="true">
+    <span class="face-breath" data-face>
+      0w0
+    </span>
+  </span>
+</div>
+
+<style>
+  .mascot {
+    position: fixed;
+    z-index: 20;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    display: grid;
+    width: 5rem;
+    height: 2.75rem;
+    min-width: 44px;
+    min-height: 44px;
+    place-items: center;
+    padding: 0.5rem;
+    border: 1px solid var(--color-line);
+    border-radius: 9999px;
+    background: var(--color-canvas);
+    color: var(--color-accent);
+    font-family: var(--font-ia-writer-mono), monospace;
+    font-size: 1rem;
+    line-height: 1;
+    box-sizing: border-box;
+  }
+  button.mascot {
+    cursor: pointer;
+    touch-action: manipulation;
+    pointer-events: auto;
+  }
+  .mascot:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+  .mascot-root {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    pointer-events: none;
+  }
+  .mascot-follower {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: auto;
+    bottom: auto;
+    z-index: 21;
+    visibility: hidden;
+    pointer-events: none;
+    will-change: transform;
+  }
+  .face-breath {
+    display: inline-block;
+    animation: mascot-breathe 4.8s ease-in-out infinite;
+  }
+  @keyframes mascot-breathe {
+    0%,
+    100% {
+      translate: 0 0;
+      scale: 1;
+    }
+    50% {
+      translate: 0 -1.5px;
+      scale: 1.025;
+    }
+  }
+  .mascot-root[data-paused] .face-breath {
+    animation-play-state: paused;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mascot-follower {
+      will-change: auto;
+    }
+    .face-breath {
+      animation: none;
+      translate: none;
+      scale: none;
+    }
+  }
+</style>
+
+<script>
+  const initMascot = () => {
+    const root = document.querySelector<HTMLElement>("[data-mascot-root]");
+    const mascot = root?.querySelector<HTMLButtonElement>("[data-mascot]");
+    const face = mascot?.querySelector<HTMLElement>("[data-face]");
+    const follower = root?.querySelector<HTMLElement>("[data-follower]");
+    const followerFace = follower?.querySelector<HTMLElement>("[data-face]");
+    if (
+      !root ||
+      !mascot ||
+      !face ||
+      !follower ||
+      !followerFace ||
+      mascot.dataset.ready
+    )
+      return;
+    mascot.dataset.ready = "true";
+
+    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const clamp = (v: number, min: number, max: number) =>
+      Math.max(min, Math.min(max, v));
+    const home = { x: 0, y: 0 };
+    let target = { ...home },
+      position = { ...home },
+      sleepOffset = { x: 0, y: 0 };
+    let wanderBearing = Math.atan2(80, 104),
+      wanderVelocity = 0,
+      desiredWanderVelocity = 0,
+      wanderRadius = 120,
+      desiredWanderRadius = 120,
+      wanderDecisionIn = 0;
+    let frame = 0,
+      lastTime = 0,
+      lastActivity = performance.now();
+    let pointer = { x: 0, y: 0, time: 0 },
+      speed = 0;
+    let following = false,
+      paused = false,
+      asleep = false,
+      stage = "awake";
+    let happyUntil = 0,
+      scrollUntil = 0,
+      interactionTimer = 0,
+      faceTimer = 0,
+      stageStart = 0,
+      stageTimer = 0,
+      returnStartOffset = 0,
+      pausedAt = 0,
+      sleepAllowed = true;
+    let hoverFace = "0ω0",
+      scrollFace = "0o0",
+      lastClickFace = "";
+    let curious = false,
+      pleased = false,
+      hoveredInteractive: Element | null = null,
+      hoveredAnchor: Element | null = null;
+    const expressions = ["^w^", "0o0", "OwO", "0v0", "0ω0"];
+    const choose = <T,>(items: T[], previous?: T) => {
+      const choices = items.filter((item) => item !== previous);
+      return choices[Math.floor(Math.random() * choices.length)] ?? items[0];
+    };
+    const setFace = (value: string) => {
+      face.textContent = value;
+      followerFace.textContent = value;
+    };
+    const paintFace = () => {
+      const now = performance.now();
+      if (happyUntil > now) setFace(lastClickFace || "^w^");
+      else if (stage === "returning") setFace("0o0");
+      else if (stage === "dozing" || stage === "falling" || asleep)
+        setFace("-w-");
+      else if (speed > 0.8 && following) setFace("0o0");
+      else if (scrollUntil > now) setFace(scrollFace);
+      else if (curious) setFace(hoverFace);
+      else if ((speed > 0.2 && following) || pleased) setFace("^w^");
+      else setFace("0w0");
+    };
+    const armFaceExpiry = () => {
+      clearTimeout(faceTimer);
+      faceTimer = 0;
+      const expiry = Math.max(happyUntil, scrollUntil);
+      if (expiry <= performance.now()) return;
+      faceTimer = window.setTimeout(() => {
+        const now = performance.now();
+        if (happyUntil <= now) happyUntil = 0;
+        if (scrollUntil <= now) scrollUntil = 0;
+        faceTimer = 0;
+        paintFace();
+        armFaceExpiry();
+      }, expiry - performance.now());
+    };
+    const bounds = () => ({
+      minX: 22,
+      maxX: Math.max(22, innerWidth - 92),
+      minY: 48,
+      maxY: Math.max(48, innerHeight - 66),
+    });
+    const pointerTarget = (x: number, y: number) => {
+      const b = bounds();
+      return {
+        x: clamp(
+          x + Math.cos(wanderBearing) * wanderRadius - 40,
+          b.minX,
+          b.maxX,
+        ),
+        y: clamp(
+          y + Math.sin(wanderBearing) * wanderRadius * 0.85 - 22,
+          b.minY,
+          b.maxY,
+        ),
+      };
+    };
+    const stop = () => {
+      if (frame) cancelAnimationFrame(frame);
+      frame = 0;
+      lastTime = 0;
+    };
+    const clearStory = () => {
+      clearTimeout(stageTimer);
+      stageTimer = 0;
+    };
+    const armStage = () => {
+      clearStory();
+      if (stage === "dozing")
+        stageTimer = window.setTimeout(
+          () => {
+            stageTimer = 0;
+            if (!following || paused || motion.matches) return;
+            startStage("falling");
+          },
+          Math.max(0, 1200 - (performance.now() - stageStart)),
+        );
+      else if (stage === "falling")
+        stageTimer = window.setTimeout(
+          () => {
+            stageTimer = 0;
+            if (!paused && !motion.matches) startStage("returning");
+          },
+          Math.max(0, 1200 - (performance.now() - stageStart)),
+        );
+    };
+    const startStage = (next: string) => {
+      clearStory();
+      stage = next;
+      stageStart = performance.now();
+      if (next === "returning") returnStartOffset = sleepOffset.y;
+      paintFace();
+      armStage();
+    };
+    const beginSleep = () => {
+      if (paused || !sleepAllowed || stage !== "awake") return;
+      if (!following || motion.matches) {
+        asleep = true;
+        paintFace();
+        return;
+      }
+      startStage("dozing");
+    };
+    const activity = () => {
+      if (!paused && document.visibilityState !== "hidden")
+        delete root.dataset.paused;
+      lastActivity = performance.now();
+      sleepAllowed = true;
+      clearTimeout(interactionTimer);
+      interactionTimer = 0;
+      if (stage === "dozing" || stage === "falling") startStage("returning");
+      asleep = false;
+      if (sleepAllowed)
+        interactionTimer = window.setTimeout(
+          beginSleep,
+          Math.max(0, 6000 - (performance.now() - lastActivity)),
+        );
+      paintFace();
+      wake();
+    };
+    const render = (time: number) => {
+      frame = 0;
+      if (paused || motion.matches) return;
+      const dt = Math.min((time - (lastTime || time)) / 1000, 0.05);
+      lastTime = time;
+      speed *= Math.exp(-6 * dt);
+      const ease = 1 - Math.exp(-5 * dt);
+      if (following && stage === "awake" && !asleep && dt > 0) {
+        wanderDecisionIn -= dt;
+        if (wanderDecisionIn <= 0) {
+          wanderDecisionIn = 2 + Math.random() * 3;
+          const pause = Math.random() < 0.25;
+          if (pause) desiredWanderVelocity = 0;
+          else {
+            const reverse = Math.random() < 0.4;
+            const direction = reverse
+              ? -Math.sign(desiredWanderVelocity || 1)
+              : Math.sign(
+                  desiredWanderVelocity || (Math.random() < 0.5 ? -1 : 1),
+                );
+            desiredWanderVelocity = direction * (0.18 + Math.random() * 0.2);
+          }
+          desiredWanderRadius = 90 + Math.random() * 50;
+        }
+        wanderVelocity +=
+          (desiredWanderVelocity - wanderVelocity) * (1 - Math.exp(-1.4 * dt));
+        wanderRadius +=
+          (desiredWanderRadius - wanderRadius) * (1 - Math.exp(-0.6 * dt));
+        wanderBearing += wanderVelocity * dt;
+      }
+      if (following) target = pointerTarget(pointer.x, pointer.y);
+      position.x += (target.x - position.x) * ease;
+      position.y += (target.y - position.y) * ease;
+      const elapsed = Math.max(0, time - stageStart);
+      const driftX = Math.sin(time / 3400) * 4;
+      const driftY = Math.sin(time / 2700) * 5;
+      let sy = 0;
+      if (stage === "falling")
+        sy = 60 * Math.pow(clamp(elapsed / 1200, 0, 1), 2);
+      if (stage === "returning") {
+        const progress = clamp(elapsed / 1400, 0, 1);
+        sy = returnStartOffset * (1 - progress) * (1 - progress);
+        sleepOffset.y = sy;
+        if (progress >= 1) {
+          stage = "awake";
+          sleepAllowed = false;
+          asleep = false;
+        }
+      } else if (stage === "falling") sleepOffset.y = sy;
+      else if (stage !== "dozing") sleepOffset.y *= Math.exp(-5 * dt);
+      const b = bounds();
+      const reaction = happyUntil > time ? (happyUntil - time) / 700 : 0;
+      const scroll = scrollUntil > time ? (scrollUntil - time) / 700 : 0;
+      const hop = -3 * Math.sin(Math.PI * (1 - reaction)) * reaction;
+      const scrollY = Math.sin(time / 300) * 1.5 * scroll;
+      const x = clamp(position.x + driftX + sleepOffset.x, b.minX, b.maxX);
+      const y = clamp(
+        position.y + driftY + sleepOffset.y + hop + scrollY,
+        b.minY,
+        b.maxY,
+      );
+      const gaze =
+        stage === "awake" && !asleep
+          ? clamp(
+              Math.sin(time / 3900) * 6 +
+                (pointer.x >= position.x + 40 ? 3 : -3),
+              -6,
+              6,
+            )
+          : 0;
+      face.style.transform = `translateX(${gaze}px)`;
+      followerFace.style.transform = `translateX(${gaze}px)`;
+      const scrollX = Math.sin(time / 400) * 1.5 * scroll;
+      const tilt = clamp((target.x - position.x) * 0.04, -3, 3);
+      follower.style.transform = `translate3d(${clamp(x + scrollX, b.minX, b.maxX)}px, ${y}px, 0) rotate(${tilt}deg)`;
+      if (!following)
+        mascot.style.transform =
+          happyUntil > time || scroll > 0
+            ? `translate3d(${scrollX}px, ${hop + scrollY}px, 0) rotate(${Math.sin(time / 400) * 0.7 * scroll}deg)`
+            : "";
+      if (happyUntil && time >= happyUntil) happyUntil = 0;
+      if (scrollUntil && time >= scrollUntil) scrollUntil = 0;
+      paintFace();
+      if (
+        following ||
+        happyUntil ||
+        scrollUntil ||
+        Math.abs(sleepOffset.y) > 0.1
+      )
+        frame = requestAnimationFrame(render);
+      else lastTime = 0;
+    };
+    const wake = () => {
+      if (!frame && !motion.matches && !paused)
+        frame = requestAnimationFrame(render);
+    };
+    const reset = () => {
+      stop();
+      clearStory();
+      clearTimeout(interactionTimer);
+      clearTimeout(faceTimer);
+      interactionTimer = faceTimer = 0;
+      happyUntil = scrollUntil = 0;
+      speed = 0;
+      pointer = { x: 0, y: 0, time: 0 };
+      sleepAllowed = true;
+      delete root.dataset.paused;
+      stage = "awake";
+      asleep = false;
+      sleepOffset = { x: 0, y: 0 };
+      following = false;
+      curious = pleased = false;
+      hoveredInteractive = hoveredAnchor = null;
+      mascot.style.visibility = "visible";
+      mascot.style.transform = "";
+      follower.style.visibility = "hidden";
+      follower.style.transform = "";
+      face.style.transform = followerFace.style.transform = "";
+      setFace("0w0");
+    };
+    const onPointerMove = (event: PointerEvent) => {
+      if (
+        paused ||
+        event.pointerType !== "mouse" ||
+        document.activeElement === mascot
+      )
+        return;
+      activity();
+      if (motion.matches) return;
+      const now = performance.now(),
+        elapsed = now - pointer.time;
+      if (pointer.time && elapsed > 0)
+        speed =
+          Math.hypot(event.clientX - pointer.x, event.clientY - pointer.y) /
+          elapsed;
+      pointer = { x: event.clientX, y: event.clientY, time: now };
+      if (!following) {
+        const rect = mascot.getBoundingClientRect();
+        position = { x: rect.left, y: rect.top };
+        target = { ...position };
+      }
+      target = pointerTarget(event.clientX, event.clientY);
+      following = true;
+      if (!motion.matches && sleepAllowed && !interactionTimer)
+        interactionTimer = window.setTimeout(beginSleep, 6000);
+      mascot.style.visibility = "hidden";
+      follower.style.visibility = "visible";
+      wake();
+    };
+    const onPointerLeave = (event: PointerEvent) => {
+      if (!paused && event.relatedTarget === null) reset();
+    };
+    const bounce = () => {
+      if (paused) return;
+      activity();
+      lastClickFace = choose(expressions, lastClickFace);
+      happyUntil = performance.now() + 700;
+      armFaceExpiry();
+      paintFace();
+      wake();
+      if (interactionTimer) {
+        clearTimeout(interactionTimer);
+        interactionTimer = window.setTimeout(beginSleep, 6000);
+      }
+    };
+    const onFocus = () => {
+      if (!paused) {
+        if (following) reset();
+        activity();
+        pleased = true;
+        paintFace();
+      }
+    };
+    const onTargetEnter = (event: PointerEvent | FocusEvent) => {
+      if (paused || !(event.target instanceof Element)) return;
+      const element = event.target;
+      if (mascot.contains(element)) {
+        pleased = true;
+        activity();
+        paintFace();
+        return;
+      }
+      const interactive = element.closest(
+        'a, button, input, select, textarea, summary, [role="button"]',
+      );
+      if (!interactive || interactive === hoveredInteractive) return;
+      hoveredInteractive = interactive;
+      hoveredAnchor = interactive.closest("a");
+      curious = true;
+      let external = false;
+      if (hoveredAnchor instanceof HTMLAnchorElement) {
+        try {
+          external =
+            new URL(hoveredAnchor.href, document.baseURI).origin !==
+            location.origin;
+        } catch {
+          external = true;
+        }
+      }
+      hoverFace = choose(
+        external
+          ? ["0o0", "OwO", "0v0"]
+          : hoveredAnchor
+            ? ["^w^", "0ω0", "0u0"]
+            : ["0ω0", "^w^"],
+        hoverFace,
+      );
+      activity();
+      paintFace();
+    };
+    const onTargetLeave = (event: PointerEvent | FocusEvent) => {
+      if (paused || !(event.target instanceof Element)) return;
+      const element = event.target,
+        related = event.relatedTarget;
+      const interactive = element.closest(
+        'a, button, input, select, textarea, summary, [role="button"]',
+      );
+      if (
+        related instanceof Element &&
+        (interactive?.contains(related) || mascot.contains(related))
+      )
+        return;
+      if (interactive && interactive !== hoveredInteractive) return;
+      if (mascot.contains(element))
+        pleased =
+          event.type === "focusout" && document.activeElement === mascot;
+      else {
+        hoveredInteractive = hoveredAnchor = null;
+        curious = false;
+      }
+      paintFace();
+    };
+    const onScroll = () => {
+      if (paused) return;
+      activity();
+      const now = performance.now();
+      if (now >= scrollUntil)
+        scrollFace = choose(["0o0", "0v0", "OwO"], scrollFace);
+      scrollUntil = now + 700;
+      armFaceExpiry();
+      paintFace();
+      wake();
+    };
+    const pause = () => {
+      if (paused) return;
+      paused = true;
+      pausedAt = performance.now();
+      root.dataset.paused = "true";
+      stop();
+      clearTimeout(stageTimer);
+      stageTimer = 0;
+      clearTimeout(faceTimer);
+      faceTimer = 0;
+      clearTimeout(interactionTimer);
+      interactionTimer = 0;
+      hoveredInteractive = hoveredAnchor = null;
+      curious = pleased = false;
+    };
+    const resume = () => {
+      if (document.querySelector("[data-mascot-root]") !== root) {
+        cleanup();
+        return;
+      }
+      clearTimeout(faceTimer);
+      clearTimeout(interactionTimer);
+      faceTimer = interactionTimer = 0;
+      if (!paused) return;
+      const duration = performance.now() - pausedAt;
+      paused = false;
+      delete root.dataset.paused;
+      stageStart += duration;
+      happyUntil += happyUntil ? duration : 0;
+      scrollUntil += scrollUntil ? duration : 0;
+      lastActivity += duration;
+      armStage();
+      const faceExpiry = Math.max(happyUntil, scrollUntil);
+      if (faceExpiry > performance.now())
+        faceTimer = window.setTimeout(() => {
+          happyUntil = scrollUntil = 0;
+          faceTimer = 0;
+          paintFace();
+        }, faceExpiry - performance.now());
+      if (sleepAllowed && !asleep && stage === "awake")
+        interactionTimer = window.setTimeout(
+          beginSleep,
+          Math.max(0, 6000 - (performance.now() - lastActivity)),
+        );
+      if (!motion.matches && (following || happyUntil || scrollUntil)) wake();
+    };
+    const onMotionChange = () => {
+      if (motion.matches) {
+        reset();
+        if (!paused) activity();
+      } else if (!paused) {
+        activity();
+      }
+    };
+    const onWindowBlur = () => {
+      if (!paused) {
+        reset();
+        root.dataset.paused = "true";
+      }
+    };
+    const onResize = () => {
+      if (!paused && following) {
+        target = pointerTarget(pointer.x, pointer.y);
+        wake();
+      }
+    };
+    const cleanup = () => {
+      reset();
+      document.removeEventListener("pointermove", onPointerMove);
+      document.removeEventListener("pointerleave", onPointerLeave);
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("pointerover", onTargetEnter);
+      document.removeEventListener("focusin", onTargetEnter);
+      document.removeEventListener("pointerout", onTargetLeave);
+      document.removeEventListener("focusout", onTargetLeave);
+      document.removeEventListener("scroll", onScroll);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.removeEventListener("blur", onWindowBlur);
+      window.removeEventListener("resize", onResize);
+      motion.removeEventListener("change", onMotionChange);
+      mascot.removeEventListener("focus", onFocus);
+      mascot.removeEventListener("click", bounce);
+      document.removeEventListener("astro:before-swap", onBeforeSwap);
+      document.removeEventListener("astro:after-swap", onAfterSwap);
+      document.removeEventListener("astro:page-load", onPageLoad);
+      delete mascot.dataset.ready;
+    };
+    const onBeforeSwap = () => pause();
+    const onAfterSwap = () => {
+      if (document.querySelector("[data-mascot-root]") !== root) cleanup();
+    };
+    const onPageLoad = () => resume();
+    const onVisibilityChange = () => {
+      if (!paused && document.visibilityState === "hidden") {
+        reset();
+        root.dataset.paused = "true";
+      } else if (!paused) delete root.dataset.paused;
+    };
+    const onPointerDown = (event: PointerEvent) => {
+      if (!paused) {
+        activity();
+        if (event.pointerType === "mouse") bounce();
+      }
+    };
+    document.addEventListener("pointermove", onPointerMove, { passive: true });
+    document.addEventListener("pointerleave", onPointerLeave);
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("pointerover", onTargetEnter);
+    document.addEventListener("focusin", onTargetEnter);
+    document.addEventListener("pointerout", onTargetLeave);
+    document.addEventListener("focusout", onTargetLeave);
+    document.addEventListener("scroll", onScroll, { passive: true });
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    window.addEventListener("blur", onWindowBlur);
+    window.addEventListener("resize", onResize);
+    motion.addEventListener("change", onMotionChange);
+    mascot.addEventListener("focus", onFocus);
+    mascot.addEventListener("click", bounce);
+    document.addEventListener("astro:before-swap", onBeforeSwap);
+    document.addEventListener("astro:after-swap", onAfterSwap);
+    document.addEventListener("astro:page-load", onPageLoad);
+  };
+  document.addEventListener("astro:page-load", initMascot);
+  initMascot();
+</script>

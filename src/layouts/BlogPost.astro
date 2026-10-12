@@ -1,0 +1,286 @@
+---
+import type { MarkdownHeading } from "astro";
+import type { CollectionEntry } from "astro:content";
+
+import ShareButtons from "../components/ui/ShareButtons.astro";
+import Tag from "../components/ui/Tag.astro";
+import TableOfContents from "../components/ui/TableOfContents.astro";
+
+import { slugifyTag } from "../lib/tag";
+
+import Layout from "./Layout.astro";
+
+type Props = CollectionEntry<"blog">["data"] & {
+  slug: string;
+  readingTime?: string;
+  headings?: MarkdownHeading[];
+};
+
+const { title, published_at, topics, zenn_slug, slug, readingTime, headings } =
+  Astro.props;
+
+const ogImage = `/ogp/${slug}.png`;
+---
+
+<Layout
+  title={title}
+  ogImage={ogImage}
+  ogType="article"
+  pubDate={published_at}
+  tags={topics}
+>
+  <article
+    class="max-w-6xl mx-auto py-4 md:py-6"
+    transition:name={`blog-card-${slug}`}
+  >
+    <div class="mb-6 flex flex-col justify-center gap-3 text-center md:mb-8 md:gap-4">
+      <h1 class="text-headline" transition:name={`blog-title-${slug}`}>
+        {title}
+      </h1>
+      <div class="flex flex-wrap justify-center gap-3 md:gap-4">
+        <div class="inline-flex gap-1 items-center text-label before:content-empty before:i-lucide:calendar">
+          <time datetime={published_at.toISOString()}>
+            {published_at.toLocaleDateString("ja-JP")}
+          </time>
+        </div>
+        {readingTime && (
+          <div class="inline-flex gap-1 items-center text-label before:content-empty before:i-lucide:clock">
+            <span>{readingTime}</span>
+          </div>
+        )}
+      </div>
+      {topics.length > 0 && (
+        <ul class="flex flex-wrap justify-center gap-1.5 md:gap-2">
+          {topics.map((tag: string) => (
+            <li>
+              <Tag
+                label={tag}
+                href={`/tags/${slugifyTag(tag)}`}
+                class="text-[0.68rem] md:text-xs"
+              />
+            </li>
+          ))}
+        </ul>
+      )}
+      {zenn_slug && (
+        <a
+          href={`https://zenn.dev/hal227/articles/${zenn_slug}`}
+          class="text-muted text-sm underline-offset-4 hover:underline"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span
+            class="i-simple-icons:zenn text-zenn mx-1 mb-1"
+            aria-hidden="true"
+          ></span>
+          Zennにも投稿しています
+        </a>
+      )}
+      <div class="mx-auto mb-4">
+        <ShareButtons path={Astro.url.pathname.toString()} title={title} />
+      </div>
+    </div>
+
+    <div class="relative items-stretch lg:grid lg:grid-cols-[1fr_220px] lg:gap-10">
+      <div class="min-w-0">
+        {headings && headings.length > 0 && (
+          <details class="bg-canvas border-line mb-6 rounded-xs border p-3 text-sm lg:hidden">
+            <summary class="list-none [&::-webkit-details-marker]:hidden [&::marker]:content-none before:content-empty before:i-lucide:list before:text-muted flex items-center select-none before:mr-2">
+              <span>目次</span>
+            </summary>
+            <TableOfContents headings={headings} />
+          </details>
+        )}
+        <div class="prose prose-sm prose-neutral dark:prose-invert md:prose-base max-w-none">
+          <slot />
+        </div>
+      </div>
+
+      {headings && headings.length > 0 && (
+        <aside class="relative hidden font-sans lg:block">
+          <TableOfContents headings={headings} />
+        </aside>
+      )}
+    </div>
+    {/* 記事フッター - シェアボタン */}
+    <div class="mt-8 flex justify-center">
+      <ShareButtons path={Astro.url.pathname.toString()} title={title} />
+    </div>
+    <div class="mt-8 flex justify-end">
+      <button
+        class="btn-ghost text-sm"
+        onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+      >
+        ^ top ^
+      </button>
+    </div>
+    <script>
+      interface WindowWithCodeCopy extends Window {
+        initCodeCopyButtons?: () => void;
+      }
+
+      type CodeBlockCache = Record<string, string>;
+
+      const codeContentCache: CodeBlockCache = {};
+
+      const RADIX_BASE36 = 36;
+      const CODE_ID_START = 2;
+      const CODE_ID_END = 9;
+      const NOTIFICATION_DURATION_MS = 2000;
+
+      function generateCodeId(): string {
+        return `code-${Math.random().toString(RADIX_BASE36).substring(CODE_ID_START, CODE_ID_END)}`;
+      }
+
+      function addCopyButton(codeBlock: HTMLElement): void {
+        if (codeBlock.hasAttribute("data-has-copy-button")) {
+          return;
+        }
+        codeBlock.setAttribute("data-has-copy-button", "true");
+
+        const codeId = generateCodeId();
+        codeBlock.dataset.codeId = codeId;
+
+        const codeElement = codeBlock.querySelector("code");
+        if (codeElement) {
+          codeContentCache[codeId] = codeElement.textContent || "";
+        }
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "code-block-wrapper relative group block w-full";
+        wrapper.style.position = "relative";
+
+        if (typeof window !== "undefined") {
+          const cs = window.getComputedStyle(codeBlock);
+          wrapper.style.marginTop = cs.marginTop;
+          wrapper.style.marginBottom = cs.marginBottom;
+          wrapper.style.marginLeft = cs.marginLeft;
+          wrapper.style.marginRight = cs.marginRight;
+          codeBlock.style.margin = "0";
+        }
+
+        const liveRegion = document.createElement("div");
+        liveRegion.setAttribute("role", "status");
+        liveRegion.setAttribute("aria-live", "polite");
+        liveRegion.setAttribute("aria-atomic", "true");
+        liveRegion.className = "sr-only";
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className =
+          "absolute top-2 end-2 flex gap-1 min-h-6 px-2 py-1 text-xs font-medium bg-surface text-ink rounded-sm opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity duration-150 hover:bg-surface-muted z-10 before:content-empty before:i-lucide:copy before:size-4";
+        button.setAttribute("data-code-id", codeId);
+        button.setAttribute("aria-label", "コードをコピー");
+        button.innerHTML = `
+        <span class="copy-text">コピー</span>
+      `;
+
+        button.addEventListener("click", async (e) => {
+          e.preventDefault();
+          const targetButton = e.currentTarget as HTMLButtonElement;
+          const targetCodeId = targetButton.getAttribute("data-code-id");
+          if (!targetCodeId) {
+            return;
+          }
+
+          const codeText = codeContentCache[targetCodeId];
+          if (!codeText) {
+            return;
+          }
+
+          try {
+            await navigator.clipboard.writeText(codeText);
+
+            const originalContent = targetButton.innerHTML;
+
+            targetButton.innerHTML = `
+            <span class="copy-text text-signal-success">コピー済</span>
+          `;
+            targetButton.classList.remove(
+              "before:i-lucide:copy",
+              "bg-surface",
+              "hover:bg-surface-muted",
+            );
+            targetButton.classList.add(
+              "bg-signal-success-surface",
+              "before:i-lucide:check",
+              "before:text-signal-success",
+            );
+
+            liveRegion.textContent = "コードをコピーしました";
+
+            setTimeout(() => {
+              targetButton.innerHTML = originalContent;
+              targetButton.classList.add(
+                "before:i-lucide:copy",
+                "bg-surface",
+                "hover:bg-surface-muted",
+              );
+              targetButton.classList.remove(
+                "bg-signal-success-surface",
+                "before:i-lucide:check",
+                "before:text-signal-success",
+              );
+              liveRegion.textContent = "";
+            }, NOTIFICATION_DURATION_MS);
+          } catch (error) {
+            console.error("Failed to copy code:", error);
+            const copyText = targetButton.querySelector(".copy-text");
+            if (copyText) {
+              copyText.textContent = "失敗";
+
+              liveRegion.textContent = "コピーに失敗しました";
+
+              setTimeout(() => {
+                copyText.textContent = "コピー";
+                liveRegion.textContent = "";
+              }, NOTIFICATION_DURATION_MS);
+            }
+          }
+        });
+
+        codeBlock.parentNode?.insertBefore(wrapper, codeBlock);
+        wrapper.appendChild(codeBlock);
+        wrapper.appendChild(button);
+        wrapper.appendChild(liveRegion);
+      }
+
+      function initCodeCopyButtons(): void {
+        const codeBlocks =
+          document.querySelectorAll<HTMLElement>(".astro-code");
+        codeBlocks.forEach(addCopyButton);
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initCodeCopyButtons);
+      } else {
+        initCodeCopyButtons();
+      }
+
+      const codeObserver = new MutationObserver((mutations) => {
+        let shouldInit = false;
+        mutations.forEach((mutation) => {
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              const element = node as Element;
+              if (
+                element.classList?.contains("astro-code") ||
+                element.querySelector?.(".astro-code")
+              ) {
+                shouldInit = true;
+              }
+            }
+          });
+        });
+        if (shouldInit) {
+          initCodeCopyButtons();
+        }
+      });
+
+      codeObserver.observe(document.body, { childList: true, subtree: true });
+
+      const codeWin = window as WindowWithCodeCopy;
+      codeWin.initCodeCopyButtons = initCodeCopyButtons;
+    </script>
+  </article>
+</Layout>

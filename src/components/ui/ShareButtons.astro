@@ -1,0 +1,156 @@
+---
+export interface Props {
+  path: string;
+  title: string;
+}
+
+const { path, title } = Astro.props;
+
+const url = `${Astro.site}${path}`;
+
+const shareItems = [
+  {
+    ariaLabel: "Xでシェア",
+    href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(title + " " + url)}`,
+    icon: "i-simple-icons:x",
+    key: "x",
+    label: "Xでシェア",
+  },
+  {
+    ariaLabel: "Blueskyでシェア",
+    href: `https://bsky.app/intent/compose?text=${encodeURIComponent(title + " " + url)}`,
+    icon: "i-simple-icons:bluesky",
+    key: "bluesky",
+    label: "Blueskyでシェア",
+  },
+  {
+    ariaLabel: "Mastodonでシェア",
+    href: `https://mastodonshare.com/?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`,
+    icon: "i-simple-icons:mastodon",
+    key: "mastodon",
+    label: "Mastodonでシェア",
+  },
+  {
+    ariaLabel: "はてなブックマークに追加",
+    href: `https://b.hatena.ne.jp/entry/s/${Astro.site?.hostname}${path}${encodeURIComponent(title)}#bbutton`,
+    icon: "i-simple-icons:hatenabookmark",
+    key: "hatena",
+    label: "はてブに追加",
+  },
+  {
+    ariaLabel: "Facebookでシェア",
+    href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+    icon: "i-simple-icons:facebook",
+    key: "facebook",
+    label: "Facebookでシェア",
+  },
+];
+---
+
+<div class="share-buttons flex flex-wrap items-center gap-2">
+  {shareItems.map((item) => (
+    <a
+      href={item.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="share-btn relative group inline-flex h-11 w-11 items-center justify-center"
+      aria-label={item.ariaLabel}
+    >
+      <span class={`icon-md ${item.icon}`} aria-hidden="true" />
+      <span
+        class="tooltip opacity-0 group-hover:opacity-100"
+        aria-hidden="true"
+      >
+        {item.label}
+      </span>
+    </a>
+  ))}
+
+  <button
+    type="button"
+    class="share-btn copy-btn relative group inline-flex h-11 w-11 items-center justify-center"
+    data-url={url}
+    aria-label="URLをコピー"
+  >
+    <span class="icon-md i-lucide:link" aria-hidden="true"></span>
+    <span
+      class="tooltip tooltip-success bg-signal-success-surface text-signal-success opacity-0 group-hover:opacity-100"
+      aria-hidden="true"
+    >
+      コピー完了！
+    </span>
+    <span class="tooltip opacity-0 group-hover:opacity-100" aria-hidden="true">
+      URLをコピー
+    </span>
+  </button>
+</div>
+
+<div role="status" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+
+<script>
+  const TOOLTIP_DURATION_MS = 2000;
+
+  const initCopyButtons = () => {
+    const copyButtons = document.querySelectorAll(".copy-btn");
+
+    copyButtons.forEach((button) => {
+      if (button.hasAttribute("data-copy-initialized")) {
+        return;
+      }
+      button.setAttribute("data-copy-initialized", "true");
+
+      button.addEventListener("click", async () => {
+        const url = button.getAttribute("data-url");
+        if (!url) {
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(url);
+
+          const copyTooltip = button.querySelector(".tooltip-success");
+          const defaultTooltip = button.querySelector(
+            ".tooltip:not(.tooltip-success)",
+          );
+
+          if (copyTooltip && defaultTooltip) {
+            defaultTooltip.classList.add("opacity-0");
+            copyTooltip.classList.remove("opacity-0");
+
+            setTimeout(() => {
+              copyTooltip.classList.add("opacity-0");
+            }, TOOLTIP_DURATION_MS);
+          }
+
+          const liveRegion =
+            button.closest(".share-buttons")?.nextElementSibling;
+          if (liveRegion && liveRegion.getAttribute("role") === "status") {
+            liveRegion.textContent = "URLをコピーしました";
+            setTimeout(() => {
+              liveRegion.textContent = "";
+            }, TOOLTIP_DURATION_MS);
+          }
+        } catch (error) {
+          console.error("Failed to copy URL:", error);
+
+          const liveRegion =
+            button.closest(".share-buttons")?.nextElementSibling;
+          if (liveRegion && liveRegion.getAttribute("role") === "status") {
+            liveRegion.textContent = "コピーに失敗しました";
+            setTimeout(() => {
+              liveRegion.textContent = "";
+            }, TOOLTIP_DURATION_MS);
+          }
+        }
+      });
+    });
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initCopyButtons);
+  } else {
+    initCopyButtons();
+  }
+
+  document.addEventListener("astro:page-load", initCopyButtons);
+</script>

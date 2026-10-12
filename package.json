@@ -1,0 +1,52 @@
+{
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "deploy": "cf deploy",
+    "astro": "astro",
+    "check": "vp check && vp run format:astro:check",
+    "check:astro": "astro check",
+    "format": "vp fmt . && prettier --write \"src/**/*.astro\"",
+    "format:astro": "prettier --write \"src/**/*.astro\"",
+    "format:astro:check": "prettier --check \"src/**/*.astro\"",
+    "format:check": "vp fmt . --check && prettier --check \"src/**/*.astro\"",
+    "lint": "vp lint ."
+  },
+  "dependencies": {
+    "@astrojs/markdown-satteri": "^0.4.3",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.4",
+    "@resvg/resvg-js": "^2.6.2",
+    "astro": "^7.3.8",
+    "open-graph-scraper": "^6.12.0",
+    "satori": "^0.33.5",
+    "satteri": "^0.10.5",
+    "sharp": "^0.35.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@astrojs/compiler-rs": "^0.5.1",
+    "@emnapi/core": "^1.11.3",
+    "@emnapi/runtime": "^1.11.3",
+    "@iconify-json/lucide": "^1.2.142",
+    "@iconify-json/simple-icons": "^1.2.99",
+    "@iconify/types": "^2.0.0",
+    "@types/hast": "^3.0.5",
+    "@unocss/astro": "^66.10.5",
+    "@unocss/reset": "^66.10.5",
+    "cf": "^1.0.0-beta.14",
+    "prettier": "^3.9.10",
+    "prettier-plugin-astro": "^1.1.1",
+    "typescript": "^6.0.3",
+    "unocss": "^66.10.5",
+    "vite": "npm:@voidzero-dev/vite-plus-core@1.0.0",
+    "vite-plus": "1.0.0",
+    "wrangler": "^4.149.0"
+  },
+  "overrides": {
+    "vite": "npm:@voidzero-dev/vite-plus-core@1.0.0"
+  },
+  "packageManager": "bun@1.4.3"
+}

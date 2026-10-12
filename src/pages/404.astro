@@ -1,0 +1,26 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout
+  title="404 - Page Not Found"
+  description="お探しのページは見つかりませんでした"
+>
+  <div class="container-narrow flex min-h-[60vh] flex-col items-center justify-center text-center">
+    <div class="mb-8">
+      <div class="text-[length:var(--font-size-error)] font-mono font-black text-canvas [text-stroke:1px_var(--color-ink)] [-webkit-text-stroke:1px_var(--color-ink)]">
+        404
+      </div>
+      <h1 id="page-not-find" class="text-headline -mt-6 mb-4">
+        Page Not Found
+      </h1>
+      <p class="text-body">お探しのページは見つかりませんでした。</p>
+    </div>
+
+    <div class="flex gap-4">
+      <a href="/" class="btn-primary before:content-empty before:i-lucide:home">
+        Back to Top
+      </a>
+    </div>
+  </div>
+</Layout>

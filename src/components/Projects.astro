@@ -1,0 +1,127 @@
+---
+import Heading2 from "./ui/Heading2.astro";
+
+const projects: {
+  description: string;
+  name: string;
+  tag: string[];
+  url: string;
+}[] = [
+  {
+    description:
+      "Markdownでスライドを作成できるBun製ツール。marpみたいだけど、プレゼン機能が充実している。",
+    name: "bundeck",
+    tag: ["TypeScript", "Bun", "Solid"],
+    url: "https://github.com/halqme/bundeck",
+  },
+  {
+    description:
+      "次世代のmadge。oxc-toolchainによる高速なdependency-graph生成CLI",
+    name: "oxdg",
+    tag: ["TypeScript", "oxc", "madge"],
+    url: "https://github.com/halqme/oxdg",
+  },
+  {
+    description:
+      "Bun.secrets を用いたAPIキー管理ツール。ageとかと協調して使えそう",
+    name: "@halqme/bunlt",
+    tag: ["TypeScript", "Bun", "Sercret-Manager"],
+    url: "https://github.com/halqme/bunlt",
+  },
+  {
+    description:
+      "Bun向けの宣言的TUIフレームワーク。レイアウトエンジンはZigなので、たぶん速い。",
+    name: "btuin",
+    tag: ["TypeScript", "Bun", "Zig"],
+    url: "https://github.com/halqme/btuin",
+  },
+  {
+    description:
+      "Apple Foundation Models用CLIチャットツール。本家が実装したので用済み。",
+    name: "Fai",
+    tag: ["Swift"],
+    url: "https://github.com/halqme/Fai",
+  },
+  {
+    description: "極小の音声入力アプリ",
+    name: "Dicta",
+    tag: ["Swift"],
+    url: "https://github.com/halqme/Dicta",
+  },
+  {
+    description: "大阪公立大学合氣道部の情報基盤。いつまで使われるのか？",
+    name: "omu-aikido/foundation",
+    tag: ["TypeScript", "Hono", "Vue.js", "nuxt"],
+    url: "https://github.com/omu-aikido/foundation",
+  },
+  {
+    description:
+      "Piの拡張機能・スキル。GPT-Lunaシリーズなど高効率モデルのために設計。",
+    name: "Pi-Kit",
+    tag: ["Pi-Coding-Agent", "TypeScript"],
+    url: "https://github.com/halqme/pi-kit",
+  },
+  {
+    description: "普段使っているスキルたち",
+    name: "skills",
+    tag: [],
+    url: "https://github.com/halqme/skills",
+  },
+  {
+    description:
+      "fastfetchカッコいい！と思った結果webのコンテキストにおけるfetchのややこしさを見事に踏み抜いた逸品",
+    name: "browserfetch",
+    tag: [],
+    url: "https://browserfetch.apps.0w0.foo",
+  },
+];
+---
+
+<section class="section" aria-labelledby="projects-title" id="projects">
+  <Heading2 icon="i-lucide:folder-git-2" title="Projects" />
+
+  <div class="grid gap-4 p-3 sm:gap-6 sm:p-5 bg-[color-mix(in_srgb,var(--color-pink)_13%,var(--color-canvas))]">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-10">
+      {projects.map((project, index) => (
+        <article
+          class="min-w-0 border-t border-line/70"
+          aria-labelledby={`project-title-${index + 2}`}
+        >
+          <a
+            href={project.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="project-link block min-w-0 h-full py-4 sm:py-5 text-ink no-underline"
+            aria-labelledby={`project-title-${index + 2}`}
+          >
+            <div class="flex items-baseline justify-between gap-4">
+              <h3
+                id={`project-title-${index + 2}`}
+                class="min-w-0 mb-2 font-medium font-mono text-xl leading-tight tracking-tight [overflow-wrap:anywhere]"
+              >
+                <span class="motion-underline">{project.name}</span>
+              </h3>
+              <span
+                class="icon-sm text-muted i-lucide:arrow-up-right"
+                aria-hidden="true"
+              />
+            </div>
+            <p class="max-w-[65ch] mb-3 text-base leading-relaxed text-muted [text-wrap:pretty]">
+              {project.description}
+            </p>
+            {project.tag.length > 0 && (
+              <ul
+                class="m-0 flex list-none flex-wrap gap-x-3 gap-y-1 p-0 font-mono text-xs leading-relaxed text-muted"
+                aria-label="使用技術"
+              >
+                {project.tag.map((tag) => (
+                  <li>{tag}</li>
+                ))}
+              </ul>
+            )}
+          </a>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

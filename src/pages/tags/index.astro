@@ -1,0 +1,61 @@
+---
+import { getPublishedPosts, sortPostsNewestFirst } from "../../lib/blog";
+import BlogCard from "../../components/ui/BlogCard.astro";
+import Tag from "../../components/ui/Tag.astro";
+import { slugifyTag } from "../../lib/tag";
+import Layout from "../../layouts/Layout.astro";
+
+const posts = sortPostsNewestFirst(await getPublishedPosts());
+
+const tagCounts = posts.reduce((acc, post) => {
+  post.data.topics.forEach((tag: string) => {
+    const slug = slugifyTag(tag);
+    const current = acc.get(slug);
+    if (current) {
+      current.count += 1;
+      return;
+    }
+    acc.set(slug, { count: 1, label: tag });
+  });
+  return acc;
+}, new Map<string, { count: number; label: string }>());
+
+const sortedTags = [...tagCounts.entries()].toSorted((a, b) => {
+  if (b[1].count !== a[1].count) {
+    return b[1].count - a[1].count;
+  }
+  return a[1].label.localeCompare(b[1].label);
+});
+---
+
+<Layout title="Blog | All Tags | HALQME">
+  <section aria-labelledby="blog-title">
+    <div class="mb-4 flex items-center justify-between">
+      <div aria-hidden="true"></div>
+      <a
+        href="/blog"
+        class="btn-primary before:content-empty before:i-lucide:tags text-sm"
+      >
+        Tags
+      </a>
+    </div>
+  </section>
+
+  {sortedTags.length === 0 ? (
+    <p class="text-body">タグがありません。</p>
+  ) : (
+    <div class="flex flex-wrap gap-3">
+      {sortedTags.map(([slug, tag]) => (
+        <Tag label={tag.label} href={`/tags/${slug}`} count={tag.count} />
+      ))}
+    </div>
+  )}
+
+  <hr class="border-line my-8" />
+
+  <div class="mt-8">
+    {posts.map((post) => (
+      <BlogCard post={post} />
+    ))}
+  </div>
+</Layout>

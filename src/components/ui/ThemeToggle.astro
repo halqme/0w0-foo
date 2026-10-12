@@ -1,0 +1,338 @@
+<div class="relative shrink-0 font-mono text-ink" data-theme-picker>
+  <button
+    type="button"
+    class="inline-flex items-center justify-center gap-2 min-h-10 px-2 border border-line rounded-md bg-surface text-sm font-medium focused"
+    id="theme-trigger"
+    aria-label="カラーテーマ: 自動"
+    aria-expanded="false"
+    aria-controls="theme-options"
+    data-theme-trigger
+  >
+    <span
+      class="t-icon-swap"
+      data-state="auto"
+      data-theme-icon
+      aria-hidden="true"
+    >
+      <span class="theme-icon i-lucide:monitor" data-icon="auto"></span>
+      <span class="theme-icon i-lucide:sun" data-icon="light"></span>
+      <span class="theme-icon i-lucide:moon" data-icon="dark"></span>
+    </span>
+    <span class="whitespace-nowrap" data-theme-label>
+      自動
+    </span>
+    <span class="icon-sm i-lucide:chevron-down" aria-hidden="true"></span>
+  </button>
+  <fieldset
+    class="t-dropdown absolute top-full mt-2 end-0 z-20 w-56 max-w-[calc(100vw-2rem)] p-1 border border-line rounded-lg bg-surface shadow-popup [&[hidden]]:hidden"
+    id="theme-options"
+    aria-label="カラーテーマ"
+    data-theme-panel
+    hidden
+  >
+    <label class="theme-option">
+      <input
+        class="sr-only peer"
+        type="radio"
+        name="color-theme"
+        value="auto"
+        data-theme-option
+        checked
+      />
+      <span class="theme-icon i-lucide:monitor" aria-hidden="true"></span>
+      <span class="theme-option-copy">
+        <span class="leading-tight">自動</span>
+      </span>
+      <span
+        class="theme-check i-lucide:check peer-checked:opacity-100"
+        aria-hidden="true"
+      ></span>
+    </label>
+    <label class="theme-option">
+      <input
+        class="sr-only peer"
+        type="radio"
+        name="color-theme"
+        value="light"
+        data-theme-option
+      />
+      <span class="theme-icon i-lucide:sun" aria-hidden="true"></span>
+      <span class="theme-option-copy">
+        <span class="leading-tight">ライト</span>
+      </span>
+      <span
+        class="theme-check i-lucide:check peer-checked:opacity-100"
+        aria-hidden="true"
+      ></span>
+    </label>
+    <label class="theme-option">
+      <input
+        class="sr-only peer"
+        type="radio"
+        name="color-theme"
+        value="dark"
+        data-theme-option
+      />
+      <span class="theme-icon i-lucide:moon" aria-hidden="true"></span>
+      <span class="theme-option-copy">
+        <span class="leading-tight">ダーク</span>
+      </span>
+      <span
+        class="theme-check i-lucide:check peer-checked:opacity-100"
+        aria-hidden="true"
+      ></span>
+    </label>
+  </fieldset>
+</div>
+<p
+  role="status"
+  aria-live="polite"
+  aria-atomic="true"
+  class="sr-only"
+  data-theme-status
+></p>
+
+<script>
+  const themes = ["auto", "light", "dark"] as const;
+  type Theme = (typeof themes)[number];
+  const isTheme = (value: string | null | undefined): value is Theme =>
+    themes.includes(value as Theme);
+  const labels: Record<Theme, string> = {
+    auto: "自動",
+    light: "ライト",
+    dark: "ダーク",
+  };
+
+  const media = window.matchMedia("(prefers-color-scheme: dark)");
+  let theme: Theme = isTheme(document.documentElement.dataset.theme)
+    ? document.documentElement.dataset.theme
+    : "auto";
+
+  const applyTheme = (next: Theme) => {
+    theme = next;
+    const root = document.documentElement;
+    root.dataset.theme = theme;
+    root.classList.toggle(
+      "dark",
+      theme === "dark" || (theme === "auto" && media.matches),
+    );
+  };
+
+  const closeTimers = new WeakMap<HTMLElement, number>();
+  const closePicker = (picker: HTMLElement, returnFocus = false) => {
+    const trigger = picker.querySelector<HTMLButtonElement>(
+      "[data-theme-trigger]",
+    );
+    const panel = picker.querySelector<HTMLElement>("[data-theme-panel]");
+    if (!trigger || !panel) return;
+    const timer = closeTimers.get(panel);
+    if (timer !== undefined) window.clearTimeout(timer);
+    closeTimers.delete(panel);
+    if (!panel.hidden) {
+      panel.inert = true;
+      panel.setAttribute("aria-hidden", "true");
+      panel.classList.remove("is-open");
+      panel.classList.add("is-closing");
+      trigger.setAttribute("aria-expanded", "false");
+      const duration = window.matchMedia("(prefers-reduced-motion: reduce)")
+        .matches
+        ? 0
+        : Number.parseFloat(
+            getComputedStyle(panel).getPropertyValue("--dropdown-close-dur"),
+          ) || 150;
+      const closeTimer = window.setTimeout(() => {
+        panel.classList.remove("is-closing");
+        panel.hidden = true;
+        panel.removeAttribute("aria-hidden");
+        closeTimers.delete(panel);
+      }, duration);
+      closeTimers.set(panel, closeTimer);
+    }
+    if (returnFocus) trigger.focus();
+  };
+
+  const openPicker = (picker: HTMLElement) => {
+    const trigger = picker.querySelector<HTMLButtonElement>(
+      "[data-theme-trigger]",
+    );
+    const panel = picker.querySelector<HTMLElement>("[data-theme-panel]");
+    if (!trigger || !panel) return;
+    const timer = closeTimers.get(panel);
+    if (timer !== undefined) window.clearTimeout(timer);
+    closeTimers.delete(panel);
+    panel.hidden = false;
+    panel.inert = false;
+    panel.removeAttribute("aria-hidden");
+    panel.classList.remove("is-closing");
+    void panel.offsetHeight;
+    panel.classList.add("is-open");
+    trigger.setAttribute("aria-expanded", "true");
+  };
+
+  const syncSelection = () => {
+    document
+      .querySelectorAll<HTMLElement>("[data-theme-picker]")
+      .forEach((picker) => {
+        const active = isTheme(theme) ? theme : "auto";
+        picker
+          .querySelectorAll<HTMLInputElement>("[data-theme-option]")
+          .forEach((input) => {
+            input.checked = input.value === active;
+          });
+        const label = picker.querySelector<HTMLElement>("[data-theme-label]");
+        if (label) label.textContent = labels[active];
+        const trigger = picker.querySelector<HTMLButtonElement>(
+          "[data-theme-trigger]",
+        );
+        if (trigger) {
+          trigger.setAttribute("aria-label", `カラーテーマ: ${labels[active]}`);
+          picker
+            .querySelectorAll<HTMLElement>("[data-theme-icon]")
+            .forEach((icon) => {
+              icon.dataset.state = active;
+            });
+        }
+      });
+  };
+
+  const readStoredTheme = (): Theme | null => {
+    try {
+      const stored = localStorage.getItem("theme");
+      return isTheme(stored) ? stored : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const initialTheme = readStoredTheme();
+  if (initialTheme) applyTheme(initialTheme);
+  syncSelection();
+
+  document.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const trigger = target.closest<HTMLButtonElement>("[data-theme-trigger]");
+    if (!trigger) return;
+    const picker = trigger.closest<HTMLElement>("[data-theme-picker]");
+    const panel = picker?.querySelector<HTMLElement>("[data-theme-panel]");
+    if (!picker || !panel) return;
+    const opening = panel.hidden || panel.classList.contains("is-closing");
+    if (opening) openPicker(picker);
+    else closePicker(picker);
+    if (opening && event.detail === 0) {
+      picker
+        .querySelector<HTMLInputElement>("[data-theme-option]:checked")
+        ?.focus();
+    }
+  });
+
+  document.addEventListener("change", (event) => {
+    const input = event.target;
+    if (
+      !(input instanceof HTMLInputElement) ||
+      !input.matches("[data-theme-option]")
+    )
+      return;
+    if (!isTheme(input.value)) {
+      syncSelection();
+      return;
+    }
+    applyTheme(input.value);
+    try {
+      localStorage.setItem("theme", input.value);
+    } catch {
+      // Keep the in-memory choice active when storage is unavailable.
+    }
+    syncSelection();
+    const status = document.querySelector<HTMLElement>("[data-theme-status]");
+    if (status)
+      status.textContent = `テーマを${labels[input.value]}に変更しました`;
+  });
+
+  document.addEventListener("keydown", (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const picker = target.closest<HTMLElement>("[data-theme-picker]");
+    if (event.key === "Escape" && picker) {
+      const panel = picker.querySelector<HTMLElement>("[data-theme-panel]");
+      if (panel && !panel.hidden) {
+        event.preventDefault();
+        closePicker(picker, true);
+      }
+      return;
+    }
+    if (event.key !== "ArrowDown" || !target.matches("[data-theme-trigger]"))
+      return;
+    const panel = picker?.querySelector<HTMLElement>("[data-theme-panel]");
+    if (!picker || !panel) return;
+    openPicker(picker);
+    picker
+      .querySelector<HTMLInputElement>("[data-theme-option]:checked")
+      ?.focus();
+    event.preventDefault();
+  });
+
+  document.addEventListener("pointerdown", (event) => {
+    if (!(event.target instanceof Node)) return;
+    document
+      .querySelectorAll<HTMLElement>("[data-theme-picker]")
+      .forEach((picker) => {
+        if (!picker.contains(event.target as Node)) closePicker(picker);
+      });
+  });
+
+  document.addEventListener("focusout", (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const picker = target.closest<HTMLElement>("[data-theme-picker]");
+    if (
+      picker &&
+      event.relatedTarget instanceof Node &&
+      !picker.contains(event.relatedTarget)
+    ) {
+      closePicker(picker);
+    }
+  });
+
+  document.addEventListener("astro:page-load", () => {
+    document
+      .querySelectorAll<HTMLElement>("[data-theme-picker]")
+      .forEach((picker) => {
+        closePicker(picker);
+      });
+    syncSelection();
+  });
+  document.addEventListener("astro:before-swap", (event) => {
+    document
+      .querySelectorAll<HTMLElement>("[data-theme-picker]")
+      .forEach((picker) => {
+        const panel = picker.querySelector<HTMLElement>("[data-theme-panel]");
+        const trigger = picker.querySelector<HTMLButtonElement>(
+          "[data-theme-trigger]",
+        );
+        if (!panel) return;
+        const timer = closeTimers.get(panel);
+        if (timer !== undefined) window.clearTimeout(timer);
+        closeTimers.delete(panel);
+        panel.classList.remove("is-open", "is-closing");
+        panel.hidden = true;
+        panel.inert = false;
+        panel.removeAttribute("aria-hidden");
+        trigger?.setAttribute("aria-expanded", "false");
+      });
+    event.newDocument.documentElement.dataset.theme = theme;
+    event.newDocument.documentElement.classList.toggle(
+      "dark",
+      theme === "dark" || (theme === "auto" && media.matches),
+    );
+  });
+  media.addEventListener("change", () => {
+    if (theme === "auto") applyTheme("auto");
+  });
+  window.addEventListener("storage", (event) => {
+    if (event.key !== "theme") return;
+    const stored = isTheme(event.newValue) ? event.newValue : "auto";
+    applyTheme(stored);
+    syncSelection();
+  });
+</script>

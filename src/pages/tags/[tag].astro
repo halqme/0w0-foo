@@ -1,0 +1,62 @@
+---
+import { getPublishedPosts, sortPostsNewestFirst } from "../../lib/blog";
+import BlogCard from "../../components/ui/BlogCard.astro";
+import { slugifyTag } from "../../lib/tag";
+import Layout from "../../layouts/Layout.astro";
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+  const tags = new Map<string, string>();
+
+  posts.forEach((post) => {
+    post.data.topics.forEach((tag: string) => {
+      const slug = slugifyTag(tag);
+      if (!tags.has(slug)) {
+        tags.set(slug, tag);
+      }
+    });
+  });
+
+  return [...tags.entries()].map(([tag, label]) => {
+    const filteredPosts = sortPostsNewestFirst(
+      posts.filter((post) =>
+        post.data.topics.some((entry: string) => slugifyTag(entry) === tag),
+      ),
+    );
+    return {
+      params: { tag },
+      props: { label, posts: filteredPosts, tag },
+    };
+  });
+}
+
+const { tag } = Astro.params;
+const { label, posts } = Astro.props;
+---
+
+<Layout title={`Blog | #${label} | HALQME`}>
+  <section aria-labelledby="tag-title">
+    <div class="flex items-center justify-between">
+      <h1
+        id="tag-title"
+        class="text-headline bg-canvas before:content-empty before:i-lucide:tag mb-0 flex items-center gap-3 select-none"
+        transition:animate="slide"
+      >
+        {label}
+      </h1>
+      <a
+        href="/tags"
+        class="btn-ghost before:content-empty before:i-lucide:tags text-sm"
+      >
+        Tags
+      </a>
+    </div>
+  </section>
+  <p class="text-body mt-2 mb-4 font-mono">{posts.length} 件の記事</p>
+
+  <div class="mt-8">
+    {posts.map((post) => (
+      <BlogCard post={post} activeTag={tag} />
+    ))}
+  </div>
+</Layout>

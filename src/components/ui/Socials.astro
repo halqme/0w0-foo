@@ -1,0 +1,41 @@
+---
+const socialLinks = [
+  {
+    ariaLabel: "GitHubプロフィール",
+    href: "https://github.com/HALQME",
+    icon: "i-simple-icons:github",
+    name: "GitHub",
+  },
+  {
+    ariaLabel: "Twitterプロフィール",
+    href: "https://twitter.com/halqme_dev",
+    icon: "i-simple-icons:x",
+    name: "twitter",
+  },
+  {
+    ariaLabel: "Zennプロフィール",
+    href: "https://zenn.dev/hal227",
+    icon: "i-simple-icons:zenn",
+    name: "Zenn",
+  },
+];
+---
+
+{socialLinks.map((link) => (
+  <a
+    href={link.href}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="inline-flex min-h-10 items-center justify-center p-2 text-muted group w-4rem flex-col"
+    aria-label={link.ariaLabel}
+  >
+    <span class={`icon-md ${link.icon}`} aria-hidden="true" />
+    <span
+      class="flex-inline items-center gap-1 text-xs opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+      aria-hidden="true"
+    >
+      {link.name}
+      <span class="i-lucide:external-link text-xs" aria-hidden="true" />
+    </span>
+  </a>
+))}

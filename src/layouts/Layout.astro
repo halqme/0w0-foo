@@ -1,0 +1,124 @@
+---
+import { Font } from "astro:assets";
+import Header from "../components/ui/Header.astro";
+import Footer from "../components/ui/Footer.astro";
+import Mascot from "../components/ui/Mascot.astro";
+import { ClientRouter } from "astro:transitions";
+import "../styles/transitions.css";
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+  ogType?: "website" | "article";
+  pubDate?: Date;
+  modifiedDate?: Date;
+  tags?: string[];
+}
+
+const {
+  title,
+  description = "HALQME",
+  ogImage,
+  ogType = "website",
+  pubDate,
+  modifiedDate,
+  tags,
+} = Astro.props;
+
+const canonicalURL = new URL(
+  Astro.url.pathname,
+  Astro.site || Astro.url.origin,
+);
+
+// OGP画像を絶対URLに変換
+const absoluteOgImage = ogImage
+  ? new URL(ogImage, canonicalURL).toString()
+  : undefined;
+---
+
+<!doctype html>
+<html lang="ja" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <meta
+      name="google-site-verification"
+      content="sJQvvU3-0_kqP3PkfIUhC8E_tSSMM12-Ib_VISr1Ax4"
+    />
+    <ClientRouter />
+    <title>{title}</title>
+    <script is:inline>
+      (() => {
+        const valid = ["auto", "light", "dark"];
+        let theme = "auto";
+        try {
+          const stored = localStorage.getItem("theme");
+          if (valid.includes(stored)) theme = stored;
+        } catch {}
+        const root = document.documentElement;
+        root.dataset.theme = theme;
+        root.classList.toggle(
+          "dark",
+          theme === "dark" ||
+            (theme === "auto" &&
+              matchMedia("(prefers-color-scheme: dark)").matches),
+        );
+      })();
+    </script>
+    {absoluteOgImage && (
+      <>
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:type" content={ogType} />
+        <meta property="og:url" content={canonicalURL} />
+        <meta property="og:image" content={absoluteOgImage} />
+        <meta property="og:site_name" content="0w0.foo" />
+        <meta property="og:locale" content="ja_JP" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={absoluteOgImage} />
+      </>
+    )}
+
+    {ogType === "article" && pubDate && (
+      <meta property="article:published_time" content={pubDate.toISOString()} />
+    )}
+    {ogType === "article" && modifiedDate && (
+      <meta
+        property="article:modified_time"
+        content={modifiedDate.toISOString()}
+      />
+    )}
+    {ogType === "article" &&
+      tags &&
+      tags.map((tag) => <meta property="article:tag" content={tag} />)}
+
+    <Font cssVariable="--font-ia-writer-mono" preload />
+    <Font cssVariable="--font-shippori-antique" preload />
+
+    <link rel="canonical" href={canonicalURL} />
+  </head>
+  <body class="site-shell bg-canvas text-ink flex min-h-screen flex-col font-sans">
+    <a
+      href="#main-content"
+      class="focus:bg-ink focus:text-canvas sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:px-4 focus:py-2 focus:outline-none"
+    >
+      メインコンテンツへスキップ
+    </a>
+    <Header />
+    <main
+      id="main-content"
+      class="container-main max-w-5xl w-full flex-1 py-6 md:py-12"
+    >
+      <slot />
+    </main>
+    <Footer />
+    <Mascot />
+  </body>
+</html>

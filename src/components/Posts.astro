@@ -1,0 +1,17 @@
+---
+import { getPublishedPosts, sortPostsNewestFirst } from "../lib/blog";
+import BlogCard from "../components/ui/BlogCard.astro";
+import Heading2 from "./ui/Heading2.astro";
+
+const posts = sortPostsNewestFirst(await getPublishedPosts());
+---
+
+<section class="section" aria-labelledby="articles-title" id="posts">
+  <Heading2 icon="i-lucide:notebook-pen" title="Articles" />
+
+  <div>
+    {posts.slice(0, 5).map((post) => (
+      <BlogCard post={post} />
+    ))}
+  </div>
+</section>

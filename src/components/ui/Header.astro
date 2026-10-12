@@ -1,0 +1,43 @@
+---
+import ThemeToggle from "../ui/ThemeToggle.astro";
+
+const links = [{ href: "/blog", label: "Blog" }];
+const pathname = Astro.url.pathname;
+---
+
+<header class="mx-auto flex min-h-[4.5rem] w-full max-w-5xl items-center justify-between border-b border-line px-4 sm:px-6 md:px-12">
+  <a
+    class="font-mono text-lg font-medium tracking-[-0.07em] text-ink no-underline"
+    href="/"
+    aria-label="0w0.foo — ホーム"
+  >
+    0w0<span class="text-accent">.foo</span>
+  </a>
+  <div class="flex items-baseline gap-2 sm:gap-4">
+    <nav aria-label="メインナビゲーション">
+      <ul class="inline-flex items-center gap-2 sm:gap-4">
+        {links.map((link) => (
+          <li>
+            <a
+              href={link.href}
+              class="motion-underline text-sm font-mono font-medium text-muted hover:text-ink aria-[current=page]:text-accent aria-[current=page]:underline underline-offset-4 flex-inline items-center gap-1"
+              aria-current={
+                link.href === "/"
+                  ? pathname === "/"
+                    ? "page"
+                    : undefined
+                  : pathname === link.href ||
+                      pathname.startsWith(`${link.href}/`)
+                    ? "page"
+                    : undefined
+              }
+            >
+              {link.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <ThemeToggle />
+  </div>
+</header>

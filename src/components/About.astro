@@ -1,0 +1,66 @@
+---
+import { Image } from "astro:assets";
+
+import Socials from "./ui/Socials.astro";
+
+const profile: {
+  description: string;
+  category: {
+    name: string;
+    desc: string[];
+  }[];
+} = {
+  description: "見習いシステムエンジニア",
+  category: [
+    {
+      name: "趣味",
+      desc: ["音楽", "映画"],
+    },
+    {
+      name: "分野",
+      desc: ["Web系"],
+    },
+    {
+      name: "本籍",
+      desc: ["大阪府大阪市"],
+    },
+  ],
+};
+---
+
+<section class="section" aria-labelledby="about-title" id="about">
+  <div class="flex flex-col gap-6 sm:flex-row sm:items-start sm:gap-8">
+    <Image
+      src="/chappie-selfie.jpg"
+      width="128"
+      height="128"
+      class="size-28 shrink-0 rounded-full object-cover"
+      alt="僕のChatGPTの自認顔"
+      loading="eager"
+    />
+
+    <div class="min-w-0 flex-1">
+      <div class="flex">
+        <h1 id="about-title" class="text-headline mb-2">
+          HAL
+        </h1>
+        <div class="ml-auto md:mr-8">
+          <Socials />
+        </div>
+      </div>
+
+      <p class="text-body">{profile.description}</p>
+
+      <dl class="mt-6 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-3">
+        {profile.category.map((cat) => (
+          <div class="min-w-0">
+            <dt class="text-xs text-muted leading-relaxed mb-1">{cat.name}</dt>
+            <dd class="m-0 text-sm text-ink leading-relaxed break-words">
+              {cat.desc.join(" ◦ ")}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </div>
+</section>

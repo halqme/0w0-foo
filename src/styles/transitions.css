@@ -1,0 +1,113 @@
+/* Theme dropdown and icon transitions. */
+[data-theme-panel].t-dropdown {
+  --dropdown-open-dur: 240ms;
+  --dropdown-close-dur: 150ms;
+  --dropdown-pre-scale: 0.97;
+  --dropdown-closing-scale: 0.99;
+  --dropdown-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  transform: scale(var(--dropdown-pre-scale));
+  transform-origin: top right;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--dropdown-open-dur) var(--dropdown-ease),
+    opacity var(--dropdown-open-dur) var(--dropdown-ease);
+}
+[data-theme-panel].t-dropdown.is-open {
+  transform: scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+[data-theme-panel].t-dropdown.is-closing {
+  transform: scale(var(--dropdown-closing-scale));
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--dropdown-close-dur) var(--dropdown-ease),
+    opacity var(--dropdown-close-dur) var(--dropdown-ease);
+}
+
+.t-icon-swap {
+  --icon-swap-dur: 220ms;
+  --icon-swap-blur: 2px;
+  --icon-swap-start-scale: 0.72;
+  --icon-swap-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+  display: inline-grid;
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+}
+.t-icon-swap .theme-icon {
+  grid-area: 1 / 1;
+  transition:
+    opacity var(--icon-swap-dur) var(--icon-swap-ease),
+    filter var(--icon-swap-dur) var(--icon-swap-ease),
+    transform var(--icon-swap-dur) var(--icon-swap-ease);
+}
+.t-icon-swap[data-state="auto"] [data-icon="auto"],
+.t-icon-swap[data-state="light"] [data-icon="light"],
+.t-icon-swap[data-state="dark"] [data-icon="dark"] {
+  opacity: 1;
+  filter: blur(0);
+  transform: scale(1);
+}
+.t-icon-swap[data-state="auto"] [data-icon]:not([data-icon="auto"]),
+.t-icon-swap[data-state="light"] [data-icon]:not([data-icon="light"]),
+.t-icon-swap[data-state="dark"] [data-icon]:not([data-icon="dark"]) {
+  opacity: 0;
+  filter: blur(var(--icon-swap-blur));
+  transform: scale(var(--icon-swap-start-scale));
+}
+
+.motion-underline {
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0 calc(100% - 0.08em);
+  background-repeat: no-repeat;
+  background-size: 0% 1px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .project-link:hover .motion-underline,
+  a.motion-underline:hover {
+    background-size: 100% 1px;
+  }
+}
+.project-link:focus-visible .motion-underline,
+a.motion-underline:focus-visible {
+  background-size: 100% 1px;
+}
+.project-link:active .motion-underline,
+a.motion-underline:active {
+  background-size: 100% 1px;
+  transition: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .motion-underline {
+    transition: background-size 140ms ease-out;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-theme-panel].t-dropdown,
+  .t-icon-swap .theme-icon {
+    transition: none !important;
+    transform: none !important;
+    filter: none !important;
+  }
+  .motion-underline {
+    transition: none !important;
+  }
+}
+@media (forced-colors: active) {
+  .motion-underline {
+    background-image: none;
+  }
+  .project-link:hover .motion-underline,
+  .project-link:focus-visible .motion-underline,
+  a.motion-underline:hover,
+  a.motion-underline:focus-visible,
+  a.motion-underline[aria-current="page"] {
+    text-decoration-line: underline;
+  }
+}

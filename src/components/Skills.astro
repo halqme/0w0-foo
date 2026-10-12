@@ -1,0 +1,184 @@
+---
+import Heading2 from "./ui/Heading2.astro";
+
+const groups: {
+  title: string;
+  skills: {
+    name: string;
+    description: string | string[];
+  }[];
+}[] = [
+  {
+    title: "Language & Library",
+    skills: [
+      {
+        name: "Vue",
+        description: "なんか好き。とりあえずVueを選んでいる。",
+      },
+      {
+        name: "TypeScript",
+        description: [
+          "本当に好きなのはnpm exec。",
+          "セキュリティを置き去りにする圧倒的体験。",
+        ],
+      },
+      {
+        name: "Swift",
+        description: [
+          "ActorとかSendableに目をつぶれば分かりやすく良い奴なんですよ。",
+          "最初に学んだ言語。",
+        ],
+      },
+      {
+        name: "Astro",
+        description: [
+          "このサイトを支えている。SSGの王。",
+          "SSGの王だけどSSRもできるしVueとか入れたらCSRもできる。",
+          "Cloudflare Familyの一味。",
+        ],
+      },
+      {
+        name: "Nuxt.js",
+        description: [
+          "本当はVue+Vue Routerで良いと思っているが、つい使ってしまう。",
+        ],
+      },
+      {
+        name: "hono",
+        description: [
+          "最高のフレームワーク。",
+          "Cloudflare Workersと相性が良いが、厳密には",
+          "Cloudflare Familyの一味ではない。",
+        ],
+      },
+      {
+        name: "bun",
+        description: [
+          "おおよそPackage Managerとして使用中。",
+          "AoTで「これはもうBunScriptだ」と炎上していたのでLanguageとしてエントリ。",
+        ],
+      },
+    ],
+  },
+  {
+    title: "Service & Softwere",
+    skills: [
+      {
+        name: "Zed",
+        description: [
+          "Rust製の最強エディタ。思考の速度でコーディングできるそう。",
+          "初期AIインターフェースだった Text Threads があまりにも先進的すぎて消えたのが惜しい。",
+        ],
+      },
+      {
+        name: "fx",
+        description: [
+          "Vercel Labs発のコーディングエージェント。スッキリしており気持ちがいい。",
+          "SubAgentsとかふつうに使ってくれる。",
+        ],
+      },
+      {
+        name: "pi",
+        description: [
+          "自由自在なコーディングエージェント。",
+          "高効率なモデル縛りで作業するときはこいつがお供。",
+        ],
+      },
+      {
+        name: "Vite Plus",
+        description: [
+          "ビルドツール以外のところも便利なのに設定ファイルがvite.config.tsのままなのでAstroやNuxtとは不仲。",
+          "Cloudflare Familyの一味。",
+        ],
+      },
+      {
+        name: "かわせみ",
+        description: [
+          "日本語入力ソフト。エンジニアで使っている人は見たことない。",
+          "キーコンフィグがかなり自由度が高いのでオススメできる。",
+        ],
+      },
+    ],
+  },
+  {
+    title: "Platform & Tools",
+    skills: [
+      {
+        name: "Cloudflare Workers",
+        description: [
+          "Workersがなければ、請求書を処理するために会計の勉強をしていたと思う。",
+          "それくらい助かっている。",
+        ],
+      },
+      {
+        name: "GitHub",
+        description: [
+          "もちろん使っている。",
+          "ActionsがYAMLで記述されることに納得していない",
+        ],
+      },
+      {
+        name: "ChatGPT (Plus)",
+        description: [
+          "このプランでも湯水のように使える気がしてくる魔法のサブスク。",
+          "Sign in with ChatGPTのおかげでfxもpiも使えている。",
+        ],
+      },
+      {
+        name: "macOS",
+        description: [
+          "メインのOS。",
+          "言葉では表せない拘りがそこにある。",
+          "10年近く使って脳内がDarwin前提になったから今更変えられない",
+        ],
+      },
+      {
+        name: "OpenSUSE Linux",
+        description: [
+          "自宅鯖で運用中。",
+          "日本じゃ全然流行ってないけど、日本語で使いやすいOS。",
+        ],
+      },
+      {
+        name: "HHKB Professional Hybrid",
+        description: [
+          "配置が好き。打鍵感は個人的には何でも良いほう。",
+          "US配列（墨・キーキャップカスタマイズあり）を使用中。",
+        ],
+      },
+    ],
+  },
+];
+---
+
+<section class="section" aria-labelledby="skills-title" id="skills">
+  <Heading2 icon="i-lucide:tool-case" title="Skills" />
+
+  <div class="grid grid-cols-1 gap-4 py-5 px-4 bg-surface-muted md:grid-cols-3 md:gap-6">
+    {groups.map((group) => (
+      <section
+        class="min-w-0"
+        aria-labelledby={`skill-group-${group.title.toLowerCase()}`}
+      >
+        <h3
+          class="mb-3 font-mono text-md leading-normal border-b"
+          id={`skill-group-${group.title.toLowerCase()}`}
+        >
+          {group.title}
+        </h3>
+        <div class="grid gap-1">
+          {group.skills.map((skill) => (
+            <>
+              <span class="font-mono">{skill.name}</span>
+              <p class="mb-2 me-6 pl-0.5em text-sm border-l leading-relaxed text-muted [text-wrap:pretty]">
+                {Array.isArray(skill.description)
+                  ? skill.description.join(" ")
+                  : skill.description}
+              </p>
+            </>
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
+</section>

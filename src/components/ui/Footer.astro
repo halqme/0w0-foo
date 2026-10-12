@@ -1,0 +1,16 @@
+---
+import Socials from "./Socials.astro";
+
+const today = new Date();
+---
+
+<footer class="section mt-auto w-full text-center">
+  <div class="container-narrow">
+    <div class="mb-4">
+      <Socials />
+    </div>
+    <p class="text-xs text-muted">
+      &copy; {today.getFullYear()} HALQME. All rights reserved.
+    </p>
+  </div>
+</footer>

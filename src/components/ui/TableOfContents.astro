@@ -1,0 +1,41 @@
+---
+import type { MarkdownHeading } from "astro";
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+// 目次に表示する見出しレベル
+const TOC_HEADING_LEVEL_2 = 2;
+const TOC_HEADING_LEVEL_3 = 3;
+
+const { headings } = Astro.props;
+// H2 と h3 のみを抽出
+const tocHeadings = headings.filter(
+  (h) => h.depth === TOC_HEADING_LEVEL_2 || h.depth === TOC_HEADING_LEVEL_3,
+);
+---
+
+<nav
+  aria-label="目次"
+  class="[scrollbar-width:thin] [scrollbar-color:var(--color-line)_transparent] sticky top-24 mt-4 max-h-[calc(100vh-6rem)] overflow-y-auto pr-2"
+>
+  <ul class="flex flex-col gap-2.5 text-sm">
+    {tocHeadings.map((heading) => (
+      <li
+        class={`leading-snug transition-colors ${
+          heading.depth === TOC_HEADING_LEVEL_2
+            ? "text-ink mt-1 font-semibold"
+            : "text-muted pl-4 text-[0.8rem]"
+        }`}
+      >
+        <a
+          href={`#${heading.slug}`}
+          class="text-muted hover:text-ink block py-1"
+        >
+          {heading.text}
+        </a>
+      </li>
+    ))}
+  </ul>
+</nav>

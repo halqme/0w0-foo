@@ -1,0 +1,41 @@
+---
+import { getPublishedPosts } from "../../lib/blog";
+import BlogPost from "../../layouts/BlogPost.astro";
+import { render } from "astro:content";
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: post,
+  }));
+}
+
+const post = Astro.props;
+const { Content, headings } = await render(post);
+
+// 読了時間計算の定数
+const CHARS_PER_MINUTE = 800;
+const MIN_READING_TIME = 1;
+
+// 読了時間を計算（HTMLタグを除去して文字数カウント）
+const html = post.rendered?.html || "";
+const textContent = html
+  .replace(/<[^>]*>/g, "") // HTMLタグを除去
+  .replace(/&nbsp;|&amp;|&lt;|&gt;|&quot;/g, " "); // HTMLエンティティを空白に
+const charCount = textContent.replace(/\s/g, "").length;
+const readingTimeMinutes = Math.ceil(charCount / CHARS_PER_MINUTE);
+const readingTimeText =
+  readingTimeMinutes < MIN_READING_TIME
+    ? `${MIN_READING_TIME}分未満`
+    : `約${readingTimeMinutes}分`;
+---
+
+<BlogPost
+  {...post.data}
+  slug={post.id}
+  readingTime={readingTimeText}
+  headings={headings}
+>
+  <Content />
+</BlogPost>
