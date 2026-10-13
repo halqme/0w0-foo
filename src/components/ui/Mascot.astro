@@ -101,6 +101,22 @@
 </style>
 
 <script>
+  import {
+    nextSleepStage,
+    newTemperament,
+    evolveTemperament,
+    chooseIntent,
+    type SleepStage,
+    type SleepEvent,
+  } from "../../lib/mascot/behavior";
+  import {
+    stepSteering,
+    sampleObstacles,
+    behindTarget,
+    retreatTarget,
+    type Obstacle,
+  } from "../../lib/mascot/steering";
+
   const initMascot = () => {
     const root = document.querySelector<HTMLElement>("[data-mascot-root]");
     const mascot = root?.querySelector<HTMLButtonElement>("[data-mascot]");
@@ -124,7 +140,13 @@
     const home = { x: 0, y: 0 };
     let target = { ...home },
       position = { ...home },
+      velocity = { ...home },
       sleepOffset = { x: 0, y: 0 };
+    const temperament = newTemperament();
+    let obstacles: Obstacle[] = [];
+    let lastSample = -Infinity;
+    let retreatGoal: { x: number; y: number } | null = null;
+    let lastIntent = temperament.intent;
     let wanderBearing = Math.atan2(80, 104),
       wanderVelocity = 0,
       desiredWanderVelocity = 0,
@@ -139,7 +161,7 @@
     let following = false,
       paused = false,
       asleep = false,
-      stage = "awake";
+      stage: SleepStage = "awake";
     let happyUntil = 0,
       scrollUntil = 0,
       interactionTimer = 0,
@@ -162,8 +184,8 @@
       return choices[Math.floor(Math.random() * choices.length)] ?? items[0];
     };
     const setFace = (value: string) => {
-      face.textContent = value;
-      followerFace.textContent = value;
+      if (face.textContent !== value) face.textContent = value;
+      if (followerFace.textContent !== value) followerFace.textContent = value;
     };
     const paintFace = () => {
       const now = performance.now();
@@ -171,8 +193,20 @@
       else if (stage === "returning") setFace("0o0");
       else if (stage === "dozing" || stage === "falling" || asleep)
         setFace("-w-");
+      else if (
+        temperament.intent === "retreat" &&
+        following &&
+        stage === "awake"
+      )
+        setFace("0o0");
       else if (speed > 0.8 && following) setFace("0o0");
       else if (scrollUntil > now) setFace(scrollFace);
+      else if (
+        temperament.intent === "inspect" &&
+        following &&
+        stage === "awake"
+      )
+        setFace("0ω0");
       else if (curious) setFace(hoverFace);
       else if ((speed > 0.2 && following) || pleased) setFace("^w^");
       else setFace("0w0");
@@ -241,7 +275,18 @@
           Math.max(0, 1200 - (performance.now() - stageStart)),
         );
     };
-    const startStage = (next: string) => {
+    const startStage = (next: SleepStage) => {
+      const event: SleepEvent =
+        next === "dozing"
+          ? "IDLE"
+          : next === "falling"
+            ? "DOZED"
+            : next === "returning"
+              ? stage === "dozing"
+                ? "WOKE"
+                : "FELL"
+              : "RECOVERED";
+      if (nextSleepStage(stage, event) !== next) return;
       clearStory();
       stage = next;
       stageStart = performance.now();
@@ -281,7 +326,7 @@
       const dt = Math.min((time - (lastTime || time)) / 1000, 0.05);
       lastTime = time;
       speed *= Math.exp(-6 * dt);
-      const ease = 1 - Math.exp(-5 * dt);
+      // Steering uses velocity and acceleration, rather than directly interpolating coordinates.
       if (following && stage === "awake" && !asleep && dt > 0) {
         wanderDecisionIn -= dt;
         if (wanderDecisionIn <= 0) {
@@ -299,15 +344,81 @@
           }
           desiredWanderRadius = 90 + Math.random() * 50;
         }
+        // A hesitation should actually come to rest, not keep drifting imperceptibly.
+        const turnResponse = desiredWanderVelocity === 0 ? 5 : 1.4;
         wanderVelocity +=
-          (desiredWanderVelocity - wanderVelocity) * (1 - Math.exp(-1.4 * dt));
+          (desiredWanderVelocity - wanderVelocity) *
+          (1 - Math.exp(-turnResponse * dt));
         wanderRadius +=
           (desiredWanderRadius - wanderRadius) * (1 - Math.exp(-0.6 * dt));
         wanderBearing += wanderVelocity * dt;
       }
-      if (following) target = pointerTarget(pointer.x, pointer.y);
-      position.x += (target.x - position.x) * ease;
-      position.y += (target.y - position.y) * ease;
+      if (following) {
+        evolveTemperament(temperament, dt, stage === "awake" && !asleep);
+        if (time - lastSample >= 380) {
+          obstacles = sampleObstacles(root);
+          lastSample = time;
+        }
+        const rect = hoveredInteractive?.getBoundingClientRect?.();
+        const hoverRect =
+          rect && Number.isFinite(rect.right)
+            ? {
+                left: rect.left,
+                right: rect.right,
+                top: rect.top,
+                bottom: rect.bottom,
+              }
+            : null;
+        const proximity = hoverRect
+          ? Math.hypot(
+              (hoverRect.left + hoverRect.right) / 2 - pointer.x,
+              (hoverRect.top + hoverRect.bottom) / 2 - pointer.y,
+            )
+          : Infinity;
+        if (stage === "awake" && !asleep) {
+          chooseIntent(
+            temperament,
+            {
+              pointerSpeed: speed,
+              pointerDistance: Math.hypot(
+                position.x + 40 - pointer.x,
+                position.y + 22 - pointer.y,
+              ),
+              interactiveNearby: proximity < 360,
+            },
+            time,
+          );
+        } else temperament.intent = "wander";
+        if (temperament.intent !== lastIntent) {
+          retreatGoal =
+            temperament.intent === "retreat"
+              ? retreatTarget(position, pointer)
+              : null;
+          lastIntent = temperament.intent;
+        }
+        target =
+          temperament.intent === "inspect" && hoverRect
+            ? (() => {
+                const point = behindTarget(hoverRect, pointer);
+                return { x: point.x - 40, y: point.y - 22 };
+              })()
+            : temperament.intent === "retreat" && retreatGoal
+              ? retreatGoal
+              : pointerTarget(pointer.x, pointer.y);
+      }
+      const bMotion = bounds();
+      target = {
+        x: clamp(target.x, bMotion.minX, bMotion.maxX),
+        y: clamp(target.y, bMotion.minY, bMotion.maxY),
+      };
+      const moved = stepSteering(
+        { position, velocity },
+        target,
+        following ? obstacles : [],
+        dt,
+      );
+      position = moved.position;
+      velocity = moved.velocity;
       const elapsed = Math.max(0, time - stageStart);
       const driftX = Math.sin(time / 3400) * 4;
       const driftY = Math.sin(time / 2700) * 5;
@@ -319,7 +430,7 @@
         sy = returnStartOffset * (1 - progress) * (1 - progress);
         sleepOffset.y = sy;
         if (progress >= 1) {
-          stage = "awake";
+          stage = nextSleepStage(stage, "RECOVERED");
           sleepAllowed = false;
           asleep = false;
         }
@@ -382,9 +493,15 @@
       pointer = { x: 0, y: 0, time: 0 };
       sleepAllowed = true;
       delete root.dataset.paused;
-      stage = "awake";
+      stage = nextSleepStage(stage, "RESET");
       asleep = false;
       sleepOffset = { x: 0, y: 0 };
+      velocity = { ...home };
+      obstacles = [];
+      lastSample = -Infinity;
+      retreatGoal = null;
+      Object.assign(temperament, newTemperament());
+      lastIntent = temperament.intent;
       following = false;
       curious = pleased = false;
       hoveredInteractive = hoveredAnchor = null;
@@ -414,6 +531,7 @@
       if (!following) {
         const rect = mascot.getBoundingClientRect();
         position = { x: rect.left, y: rect.top };
+        velocity = { ...home };
         target = { ...position };
       }
       target = pointerTarget(event.clientX, event.clientY);
@@ -511,6 +629,7 @@
       if (paused) return;
       activity();
       const now = performance.now();
+      lastSample = -Infinity;
       if (now >= scrollUntil)
         scrollFace = choose(["0o0", "0v0", "OwO"], scrollFace);
       scrollUntil = now + 700;
@@ -617,10 +736,12 @@
       } else if (!paused) delete root.dataset.paused;
     };
     const onPointerDown = (event: PointerEvent) => {
-      if (!paused) {
-        activity();
-        if (event.pointerType === "mouse") bounce();
-      }
+      if (paused) return;
+      // The button's own click handler already triggers bounce.
+      if (event.target instanceof Element && mascot.contains(event.target))
+        return;
+      if (event.pointerType === "mouse") bounce();
+      else activity();
     };
     document.addEventListener("pointermove", onPointerMove, { passive: true });
     document.addEventListener("pointerleave", onPointerLeave);

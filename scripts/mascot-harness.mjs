@@ -9,7 +9,18 @@ const source = await readFile(
 );
 const rawScript = source.match(/<script>([\s\S]*?)<\/script>/)?.[1];
 assert.ok(rawScript, "Mascot script exists");
-const script = ts.transpileModule(rawScript, {
+// Astro bundles these imports in production; inline them for the deterministic VM harness.
+const moduleFiles = ["behavior.ts", "steering.ts"];
+const moduleSources = await Promise.all(
+  moduleFiles.map((file) =>
+    readFile(new URL(`../src/lib/mascot/${file}`, import.meta.url), "utf8"),
+  ),
+);
+const bundledScript =
+  moduleSources.map((value) => value.replace(/^export /gm, "")).join("\n") +
+  "\n" +
+  rawScript.replace(/^\s*import .* from ".*";\s*$/gm, "");
+const script = ts.transpileModule(bundledScript, {
   compilerOptions: { target: ts.ScriptTarget.ES2022 },
 }).outputText;
 const listeners = new Map(),
@@ -147,7 +158,123 @@ const context = {
   },
   setTimeout: (fn, delay) => window.setTimeout(fn, delay),
 };
-vm.runInNewContext(script, context);
+const pure = vm.runInNewContext(
+  script +
+    "\n({ nextSleepStage, newTemperament, chooseIntent, evolveTemperament, routeWaypoint, segmentHitsRect, behindTarget, stepSteering })",
+  context,
+);
+
+// The state machine and utility scorer are deterministic outside the browser.
+assert.equal(pure.nextSleepStage("awake", "IDLE"), "dozing");
+assert.equal(pure.nextSleepStage("dozing", "DOZED"), "falling");
+assert.equal(pure.nextSleepStage("dozing", "WOKE"), "returning");
+assert.equal(pure.nextSleepStage("falling", "FELL"), "returning");
+assert.equal(pure.nextSleepStage("returning", "RECOVERED"), "awake");
+assert.equal(pure.nextSleepStage("awake", "DOZED"), "awake");
+const mind = pure.newTemperament();
+assert.equal(
+  pure.chooseIntent(
+    mind,
+    {
+      pointerSpeed: 0,
+      pointerDistance: 100,
+      interactiveNearby: true,
+    },
+    5000,
+    () => 0.99,
+  ),
+  "inspect",
+);
+assert.equal(
+  pure.chooseIntent(
+    mind,
+    {
+      pointerSpeed: 2.5,
+      pointerDistance: 55,
+      interactiveNearby: false,
+    },
+    5100,
+    () => 0.5,
+  ),
+  "retreat",
+  "startle interrupts investigation",
+);
+assert.equal(
+  pure.chooseIntent(
+    mind,
+    {
+      pointerSpeed: 0,
+      pointerDistance: 180,
+      interactiveNearby: false,
+    },
+    5400,
+    () => 0.5,
+  ),
+  "retreat",
+  "reflex has a short commitment",
+);
+assert.equal(
+  pure.chooseIntent(
+    mind,
+    {
+      pointerSpeed: 0,
+      pointerDistance: 180,
+      interactiveNearby: false,
+    },
+    9000,
+    () => 0.5,
+  ),
+  "wander",
+);
+pure.evolveTemperament(mind, 1000, true);
+assert.ok(mind.energy >= 0 && mind.energy <= 1);
+const wall = { left: 40, right: 60, top: -10, bottom: 10 };
+assert.equal(
+  pure.segmentHitsRect({ x: 0, y: 0 }, { x: 100, y: 0 }, wall),
+  true,
+);
+assert.equal(
+  pure.segmentHitsRect({ x: 0, y: 25 }, { x: 100, y: 25 }, wall),
+  false,
+);
+const waypoint = pure.routeWaypoint(
+  { x: 0, y: 0 },
+  { x: 100, y: 0 },
+  [wall],
+  0,
+);
+assert.ok(
+  waypoint.y !== 0,
+  "pathfinding picks a corner around a blocking element",
+);
+assert.ok(!pure.segmentHitsRect({ x: 0, y: 0 }, waypoint, wall));
+assert.deepEqual(
+  { ...pure.behindTarget(wall, { x: 0, y: 0 }, 38) },
+  { x: 98, y: 0 },
+);
+let steering = { position: { x: 0, y: 0 }, velocity: { x: 0, y: 0 } };
+for (let i = 0; i < 180; i++)
+  steering = pure.stepSteering(steering, { x: 100, y: 0 }, [], 1 / 60);
+assert.ok(
+  Math.hypot(steering.position.x - 100, steering.position.y) < 2,
+  "steering converges with finite acceleration",
+);
+let detouring = { position: { x: 0, y: 70 }, velocity: { x: 0, y: 0 } };
+let deviated = false;
+for (let i = 0; i < 360; i++) {
+  detouring = pure.stepSteering(
+    detouring,
+    { x: 240, y: 70 },
+    [{ left: 130, right: 150, top: 60, bottom: 90 }],
+    1 / 60,
+  );
+  if (Math.abs(detouring.position.y - 70) > 45) deviated = true;
+}
+assert.ok(
+  deviated,
+  "mascot steers around, rather than through, a wide obstacle",
+);
+assert.ok(detouring.position.x > 190, "detour eventually reaches the far side");
 const fire = (name, event = {}) => {
   for (const fn of listeners.get(name) ?? [])
     fn({ pointerType: "mouse", ...event });
