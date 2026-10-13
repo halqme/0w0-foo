@@ -20,7 +20,7 @@ const pathname = Astro.url.pathname;
           <li>
             <a
               href={link.href}
-              class="motion-underline text-sm font-mono font-medium text-muted hover:text-ink aria-[current=page]:text-accent aria-[current=page]:underline underline-offset-4 flex-inline items-center gap-1"
+              class="text-sm font-mono font-medium text-muted hover:text-ink aria-[current=page]:text-accent aria-[current=page]:underline underline-offset-4 flex-inline items-center gap-1"
               aria-current={
                 link.href === "/"
                   ? pathname === "/"
