@@ -235,7 +235,10 @@ export function stepSteering(
  * Sample meaningful leaf content rather than giant layout containers.
  * Refresh only occasionally, never query the DOM inside the animation tick.
  */
-export function sampleObstacles(root: Element, max = 32): Obstacle[] {
+export function sampleObstacles(
+  root: Pick<Element, "contains">,
+  max = 32,
+): Obstacle[] {
   if (typeof document.querySelectorAll !== "function") return [];
   const nodes = document.querySelectorAll(
     "main a, main button, main h1, main h2, main h3, main img, main pre, main blockquote, [data-mascot-obstacle]",

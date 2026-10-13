@@ -17,11 +17,13 @@ vp run check:astro
 vp run format
 vp run format:check
 vp run lint
+vp run test
+vp run test:watch
 vp run build
 vp run preview
 ```
 
-`vp run check`はVite PlusのチェックとAstroファイルのフォーマット確認を行います。Astroの型・コンテンツチェックは別途`vp run check:astro`で実行します。非Astroファイルの整形にはOxfmt、`*.astro`にはPrettierとAstroプラグインを使います。
+`vp run check`はVite PlusのチェックとAstroファイルのフォーマット確認を行います。Astroの型・コンテンツチェックは別途`vp run check:astro`で実行します。非Astroファイルの整形にはOxfmt、`*.astro`にはPrettierとAstroプラグインを使います。`vp run test`でVitestのテストを実行し、`vp run test:watch`で変更を監視できます。現在はタグslug生成、ブログ記事の絞り込み・並び替え、リンクカードとOGPアセット生成、マスコットの睡眠状態遷移・タイミング・行動・移動をテストしています。
 
 `bun run deploy`はローカルから`cf deploy`を実行します。デプロイ前の確認には`bunx cf deploy --dry-run`を使えます。
 

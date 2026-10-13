@@ -12,7 +12,9 @@
     "format:astro": "prettier --write \"src/**/*.astro\"",
     "format:astro:check": "prettier --check \"src/**/*.astro\"",
     "format:check": "vp fmt . --check && prettier --check \"src/**/*.astro\"",
-    "lint": "vp lint ."
+    "lint": "vp lint .",
+    "test": "vp test",
+    "test:watch": "vp test watch"
   },
   "dependencies": {
     "@astrojs/markdown-satteri": "^0.4.3",
