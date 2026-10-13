@@ -119,7 +119,7 @@ export default defineConfig({
     focused:
       "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus",
     "theme-option":
-      "flex min-h-12 items-center gap-3 px-3 py-2 rounded-md text-sm has-[:checked]:bg-surface-muted has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-focus",
+      "flex min-h-8 items-center gap-3 px-2 my-1 py-1 rounded-md text-sm has-[:hover]:bg-surface-muted has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-focus",
     "theme-option-copy": "grid min-w-0 gap-1",
     "theme-check": "icon-sm ms-auto opacity-0",
     "theme-icon": "icon-sm [&[hidden]]:hidden",

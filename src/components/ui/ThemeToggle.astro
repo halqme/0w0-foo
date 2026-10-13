@@ -1,9 +1,9 @@
 <div class="relative shrink-0 font-mono text-ink" data-theme-picker>
   <button
     type="button"
-    class="inline-flex items-center justify-center gap-2 min-h-10 px-2 border border-line rounded-md bg-surface text-sm font-medium focused"
+    class="inline-flex items-center justify-center gap-2 min-h-8 px-2 border border-line rounded-md bg-surface text-sm font-medium focused"
     id="theme-trigger"
-    aria-label="カラーテーマ: 自動"
+    aria-label="カラーテーマ: auto"
     aria-expanded="false"
     aria-controls="theme-options"
     data-theme-trigger
@@ -18,13 +18,13 @@
       <span class="theme-icon i-lucide:sun" data-icon="light"></span>
       <span class="theme-icon i-lucide:moon" data-icon="dark"></span>
     </span>
-    <span class="whitespace-nowrap" data-theme-label>
-      自動
+    <span class="hidden" data-theme-label>
+      auto
     </span>
     <span class="icon-sm i-lucide:chevron-down" aria-hidden="true"></span>
   </button>
   <fieldset
-    class="t-dropdown absolute top-full mt-2 end-0 z-20 w-56 max-w-[calc(100vw-2rem)] p-1 border border-line rounded-lg bg-surface shadow-popup [&[hidden]]:hidden"
+    class="t-dropdown absolute top-full mt-2 end-0 z-20 w-42 max-w-[calc(100vw-2rem)] p-1 border border-line rounded-lg bg-surface shadow-popup [&[hidden]]:hidden"
     id="theme-options"
     aria-label="カラーテーマ"
     data-theme-panel
@@ -41,7 +41,7 @@
       />
       <span class="theme-icon i-lucide:monitor" aria-hidden="true"></span>
       <span class="theme-option-copy">
-        <span class="leading-tight">自動</span>
+        <span class="leading-tight">auto</span>
       </span>
       <span
         class="theme-check i-lucide:check peer-checked:opacity-100"
@@ -58,7 +58,7 @@
       />
       <span class="theme-icon i-lucide:sun" aria-hidden="true"></span>
       <span class="theme-option-copy">
-        <span class="leading-tight">ライト</span>
+        <span class="leading-tight">light</span>
       </span>
       <span
         class="theme-check i-lucide:check peer-checked:opacity-100"
@@ -75,7 +75,7 @@
       />
       <span class="theme-icon i-lucide:moon" aria-hidden="true"></span>
       <span class="theme-option-copy">
-        <span class="leading-tight">ダーク</span>
+        <span class="leading-tight">dark</span>
       </span>
       <span
         class="theme-check i-lucide:check peer-checked:opacity-100"
@@ -98,9 +98,9 @@
   const isTheme = (value: string | null | undefined): value is Theme =>
     themes.includes(value as Theme);
   const labels: Record<Theme, string> = {
-    auto: "自動",
-    light: "ライト",
-    dark: "ダーク",
+    auto: "auto",
+    light: "light",
+    dark: "dark",
   };
 
   const media = window.matchMedia("(prefers-color-scheme: dark)");
