@@ -49,12 +49,14 @@ vp run preview
 ## Cursor mascot
 
 The decorative `0w0` mascot lives in `src/components/ui/Mascot.astro`.
-Its logic is split into two independent units:
+Its logic is split into three independent units:
 
-- `src/lib/mascot/behavior.ts`: explicit sleep-stage transitions, plus a small
-  Utility AI choosing between wandering, investigating a nearby interactive
-  element, and retreating when surprised. Energy, curiosity, wariness,
-  cooldowns, and commitment time shape its choices.
+- `src/lib/mascot/sleep.ts`: DOM-independent sleep state, event transitions,
+  timing, and fall/return offset calculations. `Mascot.astro` owns browser timers
+  and lifecycle scheduling.
+- `src/lib/mascot/behavior.ts`: a small Utility AI choosing between wandering,
+  investigating a nearby interactive element, and retreating when surprised.
+  Energy, curiosity, wariness, cooldowns, and commitment time shape its choices.
 - `src/lib/mascot/steering.ts`: velocity-based arrival, obstacle separation,
   short multi-corner paths around visible DOM content, and targets placed on
   the far side of an investigated element relative to the cursor.

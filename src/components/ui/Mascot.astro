@@ -100,13 +100,19 @@
 
 <script>
   import {
-    nextSleepStage,
     newTemperament,
     evolveTemperament,
     chooseIntent,
-    type SleepStage,
-    type SleepEvent,
   } from "../../lib/mascot/behavior";
+  import {
+    newSleepState,
+    dispatchSleep,
+    advanceSleep,
+    shiftSleepTime,
+    idleSleepRemaining,
+    stageSleepRemaining,
+    SLEEP_TIMING,
+  } from "../../lib/mascot/sleep";
   import {
     stepSteering,
     sampleObstacles,
@@ -138,8 +144,8 @@
     const home = { x: 0, y: 0 };
     let target = { ...home },
       position = { ...home },
-      velocity = { ...home },
-      sleepOffset = { x: 0, y: 0 };
+      velocity = { ...home };
+    const sleep = newSleepState(performance.now());
     const temperament = newTemperament();
     let obstacles: Obstacle[] = [];
     let lastSample = -Infinity;
@@ -152,23 +158,17 @@
       desiredWanderRadius = 120,
       wanderDecisionIn = 0;
     let frame = 0,
-      lastTime = 0,
-      lastActivity = performance.now();
+      lastTime = 0;
     let pointer = { x: 0, y: 0, time: 0 },
       speed = 0;
     let following = false,
-      paused = false,
-      asleep = false,
-      stage: SleepStage = "awake";
+      paused = false;
     let happyUntil = 0,
       scrollUntil = 0,
       interactionTimer = 0,
       faceTimer = 0,
-      stageStart = 0,
       stageTimer = 0,
-      returnStartOffset = 0,
-      pausedAt = 0,
-      sleepAllowed = true;
+      pausedAt = 0;
     let hoverFace = "0ω0",
       scrollFace = "0o0",
       lastClickFace = "";
@@ -188,13 +188,17 @@
     const paintFace = () => {
       const now = performance.now();
       if (happyUntil > now) setFace(lastClickFace || "^w^");
-      else if (stage === "returning") setFace("0o0");
-      else if (stage === "dozing" || stage === "falling" || asleep)
+      else if (sleep.stage === "returning") setFace("0o0");
+      else if (
+        sleep.stage === "dozing" ||
+        sleep.stage === "falling" ||
+        sleep.asleep
+      )
         setFace("-w-");
       else if (
         temperament.intent === "retreat" &&
         following &&
-        stage === "awake"
+        sleep.stage === "awake"
       )
         setFace("0o0");
       else if (speed > 0.8 && following) setFace("0o0");
@@ -202,7 +206,7 @@
       else if (
         temperament.intent === "inspect" &&
         following &&
-        stage === "awake"
+        sleep.stage === "awake"
       )
         setFace("0ω0");
       else if (curious) setFace(hoverFace);
@@ -253,68 +257,48 @@
       clearTimeout(stageTimer);
       stageTimer = 0;
     };
+    const sendSleepEvent = (event: Parameters<typeof dispatchSleep>[1]) => {
+      const previous = sleep.stage;
+      if (!dispatchSleep(sleep, event, performance.now())) return;
+      if (sleep.stage !== previous) {
+        clearStory();
+        paintFace();
+        armStage();
+      }
+    };
     const armStage = () => {
       clearStory();
-      if (stage === "dozing")
+      if (sleep.stage === "dozing" || sleep.stage === "falling") {
         stageTimer = window.setTimeout(
           () => {
             stageTimer = 0;
-            if (!following || paused || motion.matches) return;
-            startStage("falling");
+            if (
+              paused ||
+              motion.matches ||
+              (sleep.stage === "dozing" && !following)
+            )
+              return;
+            sendSleepEvent(sleep.stage === "dozing" ? "DOZED" : "FELL");
           },
-          Math.max(0, 1200 - (performance.now() - stageStart)),
+          stageSleepRemaining(sleep, performance.now()),
         );
-      else if (stage === "falling")
-        stageTimer = window.setTimeout(
-          () => {
-            stageTimer = 0;
-            if (!paused && !motion.matches) startStage("returning");
-          },
-          Math.max(0, 1200 - (performance.now() - stageStart)),
-        );
-    };
-    const startStage = (next: SleepStage) => {
-      const event: SleepEvent =
-        next === "dozing"
-          ? "IDLE"
-          : next === "falling"
-            ? "DOZED"
-            : next === "returning"
-              ? stage === "dozing"
-                ? "WOKE"
-                : "FELL"
-              : "RECOVERED";
-      if (nextSleepStage(stage, event) !== next) return;
-      clearStory();
-      stage = next;
-      stageStart = performance.now();
-      if (next === "returning") returnStartOffset = sleepOffset.y;
-      paintFace();
-      armStage();
+      }
     };
     const beginSleep = () => {
-      if (paused || !sleepAllowed || stage !== "awake") return;
-      if (!following || motion.matches) {
-        asleep = true;
-        paintFace();
-        return;
-      }
-      startStage("dozing");
+      if (paused) return;
+      sendSleepEvent(!following || motion.matches ? "REST" : "IDLE");
+      paintFace();
     };
     const activity = () => {
       if (!paused && document.visibilityState !== "hidden")
         delete root.dataset.paused;
-      lastActivity = performance.now();
-      sleepAllowed = true;
       clearTimeout(interactionTimer);
       interactionTimer = 0;
-      if (stage === "dozing" || stage === "falling") startStage("returning");
-      asleep = false;
-      if (sleepAllowed)
-        interactionTimer = window.setTimeout(
-          beginSleep,
-          Math.max(0, 6000 - (performance.now() - lastActivity)),
-        );
+      sendSleepEvent("ACTIVITY");
+      interactionTimer = window.setTimeout(
+        beginSleep,
+        idleSleepRemaining(sleep, performance.now()),
+      );
       paintFace();
       wake();
     };
@@ -325,7 +309,7 @@
       lastTime = time;
       speed *= Math.exp(-6 * dt);
       // Steering uses velocity and acceleration, rather than directly interpolating coordinates.
-      if (following && stage === "awake" && !asleep && dt > 0) {
+      if (following && sleep.stage === "awake" && !sleep.asleep && dt > 0) {
         wanderDecisionIn -= dt;
         if (wanderDecisionIn <= 0) {
           wanderDecisionIn = 2 + Math.random() * 3;
@@ -352,7 +336,11 @@
         wanderBearing += wanderVelocity * dt;
       }
       if (following) {
-        evolveTemperament(temperament, dt, stage === "awake" && !asleep);
+        evolveTemperament(
+          temperament,
+          dt,
+          sleep.stage === "awake" && !sleep.asleep,
+        );
         if (time - lastSample >= 380) {
           obstacles = sampleObstacles(root);
           lastSample = time;
@@ -373,7 +361,7 @@
               (hoverRect.top + hoverRect.bottom) / 2 - pointer.y,
             )
           : Infinity;
-        if (stage === "awake" && !asleep) {
+        if (sleep.stage === "awake" && !sleep.asleep) {
           chooseIntent(
             temperament,
             {
@@ -417,36 +405,22 @@
       );
       position = moved.position;
       velocity = moved.velocity;
-      const elapsed = Math.max(0, time - stageStart);
       const driftX = Math.sin(time / 3400) * 4;
       const driftY = Math.sin(time / 2700) * 5;
-      let sy = 0;
-      if (stage === "falling")
-        sy = 60 * Math.pow(clamp(elapsed / 1200, 0, 1), 2);
-      if (stage === "returning") {
-        const progress = clamp(elapsed / 1400, 0, 1);
-        sy = returnStartOffset * (1 - progress) * (1 - progress);
-        sleepOffset.y = sy;
-        if (progress >= 1) {
-          stage = nextSleepStage(stage, "RECOVERED");
-          sleepAllowed = false;
-          asleep = false;
-        }
-      } else if (stage === "falling") sleepOffset.y = sy;
-      else if (stage !== "dozing") sleepOffset.y *= Math.exp(-5 * dt);
+      advanceSleep(sleep, time, dt);
       const b = bounds();
       const reaction = happyUntil > time ? (happyUntil - time) / 700 : 0;
       const scroll = scrollUntil > time ? (scrollUntil - time) / 700 : 0;
       const hop = -3 * Math.sin(Math.PI * (1 - reaction)) * reaction;
       const scrollY = Math.sin(time / 300) * 1.5 * scroll;
-      const x = clamp(position.x + driftX + sleepOffset.x, b.minX, b.maxX);
+      const x = clamp(position.x + driftX, b.minX, b.maxX);
       const y = clamp(
-        position.y + driftY + sleepOffset.y + hop + scrollY,
+        position.y + driftY + sleep.offsetY + hop + scrollY,
         b.minY,
         b.maxY,
       );
       const gaze =
-        stage === "awake" && !asleep
+        sleep.stage === "awake" && !sleep.asleep
           ? clamp(
               Math.sin(time / 3900) * 6 +
                 (pointer.x >= position.x + 40 ? 3 : -3),
@@ -471,7 +445,7 @@
         following ||
         happyUntil ||
         scrollUntil ||
-        Math.abs(sleepOffset.y) > 0.1
+        Math.abs(sleep.offsetY) > 0.1
       )
         frame = requestAnimationFrame(render);
       else lastTime = 0;
@@ -489,11 +463,8 @@
       happyUntil = scrollUntil = 0;
       speed = 0;
       pointer = { x: 0, y: 0, time: 0 };
-      sleepAllowed = true;
+      sendSleepEvent("RESET");
       delete root.dataset.paused;
-      stage = nextSleepStage(stage, "RESET");
-      asleep = false;
-      sleepOffset = { x: 0, y: 0 };
       velocity = { ...home };
       obstacles = [];
       lastSample = -Infinity;
@@ -534,8 +505,8 @@
       }
       target = pointerTarget(event.clientX, event.clientY);
       following = true;
-      if (!motion.matches && sleepAllowed && !interactionTimer)
-        interactionTimer = window.setTimeout(beginSleep, 6000);
+      if (!motion.matches && sleep.allowed && !interactionTimer)
+        interactionTimer = window.setTimeout(beginSleep, SLEEP_TIMING.idle);
       mascot.style.visibility = "hidden";
       follower.style.visibility = "visible";
       wake();
@@ -553,7 +524,7 @@
       wake();
       if (interactionTimer) {
         clearTimeout(interactionTimer);
-        interactionTimer = window.setTimeout(beginSleep, 6000);
+        interactionTimer = window.setTimeout(beginSleep, SLEEP_TIMING.idle);
       }
     };
     const onFocus = () => {
@@ -662,10 +633,10 @@
       const duration = performance.now() - pausedAt;
       paused = false;
       delete root.dataset.paused;
-      stageStart += duration;
+      shiftSleepTime(sleep, duration);
       happyUntil += happyUntil ? duration : 0;
       scrollUntil += scrollUntil ? duration : 0;
-      lastActivity += duration;
+
       armStage();
       const faceExpiry = Math.max(happyUntil, scrollUntil);
       if (faceExpiry > performance.now())
@@ -674,10 +645,10 @@
           faceTimer = 0;
           paintFace();
         }, faceExpiry - performance.now());
-      if (sleepAllowed && !asleep && stage === "awake")
+      if (sleep.allowed && !sleep.asleep && sleep.stage === "awake")
         interactionTimer = window.setTimeout(
           beginSleep,
-          Math.max(0, 6000 - (performance.now() - lastActivity)),
+          idleSleepRemaining(sleep, performance.now()),
         );
       if (!motion.matches && (following || happyUntil || scrollUntil)) wake();
     };

@@ -1,33 +1,4 @@
-/** A small explicit state machine and utility scorer for mascot intent. */
-export type SleepStage = "awake" | "dozing" | "falling" | "returning";
-export type SleepEvent =
-  | "IDLE"
-  | "DOZED"
-  | "FELL"
-  | "WOKE"
-  | "RECOVERED"
-  | "RESET";
-
-export function nextSleepStage(
-  state: SleepStage,
-  event: SleepEvent,
-): SleepStage {
-  if (event === "RESET") return "awake";
-  switch (state) {
-    case "awake":
-      return event === "IDLE" ? "dozing" : state;
-    case "dozing":
-      if (event === "DOZED") return "falling";
-      return event === "WOKE" ? "returning" : state;
-    case "falling":
-      if (event === "FELL" || event === "WOKE") return "returning";
-      return state;
-    case "returning":
-      return event === "RECOVERED" ? "awake" : state;
-    default:
-      return state;
-  }
-}
+/** Utility scorer for mascot intent. */
 
 export type Intent = "wander" | "inspect" | "retreat";
 export type Temperament = {

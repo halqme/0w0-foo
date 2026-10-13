@@ -10,19 +10,37 @@ const source = await readFile(
 const rawScript = source.match(/<script>([\s\S]*?)<\/script>/)?.[1];
 assert.ok(rawScript, "Mascot script exists");
 // Astro bundles these imports in production; inline them for the deterministic VM harness.
-const moduleFiles = ["behavior.ts", "steering.ts"];
+const moduleFiles = ["behavior.ts", "steering.ts", "sleep.ts"];
 const moduleSources = await Promise.all(
   moduleFiles.map((file) =>
     readFile(new URL(`../src/lib/mascot/${file}`, import.meta.url), "utf8"),
   ),
 );
+const stripImports = (text) => {
+  const file = ts.createSourceFile(
+    "harness.ts",
+    text,
+    ts.ScriptTarget.Latest,
+    true,
+  );
+  for (const node of file.statements
+    .filter(ts.isImportDeclaration)
+    .toReversed()) {
+    text = text.slice(0, node.getStart(file)) + text.slice(node.end);
+  }
+  return text;
+};
 const bundledScript =
-  moduleSources.map((value) => value.replace(/^export /gm, "")).join("\n") +
+  moduleSources
+    .map((value) => stripImports(value).replace(/^export /gm, ""))
+    .join("\n") +
   "\n" +
-  rawScript.replace(/^\s*import .* from ".*";\s*$/gm, "");
-const script = ts.transpileModule(bundledScript, {
-  compilerOptions: { target: ts.ScriptTarget.ES2022 },
-}).outputText;
+  stripImports(rawScript);
+const script = ts
+  .transpileModule(bundledScript, {
+    compilerOptions: { target: ts.ScriptTarget.ES2022 },
+  })
+  .outputText.replace(/^export \{\};?\s*$/gm, "");
 const listeners = new Map(),
   rafs = new Map(),
   timers = new Map();
@@ -160,17 +178,151 @@ const context = {
 };
 const pure = vm.runInNewContext(
   script +
-    "\n({ nextSleepStage, newTemperament, chooseIntent, evolveTemperament, routeWaypoint, segmentHitsRect, behindTarget, stepSteering })",
+    "\n({ nextSleepStage, newSleepState, dispatchSleep, advanceSleep, shiftSleepTime, idleSleepRemaining, stageSleepRemaining, SLEEP_TIMING, newTemperament, chooseIntent, evolveTemperament, routeWaypoint, segmentHitsRect, behindTarget, stepSteering })",
   context,
 );
 
-// The state machine and utility scorer are deterministic outside the browser.
-assert.equal(pure.nextSleepStage("awake", "IDLE"), "dozing");
-assert.equal(pure.nextSleepStage("dozing", "DOZED"), "falling");
-assert.equal(pure.nextSleepStage("dozing", "WOKE"), "returning");
-assert.equal(pure.nextSleepStage("falling", "FELL"), "returning");
-assert.equal(pure.nextSleepStage("returning", "RECOVERED"), "awake");
-assert.equal(pure.nextSleepStage("awake", "DOZED"), "awake");
+// Sleep transitions and elapsed-time calculations are deterministic outside the browser.
+const sleepStages = ["awake", "dozing", "falling", "returning"];
+const sleepEvents = ["IDLE", "DOZED", "FELL", "WOKE", "RECOVERED", "RESET"];
+const expectedStages = {
+  awake: {
+    IDLE: "dozing",
+    DOZED: "awake",
+    FELL: "awake",
+    WOKE: "awake",
+    RECOVERED: "awake",
+    RESET: "awake",
+  },
+  dozing: {
+    IDLE: "dozing",
+    DOZED: "falling",
+    FELL: "dozing",
+    WOKE: "returning",
+    RECOVERED: "dozing",
+    RESET: "awake",
+  },
+  falling: {
+    IDLE: "falling",
+    DOZED: "falling",
+    FELL: "returning",
+    WOKE: "returning",
+    RECOVERED: "falling",
+    RESET: "awake",
+  },
+  returning: {
+    IDLE: "returning",
+    DOZED: "returning",
+    FELL: "returning",
+    WOKE: "returning",
+    RECOVERED: "awake",
+    RESET: "awake",
+  },
+};
+for (const stage of sleepStages)
+  for (const event of sleepEvents)
+    assert.equal(
+      pure.nextSleepStage(stage, event),
+      expectedStages[stage][event],
+      `${stage} + ${event}`,
+    );
+assert.deepEqual(
+  { ...pure.SLEEP_TIMING },
+  { idle: 6000, dozing: 1200, falling: 1200, returning: 1400 },
+);
+const newSleep = (nsnow = 0) => pure.newSleepState(nsnow);
+const transition = (state, event, tnow) =>
+  pure.dispatchSleep(state, event, tnow);
+const uninterrupted = newSleep(0);
+for (const stage of sleepStages) {
+  const state = newSleep(25);
+  state.stage = stage;
+  state.stageStart = 25;
+  for (const event of sleepEvents) {
+    if (event === "RESET" || expectedStages[stage][event] !== stage) continue;
+    const before = { ...state };
+    assert.equal(
+      transition(state, event, 100),
+      false,
+      `${stage} ignores invalid ${event}`,
+    );
+    assert.deepEqual({ ...state }, before, `${stage} + ${event} is unchanged`);
+  }
+}
+assert.equal(
+  transition(uninterrupted, "WOKE", 10),
+  false,
+  "invalid events do not mutate state",
+);
+transition(uninterrupted, "IDLE", 10);
+transition(uninterrupted, "DOZED", 1210);
+pure.advanceSleep(uninterrupted, 2410, 0.016);
+assert.equal(
+  uninterrupted.offsetY,
+  60,
+  "uninterrupted story reaches full fall",
+);
+transition(uninterrupted, "FELL", 2410);
+pure.advanceSleep(uninterrupted, 3810, 0.016);
+assert.equal(uninterrupted.offsetY, 0, "uninterrupted return reaches home");
+assert.equal(uninterrupted.stage, "awake");
+assert.equal(
+  uninterrupted.allowed,
+  false,
+  "one story locks sleep until activity",
+);
+assert.equal(transition(uninterrupted, "IDLE", 4000), false);
+transition(uninterrupted, "ACTIVITY", 4100);
+assert.equal(uninterrupted.allowed, true);
+transition(uninterrupted, "IDLE", 10100);
+const interruption = newSleep();
+transition(interruption, "IDLE", 1);
+transition(interruption, "DOZED", 1201);
+interruption.offsetY = 60;
+transition(interruption, "ACTIVITY", 1300);
+assert.equal(interruption.stage, "returning", "activity interrupts falling");
+assert.equal(interruption.returnStartOffset, 60);
+transition(interruption, "RECOVERED", 2700);
+transition(interruption, "ACTIVITY", 2800);
+transition(interruption, "IDLE", 3000);
+transition(interruption, "DOZED", 4200);
+transition(interruption, "FELL", 5400);
+transition(interruption, "ACTIVITY", 5500);
+assert.equal(
+  interruption.stage,
+  "returning",
+  "activity remains valid during return",
+);
+const offset = newSleep();
+transition(offset, "IDLE", 0);
+transition(offset, "DOZED", 1200);
+pure.advanceSleep(offset, 1800, 0.016);
+assert.equal(offset.offsetY, 15, "fall offset uses original quadratic timing");
+transition(offset, "ACTIVITY", 1800);
+assert.equal(
+  offset.returnStartOffset,
+  15,
+  "return starts continuously from fall offset",
+);
+pure.advanceSleep(offset, 2500, 0.016);
+assert.ok(offset.offsetY > 0 && offset.offsetY < 15);
+pure.advanceSleep(offset, 3200, 0.016);
+assert.equal(offset.stage, "awake", "return recovers on its duration");
+assert.equal(offset.allowed, false);
+const pausedSleep = newSleep(100);
+transition(pausedSleep, "IDLE", 6100);
+transition(pausedSleep, "DOZED", 7300);
+pure.shiftSleepTime(pausedSleep, 5000);
+assert.equal(pausedSleep.stageStart, 12300);
+assert.equal(pausedSleep.lastActivity, 5100);
+assert.equal(pure.stageSleepRemaining(pausedSleep, 12300), 1200);
+assert.equal(pure.idleSleepRemaining(pausedSleep, 6100), 5000);
+assert.equal(pure.idleSleepRemaining(pausedSleep, 15100), 0);
+const rested = newSleep(0);
+assert.equal(transition(rested, "REST", 6000), true);
+assert.equal(rested.asleep, true, "stationary idle enters asleep mode");
+transition(rested, "ACTIVITY", 7000);
+assert.equal(rested.asleep, false);
 const mind = pure.newTemperament();
 assert.equal(
   pure.chooseIntent(
@@ -403,6 +555,63 @@ assert.ok(
 );
 advance(7000);
 assert.equal(face.textContent, "0w0", "sleep story does not loop");
+const pauseSleepAt = (stage, elapsedBeforePause) => {
+  fire("pointerleave", { relatedTarget: null });
+  move(400, 300);
+  advance(elapsedBeforePause);
+  const beforePauseTransform = follower.style.transform;
+  const beforePauseFace = face.textContent;
+  fire("astro:before-swap");
+  assert.equal(rafs.size, 0, `${stage} pause cancels rAF`);
+  assert.equal(timers.size, 0, `${stage} pause clears timers`);
+  advance(5000);
+  assert.equal(
+    follower.style.transform,
+    beforePauseTransform,
+    `${stage} stays still while paused`,
+  );
+  assert.equal(
+    face.textContent,
+    beforePauseFace,
+    `${stage} face is frozen while paused`,
+  );
+  fire("astro:page-load");
+  assert.equal(
+    follower.style.transform,
+    beforePauseTransform,
+    `${stage} resume does not snap`,
+  );
+};
+pauseSleepAt("awake", 0);
+advance(6000);
+assert.equal(
+  face.textContent,
+  "-w-",
+  "awake idle timer resumes with remaining time",
+);
+pauseSleepAt("dozing", 6000);
+advance(1200);
+assert.equal(
+  face.textContent,
+  "-w-",
+  "dozing timer resumes with remaining time",
+);
+advance(1200);
+assert.equal(face.textContent, "0o0", "resumed fall reaches returning");
+pauseSleepAt("falling", 6000 + 1200);
+advance(1200);
+assert.equal(
+  face.textContent,
+  "0o0",
+  "falling timer resumes with remaining time",
+);
+pauseSleepAt("returning", 6000 + 1200 + 1200);
+advance(1400);
+assert.notEqual(
+  face.textContent,
+  "0o0",
+  "returning resumes and completes recovery",
+);
 // A seeded intent sequence makes long-run wandering behavior reproducible.
 move(500, 400);
 advance(1500);
@@ -572,6 +781,20 @@ assert.equal(
   "-w-",
   "stationary mascot sleeps under reduced motion",
 );
+fire("pointerdown", { clientX: 500, clientY: 400 });
+assert.notEqual(face.textContent, "-w-", "activity wakes reduced-motion sleep");
+assert.equal(
+  rafs.size,
+  0,
+  "reduced-motion wake does not start animation frames",
+);
+advance(6100);
+assert.equal(
+  face.textContent,
+  "-w-",
+  "reduced-motion mascot sleeps again after idle",
+);
+assert.equal(rafs.size, 0, "re-entering reduced-motion sleep still has no rAF");
 rootPresent = false;
 fire("astro:before-swap");
 fire("astro:after-swap");

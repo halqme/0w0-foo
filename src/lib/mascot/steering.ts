@@ -65,7 +65,7 @@ export function routeWaypoint(
     from.y >= blocking.top &&
     from.y <= blocking.bottom
   ) {
-    return [...corners].sort(
+    return [...corners].toSorted(
       (a, b) => distance(from, a) - distance(from, b),
     )[0];
   }
@@ -173,7 +173,7 @@ export function stepSteering(
         { x: safeGoal.x, y: rect.top - 12 },
         { x: safeGoal.x, y: rect.bottom + 12 },
       ];
-      safeGoal = options.sort(
+      safeGoal = options.toSorted(
         (a, b) => distance(goal, a) - distance(goal, b),
       )[0];
     }
@@ -200,7 +200,7 @@ export function stepSteering(
         { d: position.y - rect.top, x: 0, y: -1 },
         { d: rect.bottom - position.y, x: 0, y: 1 },
       ];
-      const side = sides.sort((a, b) => a.d - b.d)[0];
+      const side = sides.toSorted((a, b) => a.d - b.d)[0];
       ax = side.x;
       ay = side.y;
       d = 0;
