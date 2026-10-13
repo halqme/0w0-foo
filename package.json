@@ -41,12 +41,12 @@
     "prettier-plugin-astro": "^1.1.1",
     "typescript": "^6.0.3",
     "unocss": "^66.10.5",
-    "vite": "npm:@voidzero-dev/vite-plus-core@1.0.0",
-    "vite-plus": "1.0.0",
+    "vite": "npm:@voidzero-dev/vite-plus-core@1.1.0",
+    "vite-plus": "1.1.0",
     "wrangler": "^4.149.0"
   },
   "overrides": {
-    "vite": "npm:@voidzero-dev/vite-plus-core@1.0.0"
+    "vite": "npm:@voidzero-dev/vite-plus-core@1.1.0"
   },
   "packageManager": "bun@1.4.3"
 }

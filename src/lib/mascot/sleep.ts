@@ -39,25 +39,23 @@ export function newSleepState(now: number): SleepState {
   };
 }
 
+const SLEEP_TRANSITIONS: Record<
+  SleepStage,
+  Partial<Record<SleepEvent, SleepStage>>
+> = {
+  awake: { IDLE: "dozing" },
+  dozing: { DOZED: "falling", WOKE: "returning", ACTIVITY: "returning" },
+  falling: { FELL: "returning", WOKE: "returning", ACTIVITY: "returning" },
+  returning: { RECOVERED: "awake" },
+};
+
 export function nextSleepStage(
   state: SleepStage,
   event: SleepEvent,
 ): SleepStage {
-  if (event === "RESET") return "awake";
-  switch (state) {
-    case "awake":
-      return event === "IDLE" ? "dozing" : state;
-    case "dozing":
-      if (event === "DOZED") return "falling";
-      return event === "WOKE" ? "returning" : state;
-    case "falling":
-      if (event === "FELL" || event === "WOKE") return "returning";
-      return state;
-    case "returning":
-      return event === "RECOVERED" ? "awake" : state;
-    default:
-      return state;
-  }
+  return event === "RESET"
+    ? "awake"
+    : (SLEEP_TRANSITIONS[state][event] ?? state);
 }
 
 function enterStage(state: SleepState, stage: SleepStage, now: number) {
@@ -81,9 +79,6 @@ export function dispatchSleep(
     state.lastActivity = now;
     state.allowed = true;
     state.asleep = false;
-    if (state.stage === "dozing" || state.stage === "falling")
-      enterStage(state, "returning", now);
-    return true;
   }
   if (event === "REST") {
     if (state.stage === "awake" && state.allowed) state.asleep = true;
@@ -92,13 +87,12 @@ export function dispatchSleep(
   if (event === "IDLE" && (state.stage !== "awake" || !state.allowed))
     return false;
   const next = nextSleepStage(state.stage, event);
-  if (next === state.stage) return false;
-  enterStage(state, next, now);
-  if (event === "RECOVERED") {
+  const changed = enterStage(state, next, now);
+  if (event === "RECOVERED" && changed) {
     state.allowed = false;
     state.asleep = false;
   }
-  return true;
+  return event === "ACTIVITY" || changed;
 }
 
 export function stageSleepRemaining(state: SleepState, now: number) {

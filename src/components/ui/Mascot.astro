@@ -121,6 +121,21 @@
     type Obstacle,
   } from "../../lib/mascot/steering";
 
+  const clamp = (v: number, min: number, max: number) =>
+    Math.max(min, Math.min(max, v));
+
+  const choose = <T,>(items: T[], previous?: T) => {
+    const choices = items.filter((item) => item !== previous);
+    return choices[Math.floor(Math.random() * choices.length)] ?? items[0];
+  };
+
+  const bounds = () => ({
+    minX: 22,
+    maxX: Math.max(22, innerWidth - 92),
+    minY: 48,
+    maxY: Math.max(48, innerHeight - 66),
+  });
+
   const initMascot = () => {
     const root = document.querySelector<HTMLElement>("[data-mascot-root]");
     const mascot = root?.querySelector<HTMLButtonElement>("[data-mascot]");
@@ -139,8 +154,6 @@
     mascot.dataset.ready = "true";
 
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const clamp = (v: number, min: number, max: number) =>
-      Math.max(min, Math.min(max, v));
     const home = { x: 0, y: 0 };
     let target = { ...home },
       position = { ...home },
@@ -177,10 +190,6 @@
       hoveredInteractive: Element | null = null,
       hoveredAnchor: Element | null = null;
     const expressions = ["^w^", "0o0", "OwO", "0v0", "0ω0"];
-    const choose = <T,>(items: T[], previous?: T) => {
-      const choices = items.filter((item) => item !== previous);
-      return choices[Math.floor(Math.random() * choices.length)] ?? items[0];
-    };
     const setFace = (value: string) => {
       if (face.textContent !== value) face.textContent = value;
       if (followerFace.textContent !== value) followerFace.textContent = value;
@@ -227,12 +236,7 @@
         armFaceExpiry();
       }, expiry - performance.now());
     };
-    const bounds = () => ({
-      minX: 22,
-      maxX: Math.max(22, innerWidth - 92),
-      minY: 48,
-      maxY: Math.max(48, innerHeight - 66),
-    });
+
     const pointerTarget = (x: number, y: number) => {
       const b = bounds();
       return {

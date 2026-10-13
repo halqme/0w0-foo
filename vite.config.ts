@@ -1,6 +1,9 @@
 import { defineConfig } from "vite-plus";
 
 export default defineConfig({
+  staged: {
+    "*": "vp check --fix",
+  },
   fmt: {
     ignorePatterns: [".agents/", ".cloudflare/", "**/*.astro"],
     printWidth: 80,
