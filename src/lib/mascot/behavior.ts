@@ -1,7 +1,12 @@
 /** A small explicit state machine and utility scorer for mascot intent. */
 export type SleepStage = "awake" | "dozing" | "falling" | "returning";
 export type SleepEvent =
-  "IDLE" | "DOZED" | "FELL" | "WOKE" | "RECOVERED" | "RESET";
+  | "IDLE"
+  | "DOZED"
+  | "FELL"
+  | "WOKE"
+  | "RECOVERED"
+  | "RESET";
 
 export function nextSleepStage(
   state: SleepStage,
@@ -19,6 +24,8 @@ export function nextSleepStage(
       return state;
     case "returning":
       return event === "RECOVERED" ? "awake" : state;
+    default:
+      return state;
   }
 }
 
@@ -100,10 +107,16 @@ export function chooseIntent(
       clamp01((stimulus.pointerSpeed - 0.85) / 1.5) * 0.35 +
       mind.wariness * 0.1;
   }
-  const next = (Object.entries(scores) as [Intent, number][]).reduce(
-    (best, entry) => (entry[1] > best[1] ? entry : best),
+  const entries: [Intent, number][] = [
+    ["wander", scores.wander],
+    ["inspect", scores.inspect],
+    ["retreat", scores.retreat],
+  ];
+  const next = entries.reduce((best, entry) =>
+    entry[1] > best[1] ? entry : best,
   )[0];
   if (next === mind.intent) return next;
+
   mind.intent = next;
   if (next === "inspect") {
     mind.lastInspect = now;
