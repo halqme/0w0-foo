@@ -6,7 +6,7 @@ export interface Props {
 
 const { path, title } = Astro.props;
 
-const url = `${Astro.site}${path}`;
+const url = `${Astro.site?.protocol}//${Astro.site?.host}${path}`;
 
 const shareItems = [
   {
@@ -31,7 +31,7 @@ const shareItems = [
     label: "Mastodonでシェア",
   },
   {
-    ariaLabel: "はてなブックマークに追加",
+    ariaLabel: "はてブに追加",
     href: `https://b.hatena.ne.jp/entry/s/${Astro.site?.hostname}${path}${encodeURIComponent(title)}#bbutton`,
     icon: "i-simple-icons:hatenabookmark",
     key: "hatena",
@@ -74,12 +74,10 @@ const shareItems = [
   >
     <span class="icon-md i-lucide:link" aria-hidden="true"></span>
     <span
-      class="tooltip tooltip-success bg-signal-success-surface text-signal-success opacity-0 group-hover:opacity-100"
+      class="tooltip opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"
+      data-copy-tooltip
       aria-hidden="true"
     >
-      コピー完了！
-    </span>
-    <span class="tooltip opacity-0 group-hover:opacity-100" aria-hidden="true">
       URLをコピー
     </span>
   </button>
@@ -88,7 +86,7 @@ const shareItems = [
 <div role="status" aria-live="polite" aria-atomic="true" class="sr-only"></div>
 
 <script>
-  const TOOLTIP_DURATION_MS = 2000;
+  const TOOLTIP_DURATION_MS = 5000;
 
   const initCopyButtons = () => {
     const copyButtons = document.querySelectorAll(".copy-btn");
@@ -99,47 +97,60 @@ const shareItems = [
       }
       button.setAttribute("data-copy-initialized", "true");
 
+      let tooltipTimer: ReturnType<typeof setTimeout> | undefined;
       button.addEventListener("click", async () => {
         const url = button.getAttribute("data-url");
         if (!url) {
           return;
         }
 
+        if (tooltipTimer !== undefined) {
+          clearTimeout(tooltipTimer);
+          tooltipTimer = undefined;
+        }
+        const liveRegion = button.closest(".share-buttons")?.nextElementSibling;
+        if (liveRegion?.getAttribute("role") === "status") {
+          liveRegion.textContent = "";
+        }
+        const tooltip = button.querySelector<HTMLElement>(
+          "[data-copy-tooltip]",
+        );
+        if (tooltip) {
+          tooltip.textContent = "URLをコピー";
+          tooltip.classList.remove(
+            "bg-signal-success-surface",
+            "text-signal-success",
+          );
+        }
+
         try {
           await navigator.clipboard.writeText(url);
 
-          const copyTooltip = button.querySelector(".tooltip-success");
-          const defaultTooltip = button.querySelector(
-            ".tooltip:not(.tooltip-success)",
-          );
-
-          if (copyTooltip && defaultTooltip) {
-            defaultTooltip.classList.add("opacity-0");
-            copyTooltip.classList.remove("opacity-0");
-
-            setTimeout(() => {
-              copyTooltip.classList.add("opacity-0");
+          if (tooltip) {
+            tooltip.textContent = "コピー完了！";
+            tooltip.classList.add(
+              "bg-signal-success-surface",
+              "text-signal-success",
+            );
+            tooltipTimer = setTimeout(() => {
+              tooltip.textContent = "URLをコピー";
+              tooltip.classList.remove(
+                "bg-signal-success-surface",
+                "text-signal-success",
+              );
+              tooltipTimer = undefined;
             }, TOOLTIP_DURATION_MS);
           }
 
-          const liveRegion =
-            button.closest(".share-buttons")?.nextElementSibling;
-          if (liveRegion && liveRegion.getAttribute("role") === "status") {
+          if (liveRegion?.getAttribute("role") === "status") {
             liveRegion.textContent = "URLをコピーしました";
-            setTimeout(() => {
-              liveRegion.textContent = "";
-            }, TOOLTIP_DURATION_MS);
           }
         } catch (error) {
           console.error("Failed to copy URL:", error);
+          if (tooltip) tooltip.textContent = "コピーに失敗しました";
 
-          const liveRegion =
-            button.closest(".share-buttons")?.nextElementSibling;
-          if (liveRegion && liveRegion.getAttribute("role") === "status") {
+          if (liveRegion?.getAttribute("role") === "status") {
             liveRegion.textContent = "コピーに失敗しました";
-            setTimeout(() => {
-              liveRegion.textContent = "";
-            }, TOOLTIP_DURATION_MS);
           }
         }
       });

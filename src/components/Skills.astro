@@ -146,6 +146,12 @@ const groups: {
     ],
   },
 ];
+
+const groupHeadingId = (title: string) =>
+  `skill-group-${title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")}`;
 ---
 
 <section class="section" aria-labelledby="skills-title" id="skills">
@@ -153,13 +159,10 @@ const groups: {
 
   <div class="grid grid-cols-1 gap-4 py-5 px-4 bg-surface-muted md:grid-cols-3 md:gap-6">
     {groups.map((group) => (
-      <section
-        class="min-w-0"
-        aria-labelledby={`skill-group-${group.title.toLowerCase()}`}
-      >
+      <section class="min-w-0" aria-labelledby={groupHeadingId(group.title)}>
         <h3
           class="mb-3 font-mono text-md leading-normal border-b"
-          id={`skill-group-${group.title.toLowerCase()}`}
+          id={groupHeadingId(group.title)}
         >
           {group.title}
         </h3>

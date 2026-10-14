@@ -51,12 +51,12 @@ const { label, posts } = Astro.props;
         Tags
       </a>
     </div>
-  </section>
-  <p class="text-body mt-2 mb-4 font-mono">{posts.length} 件の記事</p>
+    <p class="text-body mt-2 mb-4 font-mono">{posts.length} 件の記事</p>
 
-  <div class="mt-8">
-    {posts.map((post) => (
-      <BlogCard post={post} activeTag={tag} />
-    ))}
-  </div>
+    <div class="mt-8">
+      {posts.map((post) => (
+        <BlogCard post={post} activeTag={tag} />
+      ))}
+    </div>
+  </section>
 </Layout>

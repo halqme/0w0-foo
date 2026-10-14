@@ -202,7 +202,7 @@ export const linkCardPlugin = defineHastPlugin({
       if (favicon) {
         urlContainerChildren.push(
           createElement("img", {
-            alt: `${title} favicon`,
+            alt: "",
             className: ["icon-sm rounded-xs"],
             height: 16,
             src: favicon,
@@ -238,7 +238,7 @@ export const linkCardPlugin = defineHastPlugin({
             },
             [
               createElement("img", {
-                alt: title,
+                alt: "",
                 className: [
                   "absolute inset-0 block h-full w-full object-cover outline outline-1 outline-offset-[-1px] outline-[var(--color-image-outline)]",
                 ],

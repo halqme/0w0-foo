@@ -6,6 +6,26 @@
   transition:animate="none"
 >
   <button
+    class="mascot-motion-toggle"
+    type="button"
+    aria-label="マスコットの動き"
+    aria-pressed="true"
+    data-mascot-motion-toggle
+    hidden
+  >
+    <span
+      class="icon-sm i-lucide:pause"
+      data-motion-pause
+      aria-hidden="true"
+    ></span>
+    <span
+      class="icon-sm i-lucide:play"
+      data-motion-resume
+      aria-hidden="true"
+      hidden
+    ></span>
+  </button>
+  <button
     class="mascot"
     type="button"
     aria-label="マスコットを喜ばせる"
@@ -47,7 +67,29 @@
     touch-action: manipulation;
     pointer-events: auto;
   }
-  .mascot:focus-visible {
+  .mascot-motion-toggle {
+    position: fixed;
+    z-index: 20;
+    right: 5.75rem;
+    bottom: 1.25rem;
+    display: grid;
+    width: 2.5rem;
+    height: 2.5rem;
+    place-items: center;
+    border: 1px solid var(--color-line);
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--color-canvas) 80%, transparent);
+    color: var(--color-accent);
+    cursor: pointer;
+    touch-action: manipulation;
+    pointer-events: auto;
+  }
+  .mascot-motion-toggle[hidden],
+  .mascot-motion-toggle [hidden] {
+    display: none;
+  }
+  .mascot:focus-visible,
+  .mascot-motion-toggle:focus-visible {
     outline: 2px solid var(--color-focus);
     outline-offset: 3px;
   }
@@ -70,7 +112,11 @@
   }
   .face-breath {
     display: inline-block;
-    animation: mascot-breathe 4.8s ease-in-out infinite;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .mascot-root[data-ready] .face-breath {
+      animation: mascot-breathe 4.8s ease-in-out infinite;
+    }
   }
   @keyframes mascot-breathe {
     0%,
@@ -145,12 +191,16 @@
   const initMascot = () => {
     const root = document.querySelector<HTMLElement>("[data-mascot-root]");
     const mascot = root?.querySelector<HTMLButtonElement>("[data-mascot]");
+    const motionToggle = root?.querySelector<HTMLButtonElement>(
+      "[data-mascot-motion-toggle]",
+    );
     const face = mascot?.querySelector<HTMLElement>("[data-face]");
     const follower = root?.querySelector<HTMLElement>("[data-follower]");
     const followerFace = follower?.querySelector<HTMLElement>("[data-face]");
     if (
       !root ||
       !mascot ||
+      !motionToggle ||
       !face ||
       !follower ||
       !followerFace ||
@@ -175,7 +225,22 @@
     let pointer = { x: 0, y: 0, time: 0 },
       speed = 0;
     let following = false,
-      paused = false;
+      paused = false,
+      userPaused = false;
+    const syncMotionToggle = () => {
+      motionToggle.hidden = motion.matches;
+      motionToggle.setAttribute("aria-pressed", String(!paused));
+      const pauseIcon = motionToggle.querySelector<HTMLElement>(
+        "[data-motion-pause]",
+      );
+      const resumeIcon = motionToggle.querySelector<HTMLElement>(
+        "[data-motion-resume]",
+      );
+      if (pauseIcon) pauseIcon.hidden = paused;
+      if (resumeIcon) resumeIcon.hidden = !paused;
+    };
+    syncMotionToggle();
+    root.dataset.ready = "true";
     const sleep = newSleepState(performance.now());
     let happyUntil = 0,
       scrollUntil = 0,
@@ -422,7 +487,8 @@
       clearIdle();
       clearStoryTimer();
       enterSleep("RESET");
-      delete root.dataset.paused;
+      if (paused) root.dataset.paused = "true";
+      else delete root.dataset.paused;
       velocity = { ...home };
       obstacles = [];
       lastSample = -Infinity;
@@ -557,6 +623,7 @@
     const pause = () => {
       if (paused) return;
       paused = true;
+      syncMotionToggle();
       pausedAt = performance.now();
       root.dataset.paused = "true";
       stop();
@@ -580,6 +647,7 @@
       }
       const duration = performance.now() - pausedAt;
       paused = false;
+      syncMotionToggle();
       delete root.dataset.paused;
       happyUntil += happyUntil ? duration : 0;
       scrollUntil += scrollUntil ? duration : 0;
@@ -591,6 +659,7 @@
       if (!motion.matches && (following || happyUntil || scrollUntil)) wake();
     };
     const onMotionChange = () => {
+      syncMotionToggle();
       if (motion.matches) {
         reset();
         if (!paused) activity();
@@ -626,6 +695,7 @@
       motion.removeEventListener("change", onMotionChange);
       mascot.removeEventListener("focus", onFocus);
       mascot.removeEventListener("click", bounce);
+      motionToggle.removeEventListener("click", onMotionToggle);
       document.removeEventListener("astro:before-swap", onBeforeSwap);
       document.removeEventListener("astro:after-swap", onAfterSwap);
       document.removeEventListener("astro:page-load", onPageLoad);
@@ -635,12 +705,23 @@
     const onAfterSwap = () => {
       if (document.querySelector("[data-mascot-root]") !== root) cleanup();
     };
-    const onPageLoad = () => resume();
+    const onPageLoad = () => {
+      if (!userPaused) resume();
+    };
     const onVisibilityChange = () => {
       if (!paused && document.visibilityState === "hidden") {
         reset();
         root.dataset.paused = "true";
       } else if (!paused) delete root.dataset.paused;
+    };
+    const onMotionToggle = () => {
+      if (userPaused) {
+        userPaused = false;
+        resume();
+      } else {
+        userPaused = true;
+        pause();
+      }
     };
     const onPointerDown = (event: PointerEvent) => {
       if (paused) return;
@@ -664,6 +745,7 @@
     motion.addEventListener("change", onMotionChange);
     mascot.addEventListener("focus", onFocus);
     mascot.addEventListener("click", bounce);
+    motionToggle.addEventListener("click", onMotionToggle);
     document.addEventListener("astro:before-swap", onBeforeSwap);
     document.addEventListener("astro:after-swap", onAfterSwap);
     document.addEventListener("astro:page-load", onPageLoad);

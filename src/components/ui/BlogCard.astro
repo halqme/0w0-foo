@@ -51,7 +51,7 @@ const isActiveTag = (tag: string) => activeTag === slugifyTag(tag);
         {post.data.topics.toSorted().map((tag: string) => (
           <Tag
             label={tag}
-            href={`/tags/${isActiveTag(tag) ? "" : slugifyTag(tag)}`}
+            href={`/tags/${slugifyTag(tag)}`}
             active={isActiveTag(tag)}
             class="text-[0.68rem] md:text-xs"
           />

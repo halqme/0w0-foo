@@ -65,8 +65,9 @@ Its logic is split into three independent units:
   the far side of an investigated element relative to the cursor.
 
 The follower is decorative and does not intercept pointer events. Its motion
-is disabled by `prefers-reduced-motion`; Astro page transitions and tab
-visibility preserve the existing pause/cleanup handling. Obstacles are sampled
+can be paused or resumed with the on-screen control and is disabled by
+`prefers-reduced-motion`; Astro page transitions and tab visibility preserve
+the existing pause/cleanup handling. Obstacles are sampled
 periodically rather than queried on every animation frame; small visible
 headings, links, controls, images, code blocks, and explicit
 `data-mascot-obstacle` regions are considered.

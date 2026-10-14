@@ -77,7 +77,7 @@ const ogImage = `/ogp/${slug}.png`;
         </a>
       )}
       <div class="mx-auto mb-4">
-        <ShareButtons path={Astro.url.pathname.toString()} title={title} />
+        <ShareButtons path={Astro.url.pathname} title={title} />
       </div>
     </div>
 
@@ -109,13 +109,13 @@ const ogImage = `/ogp/${slug}.png`;
     <div class="mt-8 flex justify-end">
       <button
         class="btn-ghost text-sm"
-        onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+        onclick="window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })"
       >
         ^ top ^
       </button>
     </div>
     <script>
-      const NOTIFICATION_DURATION_MS = 2000;
+      const NOTIFICATION_DURATION_MS = 5000;
 
       function addCopyButton(codeBlock: HTMLElement): void {
         if (codeBlock.hasAttribute("data-has-copy-button")) {
@@ -150,7 +150,6 @@ const ogImage = `/ogp/${slug}.png`;
         button.type = "button";
         button.className =
           "absolute top-0 right-0 flex gap-1 min-h-6 px-2 py-1 text-xs font-medium bg-surface text-ink rounded-sm opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity duration-150 hover:bg-surface-muted z-10 before:content-empty before:i-lucide:copy before:size-4";
-        button.setAttribute("aria-label", "コードをコピー");
         button.innerHTML = `
         <span class="copy-text">コピー</span>
       `;
@@ -177,6 +176,8 @@ const ogImage = `/ogp/${slug}.png`;
             return;
           }
 
+          liveRegion.textContent = "";
+          setState(false);
           pending = true;
           button.disabled = true;
           if (resetTimer !== undefined) {
@@ -184,22 +185,25 @@ const ogImage = `/ogp/${slug}.png`;
             resetTimer = undefined;
           }
 
+          let failed = false;
           try {
             await navigator.clipboard.writeText(codeElement.textContent ?? "");
             setState(true);
             liveRegion.textContent = "コードをコピーしました";
           } catch (error) {
             console.error("Failed to copy code:", error);
+            failed = true;
             setState(false, true);
             liveRegion.textContent = "コピーに失敗しました";
           } finally {
             pending = false;
             button.disabled = false;
-            resetTimer = setTimeout(() => {
-              setState(false);
-              liveRegion.textContent = "";
-              resetTimer = undefined;
-            }, NOTIFICATION_DURATION_MS);
+            if (!failed) {
+              resetTimer = setTimeout(() => {
+                setState(false);
+                resetTimer = undefined;
+              }, NOTIFICATION_DURATION_MS);
+            }
           }
         });
 

@@ -9,7 +9,9 @@ const posts = sortPostsNewestFirst(await getPublishedPosts());
 <Layout title="HALQME's Blog">
   <section aria-labelledby="blog-title">
     <div class="mb-4 flex items-center justify-between">
-      <div aria-hidden="true"></div>
+      <h1 id="blog-title" class="text-headline">
+        Blog
+      </h1>
       <a
         href="/tags"
         class="btn-ghost before:content-empty before:i-lucide:tags text-sm"
@@ -17,10 +19,10 @@ const posts = sortPostsNewestFirst(await getPublishedPosts());
         Tags
       </a>
     </div>
+    <div class="mt-4">
+      {posts.map((post) => (
+        <BlogCard post={post} />
+      ))}
+    </div>
   </section>
-  <div class="mt-4">
-    {posts.map((post) => (
-      <BlogCard post={post} />
-    ))}
-  </div>
 </Layout>
