@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from "vite-plus/test";
-import { chooseIntent, evolveTemperament, newTemperament } from "./behavior";
+import {
+  chooseIntent,
+  evolveTemperament,
+  newTemperament,
+  resolveIntent,
+} from "./behavior";
 
 describe("evolveTemperament", () => {
   it("evolves active and inactive needs and clamps each value", () => {
@@ -146,5 +151,43 @@ describe("chooseIntent", () => {
     expect(retreat.nextDecision).toBe(2590);
     expect(retreat.lastRetreat).toBe(2000);
     expect(retreat.until).toBe(2825);
+  });
+});
+
+describe("resolveIntent", () => {
+  it("stores wander while asleep and does not decide", () => {
+    const mind = {
+      ...newTemperament(),
+      intent: "inspect" as const,
+      until: 9000,
+      nextDecision: 9000,
+    };
+    const random = vi.fn(() => 0);
+    expect(
+      resolveIntent(
+        mind,
+        false,
+        { pointerSpeed: 2, pointerDistance: 100, interactiveNearby: true },
+        5000,
+        random,
+      ),
+    ).toBe("wander");
+    expect(mind.intent).toBe("wander");
+    expect(mind.until).toBe(9000);
+    expect(random).not.toHaveBeenCalled();
+  });
+
+  it("delegates to intent selection while awake", () => {
+    const mind = newTemperament();
+    expect(
+      resolveIntent(
+        mind,
+        true,
+        { pointerSpeed: 0, pointerDistance: 500, interactiveNearby: false },
+        5000,
+        () => 0,
+      ),
+    ).toBe("wander");
+    expect(mind.intent).toBe("wander");
   });
 });

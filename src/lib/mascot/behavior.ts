@@ -102,3 +102,21 @@ export function chooseIntent(
   }
   return next;
 }
+
+/**
+ * Do not keep the previous intent while asleep.
+ * A committed inspect or retreat would otherwise resume when the mascot wakes.
+ */
+export function resolveIntent(
+  mind: Temperament,
+  awake: boolean,
+  stimulus: Stimulus,
+  now: number,
+  random: () => number = Math.random,
+): Intent {
+  if (!awake) {
+    mind.intent = "wander";
+    return mind.intent;
+  }
+  return chooseIntent(mind, stimulus, now, random);
+}

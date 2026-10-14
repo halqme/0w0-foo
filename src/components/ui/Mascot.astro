@@ -102,21 +102,27 @@
   import {
     newTemperament,
     evolveTemperament,
-    chooseIntent,
+    resolveIntent,
   } from "../../lib/mascot/behavior";
   import {
-    newSleepState,
-    dispatchSleep,
+    chooseExpression,
+    hoverFaceChoices,
+  } from "../../lib/mascot/expression";
+  import { mascotPose } from "../../lib/mascot/pose";
+  import {
     advanceSleep,
-    shiftSleepTime,
+    dispatchSleep,
     idleSleepRemaining,
+    newSleepState,
+    shiftSleepTime,
     storyRemaining,
-    SLEEP_TIMING,
   } from "../../lib/mascot/sleep";
   import {
     stepSteering,
+    stepWander,
+    newWander,
     sampleObstacles,
-    behindTarget,
+    intentTarget,
     retreatTarget,
     type Obstacle,
   } from "../../lib/mascot/steering";
@@ -158,28 +164,23 @@
     let target = { ...home },
       position = { ...home },
       velocity = { ...home };
-    const sleep = newSleepState(performance.now());
     const temperament = newTemperament();
     let obstacles: Obstacle[] = [];
     let lastSample = -Infinity;
     let retreatGoal: { x: number; y: number } | null = null;
     let lastIntent = temperament.intent;
-    let wanderBearing = Math.atan2(80, 104),
-      wanderVelocity = 0,
-      desiredWanderVelocity = 0,
-      wanderRadius = 120,
-      desiredWanderRadius = 120,
-      wanderDecisionIn = 0;
+    let wander = newWander();
     let frame = 0,
       lastTime = 0;
     let pointer = { x: 0, y: 0, time: 0 },
       speed = 0;
     let following = false,
       paused = false;
+    const sleep = newSleepState(performance.now());
     let happyUntil = 0,
       scrollUntil = 0,
-      interactionTimer = 0,
       faceTimer = 0,
+      idleTimer = 0,
       storyTimer = 0,
       pausedAt = 0;
     let hoverFace = "0ω0",
@@ -194,34 +195,24 @@
       if (face.textContent !== value) face.textContent = value;
       if (followerFace.textContent !== value) followerFace.textContent = value;
     };
-    const paintFace = () => {
-      const now = performance.now();
-      if (happyUntil > now) setFace(lastClickFace || "^w^");
-      else if (sleep.story === "rising") setFace("0o0");
-      else if (
-        sleep.story === "resting" ||
-        sleep.story === "dozing" ||
-        sleep.story === "dropping"
-      )
-        setFace("-w-");
-      else if (
-        temperament.intent === "retreat" &&
-        following &&
-        sleep.story === "awake"
-      )
-        setFace("0o0");
-      else if (speed > 0.8 && following) setFace("0o0");
-      else if (scrollUntil > now) setFace(scrollFace);
-      else if (
-        temperament.intent === "inspect" &&
-        following &&
-        sleep.story === "awake"
-      )
-        setFace("0ω0");
-      else if (curious) setFace(hoverFace);
-      else if ((speed > 0.2 && following) || pleased) setFace("^w^");
-      else setFace("0w0");
-    };
+    function paintFace() {
+      setFace(
+        chooseExpression({
+          now: performance.now(),
+          happyUntil,
+          clickFace: lastClickFace,
+          scrollUntil,
+          scrollFace,
+          story: sleep.story,
+          intent: temperament.intent,
+          following,
+          speed,
+          curious,
+          hoverFace,
+          pleased,
+        }),
+      );
+    }
     const armFaceExpiry = () => {
       clearTimeout(faceTimer);
       faceTimer = 0;
@@ -241,12 +232,12 @@
       const b = bounds();
       return {
         x: clamp(
-          x + Math.cos(wanderBearing) * wanderRadius - 40,
+          x + Math.cos(wander.bearing) * wander.radius - 40,
           b.minX,
           b.maxX,
         ),
         y: clamp(
-          y + Math.sin(wanderBearing) * wanderRadius * 0.85 - 22,
+          y + Math.sin(wander.bearing) * wander.radius * 0.85 - 22,
           b.minY,
           b.maxY,
         ),
@@ -257,52 +248,57 @@
       frame = 0;
       lastTime = 0;
     };
-    const clearStory = () => {
+    const clearIdle = () => {
+      clearTimeout(idleTimer);
+      idleTimer = 0;
+    };
+    const clearStoryTimer = () => {
       clearTimeout(storyTimer);
       storyTimer = 0;
     };
-    const sendSleepEvent = (event: Parameters<typeof dispatchSleep>[1]) => {
+    const enterSleep = (event: Parameters<typeof dispatchSleep>[1]) => {
       const previous = sleep.story;
-      if (!dispatchSleep(sleep, event, performance.now())) return;
-      if (sleep.story !== previous) {
-        clearStory();
-        paintFace();
-        armStory();
-      }
+      if (!dispatchSleep(sleep, event, performance.now())) return false;
+      if (sleep.story === previous) return false;
+      armStory();
+      return true;
     };
     const armStory = () => {
-      clearStory();
-      if (sleep.story === "dozing" || sleep.story === "dropping") {
-        storyTimer = window.setTimeout(
-          () => {
-            storyTimer = 0;
-            if (
-              paused ||
-              motion.matches ||
-              (sleep.story === "dozing" && !following)
-            )
-              return;
-            sendSleepEvent(sleep.story === "dozing" ? "DOZED" : "FELL");
-          },
-          storyRemaining(sleep, performance.now()),
-        );
-      }
+      clearStoryTimer();
+      if (sleep.story !== "dozing" && sleep.story !== "dropping") return;
+      storyTimer = window.setTimeout(
+        () => {
+          storyTimer = 0;
+          // Do not retry a skipped completion: resume rearms after pause, and a missed fall must not play later on its own.
+          if (
+            paused ||
+            motion.matches ||
+            (sleep.story === "dozing" && !following)
+          )
+            return;
+          if (enterSleep(sleep.story === "dozing" ? "DOZED" : "FELL"))
+            paintFace();
+        },
+        storyRemaining(sleep, performance.now()),
+      );
     };
-    const beginSleep = () => {
-      if (paused) return;
-      sendSleepEvent(!following || motion.matches ? "REST" : "IDLE");
-      paintFace();
+    const armIdle = () => {
+      clearIdle();
+      idleTimer = window.setTimeout(
+        () => {
+          idleTimer = 0;
+          if (paused) return;
+          if (enterSleep(!following || motion.matches ? "REST" : "IDLE"))
+            paintFace();
+        },
+        idleSleepRemaining(sleep, performance.now()),
+      );
     };
     const activity = () => {
       if (!paused && document.visibilityState !== "hidden")
         delete root.dataset.paused;
-      clearTimeout(interactionTimer);
-      interactionTimer = 0;
-      sendSleepEvent("ACTIVITY");
-      interactionTimer = window.setTimeout(
-        beginSleep,
-        idleSleepRemaining(sleep, performance.now()),
-      );
+      enterSleep("ACTIVITY");
+      armIdle();
       paintFace();
       wake();
     };
@@ -312,33 +308,8 @@
       const dt = Math.min((time - (lastTime || time)) / 1000, 0.05);
       lastTime = time;
       speed *= Math.exp(-6 * dt);
-      // Steering uses velocity and acceleration, rather than directly interpolating coordinates.
-      if (following && sleep.story === "awake" && dt > 0) {
-        wanderDecisionIn -= dt;
-        if (wanderDecisionIn <= 0) {
-          wanderDecisionIn = 2 + Math.random() * 3;
-          const pause = Math.random() < 0.25;
-          if (pause) desiredWanderVelocity = 0;
-          else {
-            const reverse = Math.random() < 0.4;
-            const direction = reverse
-              ? -Math.sign(desiredWanderVelocity || 1)
-              : Math.sign(
-                  desiredWanderVelocity || (Math.random() < 0.5 ? -1 : 1),
-                );
-            desiredWanderVelocity = direction * (0.18 + Math.random() * 0.2);
-          }
-          desiredWanderRadius = 90 + Math.random() * 50;
-        }
-        // A hesitation should actually come to rest, not keep drifting imperceptibly.
-        const turnResponse = desiredWanderVelocity === 0 ? 5 : 1.4;
-        wanderVelocity +=
-          (desiredWanderVelocity - wanderVelocity) *
-          (1 - Math.exp(-turnResponse * dt));
-        wanderRadius +=
-          (desiredWanderRadius - wanderRadius) * (1 - Math.exp(-0.6 * dt));
-        wanderBearing += wanderVelocity * dt;
-      }
+      if (following && sleep.story === "awake" && dt > 0)
+        wander = stepWander(wander, dt);
       if (following) {
         evolveTemperament(temperament, dt, sleep.story === "awake");
         if (time - lastSample >= 380) {
@@ -361,20 +332,19 @@
               (hoverRect.top + hoverRect.bottom) / 2 - pointer.y,
             )
           : Infinity;
-        if (sleep.story === "awake") {
-          chooseIntent(
-            temperament,
-            {
-              pointerSpeed: speed,
-              pointerDistance: Math.hypot(
-                position.x + 40 - pointer.x,
-                position.y + 22 - pointer.y,
-              ),
-              interactiveNearby: proximity < 360,
-            },
-            time,
-          );
-        } else temperament.intent = "wander";
+        resolveIntent(
+          temperament,
+          sleep.story === "awake",
+          {
+            pointerSpeed: speed,
+            pointerDistance: Math.hypot(
+              position.x + 40 - pointer.x,
+              position.y + 22 - pointer.y,
+            ),
+            interactiveNearby: proximity < 360,
+          },
+          time,
+        );
         if (temperament.intent !== lastIntent) {
           retreatGoal =
             temperament.intent === "retreat"
@@ -382,21 +352,20 @@
               : null;
           lastIntent = temperament.intent;
         }
-        target =
-          temperament.intent === "inspect" && hoverRect
-            ? (() => {
-                const point = behindTarget(hoverRect, pointer);
-                return { x: point.x - 40, y: point.y - 22 };
-              })()
-            : temperament.intent === "retreat" && retreatGoal
-              ? retreatGoal
-              : pointerTarget(pointer.x, pointer.y);
+        target = intentTarget(
+          temperament.intent,
+          hoverRect,
+          pointer,
+          retreatGoal,
+          pointerTarget(pointer.x, pointer.y),
+        );
       }
       const bMotion = bounds();
       target = {
         x: clamp(target.x, bMotion.minX, bMotion.maxX),
         y: clamp(target.y, bMotion.minY, bMotion.maxY),
       };
+      // Steering uses velocity and acceleration, rather than directly interpolating coordinates.
       const moved = stepSteering(
         { position, velocity },
         target,
@@ -405,40 +374,28 @@
       );
       position = moved.position;
       velocity = moved.velocity;
-      const driftX = Math.sin(time / 3400) * 4;
-      const driftY = Math.sin(time / 2700) * 5;
       const recovered = advanceSleep(sleep, time, dt);
-      if (recovered) sendSleepEvent(recovered);
-      const b = bounds();
-      const reaction = happyUntil > time ? (happyUntil - time) / 700 : 0;
-      const scroll = scrollUntil > time ? (scrollUntil - time) / 700 : 0;
-      const hop = -3 * Math.sin(Math.PI * (1 - reaction)) * reaction;
-      const scrollY = Math.sin(time / 300) * 1.5 * scroll;
-      const x = clamp(position.x + driftX, b.minX, b.maxX);
-      const y = clamp(
-        position.y + driftY + sleep.offsetY + hop + scrollY,
-        b.minY,
-        b.maxY,
-      );
-      const gaze =
-        sleep.story === "awake"
-          ? clamp(
-              Math.sin(time / 3900) * 6 +
-                (pointer.x >= position.x + 40 ? 3 : -3),
-              -6,
-              6,
-            )
-          : 0;
-      face.style.transform = `translateX(${gaze}px)`;
-      followerFace.style.transform = `translateX(${gaze}px)`;
-      const scrollX = Math.sin(time / 400) * 1.5 * scroll;
-      const tilt = clamp((target.x - position.x) * 0.04, -3, 3);
-      follower.style.transform = `translate3d(${clamp(x + scrollX, b.minX, b.maxX)}px, ${y}px, 0) rotate(${tilt}deg)`;
-      if (!following)
+      if (recovered) enterSleep(recovered);
+      const pose = mascotPose({
+        time,
+        position,
+        target,
+        pointer,
+        bounds: bounds(),
+        story: sleep.story,
+        sleepOffset: sleep.offsetY,
+        happyUntil,
+        scrollUntil,
+        following,
+      });
+      face.style.transform = `translateX(${pose.gaze}px)`;
+      followerFace.style.transform = `translateX(${pose.gaze}px)`;
+      follower.style.transform = `translate3d(${pose.follower.x}px, ${pose.follower.y}px, 0) rotate(${pose.tilt}deg)`;
+      if (pose.home !== null)
         mascot.style.transform =
-          happyUntil > time || scroll > 0
-            ? `translate3d(${scrollX}px, ${hop + scrollY}px, 0) rotate(${Math.sin(time / 400) * 0.7 * scroll}deg)`
-            : "";
+          pose.home === ""
+            ? ""
+            : `translate3d(${pose.home.x}px, ${pose.home.y}px, 0) rotate(${pose.home.rotation}deg)`;
       if (happyUntil && time >= happyUntil) happyUntil = 0;
       if (scrollUntil && time >= scrollUntil) scrollUntil = 0;
       paintFace();
@@ -457,14 +414,14 @@
     };
     const reset = () => {
       stop();
-      clearStory();
-      clearTimeout(interactionTimer);
       clearTimeout(faceTimer);
-      interactionTimer = faceTimer = 0;
+      faceTimer = 0;
       happyUntil = scrollUntil = 0;
       speed = 0;
       pointer = { x: 0, y: 0, time: 0 };
-      sendSleepEvent("RESET");
+      clearIdle();
+      clearStoryTimer();
+      enterSleep("RESET");
       delete root.dataset.paused;
       velocity = { ...home };
       obstacles = [];
@@ -506,8 +463,6 @@
       }
       target = pointerTarget(event.clientX, event.clientY);
       following = true;
-      if (!motion.matches && sleep.storyReady && !interactionTimer)
-        interactionTimer = window.setTimeout(beginSleep, SLEEP_TIMING.idle);
       mascot.style.visibility = "hidden";
       follower.style.visibility = "visible";
       wake();
@@ -523,10 +478,6 @@
       armFaceExpiry();
       paintFace();
       wake();
-      if (interactionTimer) {
-        clearTimeout(interactionTimer);
-        interactionTimer = window.setTimeout(beginSleep, SLEEP_TIMING.idle);
-      }
     };
     const onFocus = () => {
       if (!paused) {
@@ -563,11 +514,7 @@
         }
       }
       hoverFace = choose(
-        external
-          ? ["0o0", "OwO", "0v0"]
-          : hoveredAnchor
-            ? ["^w^", "0ω0", "0u0"]
-            : ["0ω0", "^w^"],
+        hoverFaceChoices(external, hoveredAnchor !== null),
         hoverFace,
       );
       activity();
@@ -613,12 +560,10 @@
       pausedAt = performance.now();
       root.dataset.paused = "true";
       stop();
-      clearTimeout(storyTimer);
-      storyTimer = 0;
+      clearIdle();
+      clearStoryTimer();
       clearTimeout(faceTimer);
       faceTimer = 0;
-      clearTimeout(interactionTimer);
-      interactionTimer = 0;
       hoveredInteractive = hoveredAnchor = null;
       curious = pleased = false;
     };
@@ -628,29 +573,21 @@
         return;
       }
       clearTimeout(faceTimer);
-      clearTimeout(interactionTimer);
-      faceTimer = interactionTimer = 0;
-      if (!paused) return;
+      faceTimer = 0;
+      if (!paused) {
+        clearIdle();
+        return;
+      }
       const duration = performance.now() - pausedAt;
       paused = false;
       delete root.dataset.paused;
-      shiftSleepTime(sleep, duration);
       happyUntil += happyUntil ? duration : 0;
       scrollUntil += scrollUntil ? duration : 0;
-
+      clearIdle();
+      shiftSleepTime(sleep, duration);
       armStory();
-      const faceExpiry = Math.max(happyUntil, scrollUntil);
-      if (faceExpiry > performance.now())
-        faceTimer = window.setTimeout(() => {
-          happyUntil = scrollUntil = 0;
-          faceTimer = 0;
-          paintFace();
-        }, faceExpiry - performance.now());
-      if (sleep.story === "awake" && sleep.storyReady)
-        interactionTimer = window.setTimeout(
-          beginSleep,
-          idleSleepRemaining(sleep, performance.now()),
-        );
+      if (sleep.story === "awake" && sleep.storyReady) armIdle();
+      armFaceExpiry();
       if (!motion.matches && (following || happyUntil || scrollUntil)) wake();
     };
     const onMotionChange = () => {

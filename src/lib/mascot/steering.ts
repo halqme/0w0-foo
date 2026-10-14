@@ -1,4 +1,6 @@
 /** Pure geometry and movement for the cursor mascot (viewport CSS pixels). */
+import type { Intent } from "./behavior";
+
 export type Vec = { x: number; y: number };
 export type Obstacle = {
   left: number;
@@ -121,6 +123,23 @@ export function behindTarget(rect: Obstacle, pointer: Vec, offset = 38): Vec {
   return { x: cx, y: dy >= 0 ? rect.bottom + offset : rect.top - offset };
 }
 
+/** Inspect and retreat replace the wander point. Other intents keep it. */
+export function intentTarget(
+  intent: Intent,
+  hover: Obstacle | null,
+  pointer: Vec,
+  retreat: Vec | null,
+  fallback: Vec,
+): Vec {
+  if (intent === "inspect" && hover) {
+    const point = behindTarget(hover, pointer);
+    // behindTarget is not a top-left. The 80×44 pill's center is 40,22.
+    return { x: point.x - 40, y: point.y - 22 };
+  }
+  if (intent === "retreat" && retreat) return retreat;
+  return fallback;
+}
+
 export function retreatTarget(
   position: Vec,
   pointer: Vec,
@@ -228,6 +247,67 @@ export function stepSteering(
       y: position.y + nextVelocity.y * dt,
     },
     velocity: nextVelocity,
+  };
+}
+
+export type Wander = {
+  bearing: number;
+  velocity: number;
+  desiredVelocity: number;
+  radius: number;
+  desiredRadius: number;
+  decisionIn: number;
+};
+
+export function newWander(): Wander {
+  return {
+    bearing: Math.atan2(80, 104),
+    velocity: 0,
+    desiredVelocity: 0,
+    radius: 120,
+    desiredRadius: 120,
+    decisionIn: 0,
+  };
+}
+
+export function stepWander(
+  wander: Wander,
+  dt: number,
+  random: () => number = Math.random,
+): Wander {
+  let {
+    bearing,
+    velocity,
+    desiredVelocity,
+    radius,
+    desiredRadius,
+    decisionIn,
+  } = wander;
+  decisionIn -= dt;
+  if (decisionIn <= 0) {
+    decisionIn = 2 + random() * 3;
+    if (random() < 0.25) desiredVelocity = 0;
+    else {
+      const reverse = random() < 0.4;
+      const direction = reverse
+        ? -Math.sign(desiredVelocity || 1)
+        : Math.sign(desiredVelocity || (random() < 0.5 ? -1 : 1));
+      desiredVelocity = direction * (0.18 + random() * 0.2);
+    }
+    desiredRadius = 90 + random() * 50;
+  }
+  // A hesitation should actually come to rest, not keep drifting imperceptibly.
+  const turnResponse = desiredVelocity === 0 ? 5 : 1.4;
+  velocity += (desiredVelocity - velocity) * (1 - Math.exp(-turnResponse * dt));
+  radius += (desiredRadius - radius) * (1 - Math.exp(-0.6 * dt));
+  bearing += velocity * dt;
+  return {
+    bearing,
+    velocity,
+    desiredVelocity,
+    radius,
+    desiredRadius,
+    decisionIn,
   };
 }
 

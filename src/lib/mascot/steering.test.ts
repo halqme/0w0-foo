@@ -1,11 +1,14 @@
 import { describe, expect, it, vi } from "vite-plus/test";
 import {
   behindTarget,
+  intentTarget,
+  newWander,
   retreatTarget,
   routeWaypoint,
   sampleObstacles,
   segmentHitsRect,
   stepSteering,
+  stepWander,
   type Obstacle,
 } from "./steering";
 
@@ -21,6 +24,73 @@ const element = (rect: Partial<DOMRect>) => ({
     height: 20,
     ...rect,
   }),
+});
+
+describe("intentTarget", () => {
+  it("uses the wander point unless inspect or retreat can replace it", () => {
+    const hover = { left: 0, top: 0, right: 100, bottom: 40 };
+    const pointer = { x: 10, y: 10 };
+    const fallback = { x: 1, y: 2 };
+    const retreat = { x: 9, y: 8 };
+    const beside = behindTarget(hover, pointer);
+    expect(intentTarget("inspect", hover, pointer, retreat, fallback)).toEqual({
+      x: beside.x - 40,
+      y: beside.y - 22,
+    });
+    expect(intentTarget("inspect", null, pointer, retreat, fallback)).toEqual(
+      fallback,
+    );
+    expect(intentTarget("retreat", hover, pointer, retreat, fallback)).toEqual(
+      retreat,
+    );
+    expect(intentTarget("retreat", hover, pointer, null, fallback)).toEqual(
+      fallback,
+    );
+    expect(intentTarget("wander", hover, pointer, retreat, fallback)).toEqual(
+      fallback,
+    );
+  });
+});
+
+describe("stepWander", () => {
+  it("settles a hesitation faster than a moving turn", () => {
+    const hesitant = stepWander(
+      { ...newWander(), velocity: 1, desiredVelocity: 0, decisionIn: 10 },
+      0.2,
+      () => 0,
+    );
+    const moving = stepWander(
+      { ...newWander(), velocity: 0, desiredVelocity: 0.2, decisionIn: 10 },
+      0.2,
+      () => 0,
+    );
+    expect(hesitant.velocity).toBeCloseTo(Math.exp(-1));
+    expect(moving.velocity).toBeCloseTo(0.2 * (1 - Math.exp(-0.28)));
+    expect(hesitant.decisionIn).toBe(9.8);
+  });
+
+  it("pauses or reverses without consuming an extra sign roll", () => {
+    const pause = [0, 0, 0.5];
+    const paused = stepWander(
+      { ...newWander(), desiredVelocity: 0.3 },
+      0,
+      () => pause.shift() ?? 0,
+    );
+    expect(paused.desiredVelocity).toBe(0);
+    expect(paused.desiredRadius).toBe(115);
+    expect(paused.decisionIn).toBe(2);
+    expect(pause).toEqual([]);
+
+    const reverse = [0, 0.5, 0, 0, 0];
+    const reversed = stepWander(
+      { ...newWander(), desiredVelocity: 0.3 },
+      0,
+      () => reverse.shift() ?? 0,
+    );
+    expect(reversed.desiredVelocity).toBeCloseTo(-0.18);
+    expect(reversed.desiredRadius).toBe(90);
+    expect(reverse).toEqual([]);
+  });
 });
 
 describe("segmentHitsRect", () => {
