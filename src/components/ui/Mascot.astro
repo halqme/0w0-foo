@@ -110,7 +110,7 @@
     advanceSleep,
     shiftSleepTime,
     idleSleepRemaining,
-    stageSleepRemaining,
+    storyRemaining,
     SLEEP_TIMING,
   } from "../../lib/mascot/sleep";
   import {
@@ -180,7 +180,7 @@
       scrollUntil = 0,
       interactionTimer = 0,
       faceTimer = 0,
-      stageTimer = 0,
+      storyTimer = 0,
       pausedAt = 0;
     let hoverFace = "0ω0",
       scrollFace = "0o0",
@@ -197,17 +197,17 @@
     const paintFace = () => {
       const now = performance.now();
       if (happyUntil > now) setFace(lastClickFace || "^w^");
-      else if (sleep.stage === "returning") setFace("0o0");
+      else if (sleep.story === "rising") setFace("0o0");
       else if (
-        sleep.stage === "dozing" ||
-        sleep.stage === "falling" ||
-        sleep.asleep
+        sleep.story === "resting" ||
+        sleep.story === "dozing" ||
+        sleep.story === "dropping"
       )
         setFace("-w-");
       else if (
         temperament.intent === "retreat" &&
         following &&
-        sleep.stage === "awake"
+        sleep.story === "awake"
       )
         setFace("0o0");
       else if (speed > 0.8 && following) setFace("0o0");
@@ -215,7 +215,7 @@
       else if (
         temperament.intent === "inspect" &&
         following &&
-        sleep.stage === "awake"
+        sleep.story === "awake"
       )
         setFace("0ω0");
       else if (curious) setFace(hoverFace);
@@ -258,33 +258,33 @@
       lastTime = 0;
     };
     const clearStory = () => {
-      clearTimeout(stageTimer);
-      stageTimer = 0;
+      clearTimeout(storyTimer);
+      storyTimer = 0;
     };
     const sendSleepEvent = (event: Parameters<typeof dispatchSleep>[1]) => {
-      const previous = sleep.stage;
+      const previous = sleep.story;
       if (!dispatchSleep(sleep, event, performance.now())) return;
-      if (sleep.stage !== previous) {
+      if (sleep.story !== previous) {
         clearStory();
         paintFace();
-        armStage();
+        armStory();
       }
     };
-    const armStage = () => {
+    const armStory = () => {
       clearStory();
-      if (sleep.stage === "dozing" || sleep.stage === "falling") {
-        stageTimer = window.setTimeout(
+      if (sleep.story === "dozing" || sleep.story === "dropping") {
+        storyTimer = window.setTimeout(
           () => {
-            stageTimer = 0;
+            storyTimer = 0;
             if (
               paused ||
               motion.matches ||
-              (sleep.stage === "dozing" && !following)
+              (sleep.story === "dozing" && !following)
             )
               return;
-            sendSleepEvent(sleep.stage === "dozing" ? "DOZED" : "FELL");
+            sendSleepEvent(sleep.story === "dozing" ? "DOZED" : "FELL");
           },
-          stageSleepRemaining(sleep, performance.now()),
+          storyRemaining(sleep, performance.now()),
         );
       }
     };
@@ -313,7 +313,7 @@
       lastTime = time;
       speed *= Math.exp(-6 * dt);
       // Steering uses velocity and acceleration, rather than directly interpolating coordinates.
-      if (following && sleep.stage === "awake" && !sleep.asleep && dt > 0) {
+      if (following && sleep.story === "awake" && dt > 0) {
         wanderDecisionIn -= dt;
         if (wanderDecisionIn <= 0) {
           wanderDecisionIn = 2 + Math.random() * 3;
@@ -340,11 +340,7 @@
         wanderBearing += wanderVelocity * dt;
       }
       if (following) {
-        evolveTemperament(
-          temperament,
-          dt,
-          sleep.stage === "awake" && !sleep.asleep,
-        );
+        evolveTemperament(temperament, dt, sleep.story === "awake");
         if (time - lastSample >= 380) {
           obstacles = sampleObstacles(root);
           lastSample = time;
@@ -365,7 +361,7 @@
               (hoverRect.top + hoverRect.bottom) / 2 - pointer.y,
             )
           : Infinity;
-        if (sleep.stage === "awake" && !sleep.asleep) {
+        if (sleep.story === "awake") {
           chooseIntent(
             temperament,
             {
@@ -411,7 +407,8 @@
       velocity = moved.velocity;
       const driftX = Math.sin(time / 3400) * 4;
       const driftY = Math.sin(time / 2700) * 5;
-      advanceSleep(sleep, time, dt);
+      const recovered = advanceSleep(sleep, time, dt);
+      if (recovered) sendSleepEvent(recovered);
       const b = bounds();
       const reaction = happyUntil > time ? (happyUntil - time) / 700 : 0;
       const scroll = scrollUntil > time ? (scrollUntil - time) / 700 : 0;
@@ -424,7 +421,7 @@
         b.maxY,
       );
       const gaze =
-        sleep.stage === "awake" && !sleep.asleep
+        sleep.story === "awake"
           ? clamp(
               Math.sin(time / 3900) * 6 +
                 (pointer.x >= position.x + 40 ? 3 : -3),
@@ -509,7 +506,7 @@
       }
       target = pointerTarget(event.clientX, event.clientY);
       following = true;
-      if (!motion.matches && sleep.allowed && !interactionTimer)
+      if (!motion.matches && sleep.storyReady && !interactionTimer)
         interactionTimer = window.setTimeout(beginSleep, SLEEP_TIMING.idle);
       mascot.style.visibility = "hidden";
       follower.style.visibility = "visible";
@@ -616,8 +613,8 @@
       pausedAt = performance.now();
       root.dataset.paused = "true";
       stop();
-      clearTimeout(stageTimer);
-      stageTimer = 0;
+      clearTimeout(storyTimer);
+      storyTimer = 0;
       clearTimeout(faceTimer);
       faceTimer = 0;
       clearTimeout(interactionTimer);
@@ -641,7 +638,7 @@
       happyUntil += happyUntil ? duration : 0;
       scrollUntil += scrollUntil ? duration : 0;
 
-      armStage();
+      armStory();
       const faceExpiry = Math.max(happyUntil, scrollUntil);
       if (faceExpiry > performance.now())
         faceTimer = window.setTimeout(() => {
@@ -649,7 +646,7 @@
           faceTimer = 0;
           paintFace();
         }, faceExpiry - performance.now());
-      if (sleep.allowed && !sleep.asleep && sleep.stage === "awake")
+      if (sleep.story === "awake" && sleep.storyReady)
         interactionTimer = window.setTimeout(
           beginSleep,
           idleSleepRemaining(sleep, performance.now()),

@@ -1,4 +1,4 @@
-export type SleepStage = "awake" | "dozing" | "falling" | "returning";
+export type SleepStory = "awake" | "resting" | "dozing" | "dropping" | "rising";
 export type SleepEvent =
   | "IDLE"
   | "DOZED"
@@ -12,58 +12,62 @@ export type SleepEvent =
 export const SLEEP_TIMING = {
   idle: 6000,
   dozing: 1200,
-  falling: 1200,
-  returning: 1400,
+  dropping: 1200,
+  rising: 1400,
 } as const;
 
-/** Stationary sleep keeps stage awake; recovery blocks another story until activity. */
 export type SleepState = {
-  stage: SleepStage;
-  asleep: boolean;
-  allowed: boolean;
-  stageStart: number;
+  story: SleepStory;
+  storyReady: boolean;
+  storyStart: number;
   lastActivity: number;
-  returnStartOffset: number;
+  riseStartOffset: number;
   offsetY: number;
 };
 
 export function newSleepState(now: number): SleepState {
   return {
-    stage: "awake",
-    asleep: false,
-    allowed: true,
-    stageStart: 0,
+    story: "awake",
+    storyReady: true,
+    storyStart: 0,
     lastActivity: now,
-    returnStartOffset: 0,
+    riseStartOffset: 0,
     offsetY: 0,
   };
 }
 
-const SLEEP_TRANSITIONS: Record<
-  SleepStage,
-  Partial<Record<SleepEvent, SleepStage>>
+const STORY_TRANSITIONS: Record<
+  SleepStory,
+  Partial<Record<SleepEvent, SleepStory>>
 > = {
-  awake: { IDLE: "dozing" },
-  dozing: { DOZED: "falling", WOKE: "returning", ACTIVITY: "returning" },
-  falling: { FELL: "returning", WOKE: "returning", ACTIVITY: "returning" },
-  returning: { RECOVERED: "awake" },
+  awake: { IDLE: "dozing", REST: "resting" },
+  resting: { IDLE: "dozing", ACTIVITY: "awake" },
+  dozing: { DOZED: "dropping", WOKE: "rising", ACTIVITY: "rising" },
+  dropping: { FELL: "rising", WOKE: "rising", ACTIVITY: "rising" },
+  rising: { RECOVERED: "awake" },
 };
 
-export function nextSleepStage(
-  state: SleepStage,
+export function nextSleepStory(
+  story: SleepStory,
   event: SleepEvent,
-): SleepStage {
+): SleepStory {
   return event === "RESET"
     ? "awake"
-    : (SLEEP_TRANSITIONS[state][event] ?? state);
+    : (STORY_TRANSITIONS[story][event] ?? story);
 }
 
-function enterStage(state: SleepState, stage: SleepStage, now: number) {
-  if (stage === state.stage) return false;
-  state.stage = stage;
-  state.stageStart = now;
-  if (stage === "returning") state.returnStartOffset = state.offsetY;
+function enterStory(state: SleepState, story: SleepStory, now: number) {
+  if (story === state.story) return false;
+  state.story = story;
+  state.storyStart = now;
+  if (story === "rising") state.riseStartOffset = state.offsetY;
   return true;
+}
+
+function canBegin(state: SleepState) {
+  return (
+    state.storyReady && (state.story === "awake" || state.story === "resting")
+  );
 }
 
 export function dispatchSleep(
@@ -77,51 +81,54 @@ export function dispatchSleep(
   }
   if (event === "ACTIVITY") {
     state.lastActivity = now;
-    state.allowed = true;
-    state.asleep = false;
+    state.storyReady = true;
   }
-  if (event === "REST") {
-    if (state.stage === "awake" && state.allowed) state.asleep = true;
-    return state.stage === "awake" && state.allowed;
-  }
-  if (event === "IDLE" && (state.stage !== "awake" || !state.allowed))
-    return false;
-  const next = nextSleepStage(state.stage, event);
-  const changed = enterStage(state, next, now);
-  if (event === "RECOVERED" && changed) {
-    state.allowed = false;
-    state.asleep = false;
-  }
-  return event === "ACTIVITY" || changed;
+  if ((event === "IDLE" || event === "REST") && !canBegin(state)) return false;
+  const next = nextSleepStory(state.story, event);
+  const changed = enterStory(state, next, now);
+  // Activity during a rise is not permission for the next story.
+  if (event === "RECOVERED" && changed) state.storyReady = false;
+  return event === "ACTIVITY" || event === "REST" || changed;
 }
 
-export function stageSleepRemaining(state: SleepState, now: number) {
+export function storyRemaining(state: SleepState, now: number) {
   const duration =
-    state.stage === "dozing" || state.stage === "falling"
-      ? SLEEP_TIMING[state.stage]
+    state.story === "dozing" || state.story === "dropping"
+      ? SLEEP_TIMING[state.story]
       : 0;
-  return Math.max(0, duration - Math.max(0, now - state.stageStart));
+  return Math.max(0, duration - Math.max(0, now - state.storyStart));
 }
 
 export function idleSleepRemaining(state: SleepState, now: number) {
   return Math.max(0, SLEEP_TIMING.idle - (now - state.lastActivity));
 }
 
-export function advanceSleep(state: SleepState, time: number, dt: number) {
-  const elapsed = Math.max(0, time - state.stageStart);
-  if (state.stage === "falling") {
+/**
+ * Updates the vertical offset only.
+ * Returns RECOVERED when a rise finishes; the caller dispatches it.
+ * Dozing and dropping are not finished here — their timers can be held.
+ */
+export function advanceSleep(
+  state: SleepState,
+  time: number,
+  dt: number,
+): "RECOVERED" | null {
+  const elapsed = Math.max(0, time - state.storyStart);
+  if (state.story === "dropping") {
     state.offsetY =
-      60 * Math.pow(Math.min(elapsed / SLEEP_TIMING.falling, 1), 2);
-  } else if (state.stage === "returning") {
-    const progress = Math.min(elapsed / SLEEP_TIMING.returning, 1);
-    state.offsetY = state.returnStartOffset * (1 - progress) * (1 - progress);
-    if (progress >= 1) dispatchSleep(state, "RECOVERED", time);
-  } else if (state.stage !== "dozing") {
-    state.offsetY *= Math.exp(-5 * dt);
+      60 * Math.pow(Math.min(elapsed / SLEEP_TIMING.dropping, 1), 2);
+    return null;
   }
+  if (state.story === "rising") {
+    const progress = Math.min(elapsed / SLEEP_TIMING.rising, 1);
+    state.offsetY = state.riseStartOffset * (1 - progress) * (1 - progress);
+    return progress >= 1 ? "RECOVERED" : null;
+  }
+  if (state.story !== "dozing") state.offsetY *= Math.exp(-5 * dt);
+  return null;
 }
 
 export function shiftSleepTime(state: SleepState, duration: number) {
-  state.stageStart += duration;
+  state.storyStart += duration;
   state.lastActivity += duration;
 }

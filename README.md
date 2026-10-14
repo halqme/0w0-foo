@@ -53,9 +53,10 @@ vp run preview
 The decorative `0w0` mascot lives in `src/components/ui/Mascot.astro`.
 Its logic is split into three independent units:
 
-- `src/lib/mascot/sleep.ts`: DOM-independent sleep state, event transitions,
-  timing, and fall/return offset calculations. `Mascot.astro` owns browser timers
-  and lifecycle scheduling.
+- `src/lib/mascot/sleep.ts`: DOM-independent sleep story, event transitions,
+  timing, and the drop/rise offset. Only `dispatchSleep` changes the story.
+  `advanceSleep` updates the offset and reports rise completion. `Mascot.astro`
+  owns browser timers and sends those events. Intent and expression are separate.
 - `src/lib/mascot/behavior.ts`: a small Utility AI choosing between wandering,
   investigating a nearby interactive element, and retreating when surprised.
   Energy, curiosity, wariness, cooldowns, and commitment time shape its choices.
