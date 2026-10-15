@@ -91,6 +91,9 @@ export default defineConfig({
   content: { filesystem: ["src/plugins/link-card.ts"] },
   rules: [[/^clip-\[(.+)\]$/, ([, value]) => ({ clip: value })]],
   safelist: [
+    "absolute",
+    "top-0",
+    "right-0",
     "bg-signal-success-surface",
     "text-signal-success",
     "before:i-lucide:check",
