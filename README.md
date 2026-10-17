@@ -5,6 +5,7 @@
 ## 必要なツール
 
 - [Bun](https://bun.sh/) — package manager（`package.json`の`packageManager`を参照）
+- [Node.js](https://nodejs.org/) 24.21.0 以上 — [Void](https://void.cloud/) CLI（`void`）の実行に必要
 - [Vite Plus](https://viteplus.dev/) — `vp`コマンドによる開発・チェック・フォーマット
 
 ## 開発
@@ -25,18 +26,20 @@ vp run preview
 
 `vp run check`はVite PlusのチェックとAstroファイルのフォーマット確認を行います。Astroの型・コンテンツチェックは別途`vp run check:astro`で実行します。非Astroファイルの整形にはOxfmt、`*.astro`にはPrettierとAstroプラグインを使います。`vp run test`でVitestのテストを実行し、`vp run test:watch`で変更を監視できます。現在はタグslug生成、ブログ記事の絞り込み・並び替え、リンクカードとOGPアセット生成、マスコットの睡眠状態遷移・タイミング・行動・移動をテストしています。
 
-`bun run deploy`はローカルから`cf deploy`を実行します。デプロイ前の確認には`bunx cf deploy --dry-run`を使えます。
+`bun run deploy`はローカルから`void deploy --platform cloudflare`を実行します（初回はブラウザで Cloudflare へのサインインが必要です）。デプロイ前のビルド確認は`vp run build`で行います。
 
 ## デプロイ（Cloudflare）
 
-ビルド成果物は`dist/`に出力されます。Workerとドメインは[`cloudflare.config.ts`](cloudflare.config.ts)、静的アセットのディレクトリは[`wrangler.config.ts`](wrangler.config.ts)で設定しています。
+ビルド成果物は`dist/`に出力されます。デプロイ設定は[`void.config.ts`](void.config.ts)にあります（静的サイトとして`dist/`を配信、Worker 名・カスタムドメイン・互換日付・404 挙動など）。
 
-| Cloudflare build/deploy setting | 値                                                                                                               |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| Root directory                  | `/`                                                                                                              |
-| Build command                   | `bun run build && bunx wrangler build --experimental-new-config --experimental-cf-build-output --env production` |
-| Deploy command                  | `bunx cf deploy --prebuilt --mode production`                                                                    |
-| Build variables                 | なし                                                                                                             |
+| Cloudflare build/deploy setting | 値                                                    |
+| ------------------------------- | ----------------------------------------------------- |
+| Root directory                  | `/`                                                   |
+| Build command                   | `bun run build`                                       |
+| Deploy command                  | `bunx void deploy --platform cloudflare --skip-build` |
+| Build variables                 | なし                                                  |
+
+CI では`CLOUDFLARE_API_TOKEN`（複数アカウントにアクセスできるトークンの場合は`CLOUDFLARE_ACCOUNT_ID`も）を設定してください。初回デプロイ後に生成される`void.lock.json`はコミットし、以降のデプロイで参照されます。
 
 ## ディレクトリ概観
 
