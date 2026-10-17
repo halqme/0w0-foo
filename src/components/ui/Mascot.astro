@@ -10,11 +10,12 @@
     type="button"
     aria-label="マスコットの動き"
     aria-pressed="true"
+    title="動きを止めて充電する"
     data-mascot-motion-toggle
     hidden
   >
     <span
-      class="icon-sm i-lucide:pause"
+      class="icon-sm i-lucide:zap"
       data-motion-pause
       aria-hidden="true"
     ></span>
@@ -46,7 +47,7 @@
   .mascot {
     position: fixed;
     z-index: 20;
-    right: 1.25rem;
+    right: 5.75rem;
     bottom: 1.25rem;
     display: grid;
     width: 3.75rem;
@@ -70,19 +71,41 @@
   .mascot-motion-toggle {
     position: fixed;
     z-index: 20;
-    right: 5.75rem;
-    bottom: 1.25rem;
+    right: 1.25rem;
+    bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
     display: grid;
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 3.75rem;
+    height: 2.75rem;
     place-items: center;
+    padding-top: 0.375rem;
     border: 1px solid var(--color-line);
-    border-radius: 9999px;
-    background: color-mix(in srgb, var(--color-canvas) 80%, transparent);
+    border-bottom: 3px solid var(--color-accent);
+    border-radius: 0.75rem 0.75rem 0.5rem 0.5rem;
+    background: var(--color-surface-muted);
     color: var(--color-accent);
     cursor: pointer;
     touch-action: manipulation;
     pointer-events: auto;
+  }
+  .mascot-motion-toggle::before {
+    content: "";
+    position: absolute;
+    top: 0.375rem;
+    width: 2rem;
+    height: 2px;
+    border-radius: 9999px;
+    background: var(--color-muted);
+  }
+  .mascot-root[data-charging] .mascot-motion-toggle {
+    border-color: var(--color-accent);
+    background: var(--color-signal-success-surface);
+  }
+  .mascot-root[data-charging] .mascot-motion-toggle::before {
+    background: var(--color-accent);
+  }
+  .mascot-root[data-charging] button.mascot {
+    right: 1.25rem;
+    bottom: calc(max(1.25rem, env(safe-area-inset-bottom, 0px)) + 2.5rem);
   }
   .mascot-motion-toggle[hidden],
   .mascot-motion-toggle [hidden] {
@@ -116,6 +139,14 @@
   @media (prefers-reduced-motion: no-preference) {
     .mascot-root[data-ready] .face-breath {
       animation: mascot-breathe 4.8s ease-in-out infinite;
+    }
+  }
+  @keyframes mascot-peek {
+    from {
+      translate: 0 100%;
+    }
+    to {
+      translate: 0 0;
     }
   }
   @keyframes mascot-breathe {
@@ -230,6 +261,10 @@
     const syncMotionToggle = () => {
       motionToggle.hidden = motion.matches;
       motionToggle.setAttribute("aria-pressed", String(!paused));
+      root.toggleAttribute("data-charging", userPaused);
+      motionToggle.title = userPaused
+        ? "充電をやめて動きを再開する"
+        : "動きを止めて充電する";
       const pauseIcon = motionToggle.querySelector<HTMLElement>(
         "[data-motion-pause]",
       );
@@ -720,6 +755,7 @@
         resume();
       } else {
         userPaused = true;
+        reset();
         pause();
       }
     };
