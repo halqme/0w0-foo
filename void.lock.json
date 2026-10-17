@@ -1,6 +1,7 @@
 {
   "version": 1,
   "source": {
+    "account_id": "6f3952eeee5de35be423fccd773015f8",
     "name": "0w0-foo",
     "workers_dev": false,
     "preview_urls": false,
@@ -15,6 +16,7 @@
     ]
   },
   "resolved": {
+    "account_id": "6f3952eeee5de35be423fccd773015f8",
     "name": "0w0-foo",
     "workers_dev": false,
     "preview_urls": false,
@@ -26,8 +28,7 @@
         "pattern": "0w0.foo",
         "custom_domain": true
       }
-    ],
-    "account_id": "6f3952eeee5de35be423fccd773015f8"
+    ]
   },
-  "text": "{\n  \"name\": \"0w0-foo\",\n  \"workers_dev\": false,\n  \"preview_urls\": false,\n  \"observability\": {\n    \"enabled\": true\n  },\n  \"routes\": [\n    {\n      \"pattern\": \"0w0.foo\",\n      \"custom_domain\": true\n    }\n  ],\n  \"account_id\": \"6f3952eeee5de35be423fccd773015f8\"\n}\n"
+  "text": "{\n  \"account_id\": \"6f3952eeee5de35be423fccd773015f8\",\n  \"name\": \"0w0-foo\",\n  \"workers_dev\": false,\n  \"preview_urls\": false,\n  \"observability\": {\n    \"enabled\": true\n  },\n  \"routes\": [\n    {\n      \"pattern\": \"0w0.foo\",\n      \"custom_domain\": true\n    }\n  ]\n}\n"
 }

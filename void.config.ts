@@ -14,9 +14,10 @@ export default defineConfig({
     compatibility_flags: ["nodejs_compat"],
   },
   cloudflare: {
+    account_id: "6f3952eeee5de35be423fccd773015f8",
     name: "0w0-foo",
-    workers_dev: true,
-    preview_urls: true,
+    workers_dev: false,
+    preview_urls: false,
     observability: {
       enabled: true,
     },

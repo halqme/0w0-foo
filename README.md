@@ -39,7 +39,11 @@ vp run preview
 | Deploy command                  | `bunx void deploy --platform cloudflare --skip-build` |
 | Build variables                 | なし                                                  |
 
-CI では`CLOUDFLARE_API_TOKEN`（複数アカウントにアクセスできるトークンの場合は`CLOUDFLARE_ACCOUNT_ID`も）を設定してください。初回デプロイ後に生成される`void.lock.json`はコミットし、以降のデプロイで参照されます。
+CI では `CLOUDFLARE_API_TOKEN`（Workers Scripts の編集、および Void が参照するリソースの読み取りができる API トークン）をシークレットに設定してください。デプロイ先アカウント ID は [`void.config.ts`](void.config.ts) の `cloudflare.account_id` と [`void.lock.json`](void.lock.json) に固定しており、ビルド時に `.void-wrangler.jsonc` へ展開されるため、通常は `CLOUDFLARE_ACCOUNT_ID` は不要です（[Void のドキュメント](https://void.cloud/)でも、トークンが複数アカウントに届くときの補助とされています）。
+
+`workers_dev` / `preview_urls` はオフで、`0w0.foo` のカスタムドメインだけを公開します。Void の readiness はそのドメイン向けです。
+
+`void.config.ts`を変えたら`void.lock.json`の`source`/`resolved`も揃えてコミットしてください。初回デプロイ後に Void が lock を更新した場合は、その内容を取り込みます。
 
 ## ディレクトリ概観
 
