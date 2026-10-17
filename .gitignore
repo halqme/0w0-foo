@@ -2,8 +2,6 @@
 dist/
 .wrangler/
 .cloudflare/
-.void/
-.void-wrangler.jsonc
 result
 .cache/
 # generated types

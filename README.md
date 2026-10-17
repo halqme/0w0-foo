@@ -5,7 +5,7 @@
 ## 必要なツール
 
 - [Bun](https://bun.sh/) — package manager（`package.json`の`packageManager`を参照）
-- [Node.js](https://nodejs.org/) 24.21.0 以上 — [Void](https://void.cloud/) CLI（`void`）の実行に必要
+- [Node.js](https://nodejs.org/) 24.21.0 以上 — Cloudflare CLIの実行に使用
 - [Vite Plus](https://viteplus.dev/) — `vp`コマンドによる開発・チェック・フォーマット
 
 ## 開発
@@ -26,24 +26,27 @@ vp run preview
 
 `vp run check`はVite PlusのチェックとAstroファイルのフォーマット確認を行います。Astroの型・コンテンツチェックは別途`vp run check:astro`で実行します。非Astroファイルの整形にはOxfmt、`*.astro`にはPrettierとAstroプラグインを使います。`vp run test`でVitestのテストを実行し、`vp run test:watch`で変更を監視できます。現在はタグslug生成、ブログ記事の絞り込み・並び替え、リンクカードとOGPアセット生成、マスコットの睡眠状態遷移・タイミング・行動・移動をテストしています。
 
-`bun run deploy`はローカルから`void deploy --platform cloudflare`を実行します（初回はブラウザで Cloudflare へのサインインが必要です）。デプロイ前のビルド確認は`vp run build`で行います。
+`bun run deploy`でビルド後に[Cloudflare CLI（`cf`）](https://github.com/cloudflare/cf)からデプロイします。ローカルで初めて実行する場合は、先に`bunx cf auth login`でサインインしてください。`cf`はベータ版のため、依存バージョンを固定しています。
 
 ## デプロイ（Cloudflare）
 
-ビルド成果物は`dist/`に出力されます。デプロイ設定は[`void.config.ts`](void.config.ts)にあります（静的サイトとして`dist/`を配信、Worker 名・カスタムドメイン・互換日付・404 挙動など）。
+[Workers Static Assets](https://developers.cloudflare.com/workers/static-assets/routing/static-site-generation/)で、Astroのビルド成果物`dist/`を配信します。SSR用アダプターやWorkerスクリプトは不要です。
 
-| Cloudflare build/deploy setting | 値                                                    |
-| ------------------------------- | ----------------------------------------------------- |
-| Root directory                  | `/`                                                   |
-| Build command                   | `bun run build`                                       |
-| Deploy command                  | `bunx void deploy --platform cloudflare --skip-build` |
-| Build variables                 | なし                                                  |
+- [`cloudflare.config.ts`](cloudflare.config.ts)：アカウント、ドメイン、404などの配信設定
+- [`wrangler.config.ts`](wrangler.config.ts)：配信する静的アセットのディレクトリ
 
-CI では `CLOUDFLARE_API_TOKEN`（Workers Scripts の編集、および Void が参照するリソースの読み取りができる API トークン）をシークレットに設定してください。デプロイ先アカウント ID は [`void.config.ts`](void.config.ts) の `cloudflare.account_id` と [`void.lock.json`](void.lock.json) に固定しており、ビルド時に `.void-wrangler.jsonc` へ展開されるため、通常は `CLOUDFLARE_ACCOUNT_ID` は不要です（[Void のドキュメント](https://void.cloud/)でも、トークンが複数アカウントに届くときの補助とされています）。
+`bun run build:cloudflare`はAstroをビルドし、Wranglerパッケージの`cf-wrangler build`で`cf`用のBuild Outputを`.cloudflare/output/`へ生成します。`cf deploy --prebuilt`はその出力をデプロイします。`cf deploy`単体ではAstroのビルド後にBuild Outputが生成されないため、このプロジェクトでは`--prebuilt`を使います。
 
-`workers_dev` はオフ、`preview_urls` はオン（Void のデプロイ時 readiness 用）。公開は `0w0.foo` のカスタムドメインのみです。
+Cloudflare Workers Buildsでは以下を設定します。ビルドとデプロイを分け、二重ビルドを避けます。
 
-`void.config.ts`を変えたら`void.lock.json`の`source`/`resolved`も揃えてコミットしてください。初回デプロイ後に Void が lock を更新した場合は、その内容を取り込みます。
+| Cloudflare build/deploy setting | 値                          |
+| ------------------------------- | --------------------------- |
+| Root directory                  | `/`                         |
+| Build command                   | `bun run build:cloudflare`  |
+| Deploy command                  | `bunx cf deploy --prebuilt` |
+| Build variables                 | なし                        |
+
+公開せずにデプロイ設定を検証する場合は、`bun run build:cloudflare`の後に`bunx cf deploy --prebuilt --dry-run --no-provision`を実行します。
 
 ## ディレクトリ概観
 
