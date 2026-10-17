@@ -15,6 +15,8 @@ export default defineConfig({
   },
   cloudflare: {
     name: "0w0-foo",
+    workers_dev: true,
+    preview_urls: true,
     observability: {
       enabled: true,
     },
