@@ -41,7 +41,7 @@ vp run preview
 
 CI では `CLOUDFLARE_API_TOKEN`（Workers Scripts の編集、および Void が参照するリソースの読み取りができる API トークン）をシークレットに設定してください。デプロイ先アカウント ID は [`void.config.ts`](void.config.ts) の `cloudflare.account_id` と [`void.lock.json`](void.lock.json) に固定しており、ビルド時に `.void-wrangler.jsonc` へ展開されるため、通常は `CLOUDFLARE_ACCOUNT_ID` は不要です（[Void のドキュメント](https://void.cloud/)でも、トークンが複数アカウントに届くときの補助とされています）。
 
-`workers_dev` / `preview_urls` はオフで、`0w0.foo` のカスタムドメインだけを公開します。Void の readiness はそのドメイン向けです。
+`workers_dev` はオフ、`preview_urls` はオン（Void のデプロイ時 readiness 用）。公開は `0w0.foo` のカスタムドメインのみです。
 
 `void.config.ts`を変えたら`void.lock.json`の`source`/`resolved`も揃えてコミットしてください。初回デプロイ後に Void が lock を更新した場合は、その内容を取り込みます。
 

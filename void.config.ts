@@ -17,7 +17,7 @@ export default defineConfig({
     account_id: "c9a475b1ebdae14f6b44b531f5f6d795",
     name: "0w0-foo",
     workers_dev: false,
-    preview_urls: false,
+    preview_urls: true,
     observability: {
       enabled: true,
     },

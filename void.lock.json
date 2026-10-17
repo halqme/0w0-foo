@@ -4,7 +4,7 @@
     "account_id": "c9a475b1ebdae14f6b44b531f5f6d795",
     "name": "0w0-foo",
     "workers_dev": false,
-    "preview_urls": false,
+    "preview_urls": true,
     "observability": {
       "enabled": true
     },
@@ -19,7 +19,7 @@
     "account_id": "c9a475b1ebdae14f6b44b531f5f6d795",
     "name": "0w0-foo",
     "workers_dev": false,
-    "preview_urls": false,
+    "preview_urls": true,
     "observability": {
       "enabled": true
     },
@@ -30,5 +30,5 @@
       }
     ]
   },
-  "text": "{\n  \"account_id\": \"c9a475b1ebdae14f6b44b531f5f6d795\",\n  \"name\": \"0w0-foo\",\n  \"workers_dev\": false,\n  \"preview_urls\": false,\n  \"observability\": {\n    \"enabled\": true\n  },\n  \"routes\": [\n    {\n      \"pattern\": \"0w0.foo\",\n      \"custom_domain\": true\n    }\n  ]\n}\n"
+  "text": "{\n  \"account_id\": \"c9a475b1ebdae14f6b44b531f5f6d795\",\n  \"name\": \"0w0-foo\",\n  \"workers_dev\": false,\n  \"preview_urls\": true,\n  \"observability\": {\n    \"enabled\": true\n  },\n  \"routes\": [\n    {\n      \"pattern\": \"0w0.foo\",\n      \"custom_domain\": true\n    }\n  ]\n}\n"
 }
