@@ -1,11 +1,65 @@
+/* Keep the shell still; only the reading surface changes between pages. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes page-exit {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes page-enter {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+      filter: blur(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+    }
+  }
+  @keyframes page-exit {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-12px);
+    }
+  }
+
+  [data-theme-trigger] {
+    transition: scale 150ms ease-out;
+    -webkit-tap-highlight-color: transparent;
+  }
+  [data-theme-trigger]:not(:disabled):active {
+    scale: 0.96;
+  }
+}
+
 /* Theme dropdown and icon transitions. */
 [data-theme-panel].t-dropdown {
-  --dropdown-open-dur: 240ms;
+  --dropdown-open-dur: 300ms;
   --dropdown-close-dur: 150ms;
-  --dropdown-pre-scale: 0.97;
-  --dropdown-closing-scale: 0.99;
-  --dropdown-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  transform: scale(var(--dropdown-pre-scale));
+  --dropdown-ease: cubic-bezier(0.2, 0, 0, 1);
+  transform: translateY(-8px) scale(0.96);
   transform-origin: top right;
   opacity: 0;
   pointer-events: none;
@@ -19,7 +73,7 @@
   pointer-events: auto;
 }
 [data-theme-panel].t-dropdown.is-closing {
-  transform: scale(var(--dropdown-closing-scale));
+  transform: translateY(-8px) scale(0.96);
   opacity: 0;
   pointer-events: none;
   transition:
@@ -28,10 +82,10 @@
 }
 
 .t-icon-swap {
-  --icon-swap-dur: 220ms;
-  --icon-swap-blur: 2px;
-  --icon-swap-start-scale: 0.72;
-  --icon-swap-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --icon-swap-dur: 300ms;
+  --icon-swap-blur: 4px;
+  --icon-swap-start-scale: 0.25;
+  --icon-swap-ease: cubic-bezier(0.2, 0, 0, 1);
   position: relative;
   display: inline-grid;
   width: 1rem;
@@ -60,32 +114,53 @@
   transform: scale(var(--icon-swap-start-scale));
 }
 
-.motion-underline {
+:is(.motion-underline, .link-text, .text-action) {
+  --underline-rest: transparent;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
-  background-image: linear-gradient(currentColor, currentColor);
-  background-position: 0 calc(100% - 0.08em);
+  background-image:
+    linear-gradient(currentColor, currentColor),
+    linear-gradient(var(--underline-rest), var(--underline-rest));
+  background-position: 0 100%;
   background-repeat: no-repeat;
-  background-size: 0% 1px;
+  background-size:
+    0% 1px,
+    100% 1px;
+}
+:is(.link-text, .text-action) {
+  --underline-rest: var(--color-line);
+}
+/* Keep the line beside the text, not at the bottom of its 40px hit area. */
+.text-action {
+  background-position: 0 calc(50% + 0.7em);
+}
+.t-icon-swap .theme-icon {
+  display: block;
+}
+.header-link[aria-current] .motion-underline {
+  background-size:
+    100% 1px,
+    100% 1px;
 }
 @media (hover: hover) and (pointer: fine) {
-  .project-link:hover .motion-underline,
-  a.motion-underline:hover {
-    background-size: 100% 1px;
+  .header-link:hover .motion-underline,
+  a:is(.motion-underline, .link-text, .text-action):hover {
+    background-size:
+      100% 1px,
+      100% 1px;
   }
 }
-.project-link:focus-visible .motion-underline,
-a.motion-underline:focus-visible {
-  background-size: 100% 1px;
-}
-.project-link:active .motion-underline,
-a.motion-underline:active {
-  background-size: 100% 1px;
-  transition: none;
+.header-link:focus-visible .motion-underline,
+a:is(.motion-underline, .link-text, .text-action):focus-visible,
+.header-link:active .motion-underline,
+a:is(.motion-underline, .link-text, .text-action):active {
+  background-size:
+    100% 1px,
+    100% 1px;
 }
 @media (prefers-reduced-motion: no-preference) {
-  .motion-underline {
-    transition: background-size 140ms ease-out;
+  :is(.motion-underline, .link-text, .text-action) {
+    transition: background-size 150ms cubic-bezier(0.2, 0, 0, 1);
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -95,19 +170,18 @@ a.motion-underline:active {
     transform: none !important;
     filter: none !important;
   }
-  .motion-underline {
+  :is(.motion-underline, .link-text, .text-action) {
     transition: none !important;
   }
 }
 @media (forced-colors: active) {
-  .motion-underline {
+  :is(.motion-underline, .link-text, .text-action) {
     background-image: none;
   }
-  .project-link:hover .motion-underline,
-  .project-link:focus-visible .motion-underline,
-  a.motion-underline:hover,
-  a.motion-underline:focus-visible,
-  a.motion-underline[aria-current="page"] {
+  a:is(.link-text, .text-action),
+  .header-link:is(:hover, :focus-visible, [aria-current]) .motion-underline,
+  a.motion-underline:is(:hover, :focus-visible) {
     text-decoration-line: underline;
+    text-underline-offset: 4px;
   }
 }

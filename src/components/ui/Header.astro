@@ -14,13 +14,13 @@ const pathname = Astro.url.pathname;
     0w0<span class="text-accent">.foo</span>
   </a>
   <div class="flex items-center gap-2 sm:gap-4">
-    <nav aria-label="メインナビゲーション">
-      <ul class="inline-flex items-center gap-2 sm:gap-4">
+    <nav class="flex items-center" aria-label="メインナビゲーション">
+      <ul class="flex items-center gap-2 sm:gap-4">
         {links.map((link) => (
-          <li>
+          <li class="flex items-center">
             <a
               href={link.href}
-              class="inline-flex min-h-10 items-center text-sm text-muted hover:text-ink aria-[current=page]:text-ink aria-[current=page]:underline aria-[current=location]:text-ink aria-[current=location]:underline underline-offset-4"
+              class="header-link inline-flex min-h-10 items-center font-mono text-sm leading-none text-muted hover:text-ink aria-[current=page]:text-ink aria-[current=location]:text-ink"
               aria-current={
                 pathname === link.href || pathname === `${link.href}/`
                   ? "page"
@@ -29,7 +29,7 @@ const pathname = Astro.url.pathname;
                     : undefined
               }
             >
-              {link.label}
+              <span class="motion-underline">{link.label}</span>
             </a>
           </li>
         ))}

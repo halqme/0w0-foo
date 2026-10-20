@@ -29,16 +29,11 @@ const ogImage = `/ogp/${slug}.png`;
   pubDate={published_at}
   tags={topics}
 >
-  <article
-    class="min-w-0 py-8"
-    aria-labelledby="post-title"
-    transition:name={`blog-card-${slug}`}
-  >
+  <article class="min-w-0 py-8" aria-labelledby="post-title">
     <header class="page-header">
       <h1
         id="post-title"
         class="text-headline [text-wrap:balance] [overflow-wrap:anywhere]"
-        transition:name={`blog-title-${slug}`}
       >
         {title}
       </h1>

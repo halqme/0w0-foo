@@ -14,12 +14,12 @@ import { tools } from "../data/tools";
   >
     {tools.toSorted((a, b) => a.type.localeCompare(b.type)).map((tool, index) => (
       <li
-        class="relative col-span-3 grid grid-cols-subgrid items-baseline"
+        class="relative col-span-3 grid grid-cols-subgrid items-baseline min-h-10"
         data-tools
       >
         <a
           href={tool.url}
-          class="link-text min-h-10 min-w-0 justify-self-start text-start text-sm text-ink focused [overflow-wrap:anywhere]"
+          class="link-text min-w-0 justify-self-start text-start text-sm text-ink focused [overflow-wrap:anywhere]"
           aria-describedby={`skill-card-${index}`}
           data-tools-trigger
         >

@@ -3,6 +3,23 @@ import { Font } from "astro:assets";
 import Header from "../components/ui/Header.astro";
 import Footer from "../components/ui/Footer.astro";
 import { ClientRouter } from "astro:transitions";
+import type { TransitionAnimationPair } from "astro";
+
+const pageAnimation: TransitionAnimationPair = {
+  old: {
+    name: "page-exit",
+    duration: "150ms",
+    easing: "ease-out",
+    fillMode: "both",
+  },
+  new: {
+    name: "page-enter",
+    duration: "300ms",
+    easing: "ease-out",
+    fillMode: "both",
+    delay: "100ms",
+  },
+};
 
 // oxlint-disable-next-line no-unassigned-import
 import "../styles/transitions.css";
@@ -115,6 +132,8 @@ const absoluteOgImage = ogImage
     <Header />
     <main
       id="main-content"
+      transition:name="page-content"
+      transition:animate={{ forwards: pageAnimation, backwards: pageAnimation }}
       class="container-main flex-1 pt-12 pb-16 sm:pt-16 sm:pb-20"
     >
       <slot />

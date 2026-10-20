@@ -110,8 +110,7 @@ export default defineConfig({
       "text-base font-medium leading-relaxed text-ink [overflow-wrap:anywhere]",
     "item-meta":
       "mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs leading-relaxed text-muted",
-    "link-text":
-      "underline underline-offset-4 decoration-line hover:decoration-current",
+    "link-text": "no-underline",
     "text-action":
       "link-text inline-flex min-h-10 items-center text-sm text-muted hover:text-ink focused",
     "disclosure-trigger":

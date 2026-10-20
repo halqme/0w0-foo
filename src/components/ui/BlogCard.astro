@@ -13,13 +13,9 @@ const { post, activeTag = null } = Astro.props;
 const isActiveTag = (tag: string) => activeTag === slugifyTag(tag);
 ---
 
-<article class="py-4" transition:name={`blog-card-${post.id}`}>
+<article class="py-4">
   <h2 class="list-title">
-    <a
-      href={`/blog/${post.id}/`}
-      class="link-text"
-      transition:name={`blog-title-${post.id}`}
-    >
+    <a href={`/blog/${post.id}/`} class="link-text">
       {post.data.title}
     </a>
   </h2>
