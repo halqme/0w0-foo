@@ -2,9 +2,17 @@ import sitemap from "@astrojs/sitemap";
 import { defineConfig, fontProviders } from "astro/config";
 import { satteri } from "@astrojs/markdown-satteri";
 import UnoCSS from "unocss/astro";
-import { linkCardPlugin } from "./src/plugins/link-card";
+import { createLinkCardPlugin } from "./src/plugins/link-card";
+import { tools } from "./src/data/tools";
+import { findBlogLinkUrls, prepareLinkCards } from "./src/lib/link-card-build";
+
+const cards = await prepareLinkCards([
+  ...tools.map(({ url }) => url),
+  ...findBlogLinkUrls(),
+]);
 
 export default defineConfig({
+  vite: { define: { LINK_CARD_DATA: JSON.stringify(cards) } },
   fonts: [
     {
       cssVariable: "--font-shippori-antique",
@@ -28,7 +36,7 @@ export default defineConfig({
   markdown: {
     processor: satteri({
       features: { gfm: true },
-      hastPlugins: [linkCardPlugin],
+      hastPlugins: [createLinkCardPlugin(cards)],
     }),
   },
   site: "https://0w0.foo",

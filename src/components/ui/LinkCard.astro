@@ -1,5 +1,6 @@
 ---
 import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
 import { getLinkCardData, linkCardClasses } from "../../lib/link-card";
 
 interface Props {
@@ -8,14 +9,18 @@ interface Props {
 }
 
 const { href, class: className } = Astro.props;
-const { image } = await getLinkCardData(href);
+const { image } = getLinkCardData(href);
+const images = import.meta.glob<{ default: ImageMetadata }>(
+  "/.astro/link-card-images/*",
+);
+const source = image ? (await images[image]?.())?.default : undefined;
 ---
 
-{image && (
+{source && (
   <div class:list={["flex flex-col overflow-hidden", className]}>
     <span class={linkCardClasses.imageContainer}>
       <Image
-        src={image}
+        src={source}
         width={1200}
         height={630}
         alt=""

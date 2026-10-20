@@ -1,15 +1,8 @@
 import { defineHastPlugin } from "satteri";
+import { createHash } from "node:crypto";
 import type { Element, ElementContent, Properties } from "hast";
-import { readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
 
-import {
-  getLinkCardData,
-  linkCardClasses,
-  type LinkCardData,
-} from "../lib/link-card";
-
-const ogpCache = new Map<string, LinkCardData>();
+import { linkCardClasses, type LinkCardData } from "../lib/link-card";
 
 function createElement(
   tagName: string,
@@ -23,45 +16,6 @@ function createElement(
     type: "element",
   };
 }
-
-function findAllBareUrls(): string[] {
-  const urls = new Set<string>();
-  const blogDir = join(process.cwd(), "src/content/blog");
-  let files: string[];
-
-  try {
-    files = readdirSync(blogDir).filter((file) => file.endsWith(".md"));
-  } catch {
-    return [];
-  }
-
-  const urlPattern =
-    /(?<!\()https?:\/\/[^\s<>"')]+(?:\/[^\s<>"')]*)?(?![^\s<>"')]*\))/g;
-
-  for (const file of files) {
-    const content = readFileSync(join(blogDir, file), "utf-8");
-    let match: RegExpExecArray | null;
-
-    while ((match = urlPattern.exec(content)) !== null) {
-      const url = match[0].replace(/[.,;:!]+$/, "");
-      try {
-        const parsedUrl = new URL(url);
-        urls.add(parsedUrl.href);
-      } catch {
-        // Ignore invalid URLs.
-      }
-    }
-  }
-
-  return [...urls];
-}
-
-const allUrls = findAllBareUrls();
-await Promise.allSettled(
-  allUrls.map(async (url) => {
-    ogpCache.set(url, await getLinkCardData(url));
-  }),
-);
 
 function isBareUrlLink(
   node: Element,
@@ -84,61 +38,80 @@ function isElementWithTag(node: unknown, tag: string): node is Element {
   );
 }
 
-export const linkCardPlugin = defineHastPlugin({
-  element: {
-    filter: [],
-    visit(node, ctx) {
-      if (node.tagName !== "p") return;
-      if (node.children.length !== 1) return;
+export function createLinkCardPlugin(cards: Record<string, LinkCardData>) {
+  // Astro's content cache cannot see captured values or changes inside visitor functions.
+  const digest = createHash("sha256")
+    .update(
+      JSON.stringify(
+        Object.entries(cards).toSorted(([a], [b]) => a.localeCompare(b)),
+      ),
+    )
+    .digest("hex");
+  return defineHastPlugin({
+    element: {
+      filter: [],
+      visit(node, ctx) {
+        if (node.tagName !== "p") return;
+        if (node.children.length !== 1) return;
 
-      const linkNode = node.children[0];
-      if (!isElementWithTag(linkNode, "a")) return;
+        const linkNode = node.children[0];
+        if (!isElementWithTag(linkNode, "a")) return;
 
-      const href =
-        typeof linkNode.properties?.href === "string"
-          ? linkNode.properties.href
-          : undefined;
-      if (!href) return;
+        const href =
+          typeof linkNode.properties?.href === "string"
+            ? linkNode.properties.href
+            : undefined;
+        if (!href) return;
 
-      if (
-        href.startsWith("/") ||
-        href.startsWith("#") ||
-        href.startsWith("mailto:") ||
-        href.startsWith("tel:")
-      )
-        return;
+        if (
+          href.startsWith("/") ||
+          href.startsWith("#") ||
+          href.startsWith("mailto:") ||
+          href.startsWith("tel:")
+        )
+          return;
 
-      if (!isBareUrlLink(linkNode, ctx)) return;
+        if (!isBareUrlLink(linkNode, ctx)) return;
 
-      const image = ogpCache.get(href)?.image;
-      if (!image) return;
+        if (!URL.canParse(href)) return;
+        const image = (cards[href] ?? cards[new URL(href).href])?.image;
+        if (!image) return;
 
-      ctx.replaceNode(
-        node,
-        createElement(
-          "a",
-          {
-            className: [linkCardClasses.card],
-            href,
-            ariaLabel: href,
-          },
-          [
-            createElement(
-              "span",
-              { className: [linkCardClasses.imageContainer] },
-              [
-                createElement("img", {
-                  alt: "",
-                  className: [linkCardClasses.image],
-                  loading: "lazy",
-                  src: image,
-                }),
-              ],
-            ),
-          ],
-        ),
-      );
+        // Satteri's image-marker runs after this plugin and delegates to Astro getImage().
+        const astro = ctx.data.astro as
+          | { localImagePaths: Set<string> }
+          | undefined;
+        astro?.localImagePaths.add(image);
+
+        ctx.replaceNode(
+          node,
+          createElement(
+            "a",
+            {
+              className: [linkCardClasses.card],
+              href,
+              ariaLabel: href,
+            },
+            [
+              createElement(
+                "span",
+                { className: [linkCardClasses.imageContainer] },
+                [
+                  createElement("img", {
+                    alt: "",
+                    className: [linkCardClasses.image],
+                    loading: "lazy",
+                    width: 1200,
+                    height: 630,
+                    src: image,
+                  }),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     },
-  },
-  name: "link-card",
-});
+    name: `link-card-local-images-v1-${digest}`,
+  });
+}

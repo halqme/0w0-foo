@@ -5,7 +5,7 @@ const langs: string[] = ["TypeScript", "Go", "Swift"].toSorted();
 const frameworks: string[] = ["Vue", "Hono"].toSorted();
 ---
 
-<section class="section" aria-labelledby="skills-title" id="skills">
+<section class="section" aria-labelledby="languages-title" id="languages">
   <Heading2 title="Languages & Frameworks" />
 
   <ul
@@ -13,7 +13,7 @@ const frameworks: string[] = ["Vue", "Hono"].toSorted();
     class="grid grid-cols-[fit-content(55%)_auto_minmax(0,1fr)] gap-x-3 gap-y-1"
   >
     {langs.map((lang) => (
-      <li class="col-span-3 grid grid-cols-subgrid items-baseline" data-skill>
+      <li class="col-span-3 grid grid-cols-subgrid items-baseline" data-languages>
         <span
           class="link-text min-h-10 min-w-0 justify-self-start text-start text-sm text-ink focused [overflow-wrap:anywhere]"
         >
@@ -22,7 +22,7 @@ const frameworks: string[] = ["Vue", "Hono"].toSorted();
       </li>
     ))}
     {frameworks.map((fw) => (
-      <li class="col-span-3 grid grid-cols-subgrid items-baseline" data-skill>
+      <li class="col-span-3 grid grid-cols-subgrid items-baseline" data-frameworks>
         <span
           class="link-text min-h-10 min-w-0 justify-self-start text-start text-sm text-ink focused [overflow-wrap:anywhere]"
         >

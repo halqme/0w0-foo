@@ -2,94 +2,48 @@
 import Heading2 from "./ui/Heading2.astro";
 import LinkCard from "./ui/LinkCard.astro";
 
-const skills: {
-  name: string;
-  type: string;
-  url: string;
-  comments: string[];
-}[] = [
-  {
-    name: "pi",
-    type: "Coding Agent",
-    url: "https://pi.dev",
-    comments: ["自由自在なコーディングエージェント。"],
-  },
-  {
-    name: "Vite Plus",
-    type: "Toolchain",
-    url: "https://viteplus.dev/",
-    comments: [
-      "もっとも良いと思う。",
-    ],
-  },
-  {
-    name: "かわせみ",
-    type: "IME",
-    url: "https://www.monokakido.jp/ja/mac/kawasemi4/",
-    comments: [
-      "日本語入力ソフト。エンジニアで使っている人は見たことない。",
-      "キーコンフィグがかなり自由度が高いのでオススメできる。",
-    ],
-  },
-  {
-    name: "Zed",
-    type: "Editor",
-    url: "https://zed.dev/",
-    comments: ["Rust製の最強エディタ。ありえないほど手になじむ。"],
-  },
-  {
-    name: "fx",
-    type: "Coding Agent",
-    url: "https://fx.sh/",
-    comments: [
-      "Vercel Labsの開発したコーディングエージェント。",
-      "他のエージェントに比べても起動が速い気がする。",
-    ],
-  },
-  {
-    name: "Cloudflare Workers",
-    type: "Platform",
-    url: "https://developers.cloudflare.com/workers/",
-    comments: ["大好き！とりあえずWorkerで実現できないかを考える。"],
-  },
-].toSorted((a, b) => a.type.localeCompare(b.type));
+import { tools } from "../data/tools";
 ---
 
 <section class="section" aria-labelledby="skills-title" id="skills">
-  <Heading2 title="Tools" />
+  <Heading2 title="Tools & Platforms" />
 
   <ul
     role="list"
     class="grid grid-cols-[fit-content(55%)_auto_minmax(0,1fr)] gap-x-3 gap-y-1"
   >
-    {skills.map((skill, index) => (
-      <li class="col-span-3 grid grid-cols-subgrid items-baseline" data-skill>
+    {tools.toSorted((a, b) => a.type.localeCompare(b.type)).map((tool, index) => (
+      <li
+        class="relative col-span-3 grid grid-cols-subgrid items-baseline"
+        data-tools
+      >
         <a
-          href={skill.url}
+          href={tool.url}
           class="link-text min-h-10 min-w-0 justify-self-start text-start text-sm text-ink focused [overflow-wrap:anywhere]"
           aria-describedby={`skill-card-${index}`}
-          data-skill-trigger
+          data-tools-trigger
         >
-          {skill.name}
+          {tool.name}
         </a>
         <span class="text-sm text-muted" aria-hidden="true">
           —
         </span>
         <span class="min-w-0 text-sm text-muted [overflow-wrap:anywhere]">
-          {skill.type}
+          {tool.type}
         </span>
         <div
-          id={`skill-card-${index}`}
-          popover="auto"
+          id={`tool-card-${index}`}
           role="tooltip"
-          class="skill-card fixed m-0 w-80 max-w-[calc(100vw-2rem)] max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain rounded-md border border-line bg-surface p-0 text-ink shadow-popup"
-          data-skill-card
+          class="tool-card absolute col-start-2 start-0 top-1/2 z-10 w-80 max-w-[calc(100vw-3rem)] -translate-y-1/2"
+          data-tools-card
         >
-          <LinkCard href={skill.url} />
-          <div class="grid gap-1 p-2 text-sm leading-7">
-            {skill.comments.map((comment) => (
-              <p>{comment}</p>
-            ))}
+          <div class="max-h-[60dvh] overflow-y-auto overscroll-contain rounded-md border border-line bg-surface text-ink shadow-popup">
+            <LinkCard href={tool.url} />
+            <div class="grid gap-1 p-2 text-sm leading-7">
+              {tool.comments.map((comment) => (
+                <p>{comment}</p>
+              ))}
+            </div>
           </div>
         </div>
       </li>
@@ -97,102 +51,19 @@ const skills: {
   </ul>
 </section>
 
-<script>
-  function initSkillCards() {
-    document.querySelectorAll<HTMLElement>("[data-skill]").forEach((item) => {
-      if (item.dataset.initialized) return;
-      const trigger = item.querySelector<HTMLAnchorElement>(
-        "[data-skill-trigger]",
-      );
-      const card = item.querySelector<HTMLElement>("[data-skill-card]");
-      if (!trigger || !card) return;
-      item.dataset.initialized = "true";
-
-      const lifecycle = new AbortController();
-      let closeTimer: ReturnType<typeof setTimeout> | undefined;
-      const cancelClose = () => clearTimeout(closeTimer);
-      const position = () => {
-        const anchor = trigger.getBoundingClientRect();
-        const gap = 8;
-        const inset = 16;
-        const left = Math.max(
-          inset,
-          Math.min(anchor.left, innerWidth - card.offsetWidth - inset),
-        );
-        const below = anchor.bottom + gap;
-        const top =
-          below + card.offsetHeight <= innerHeight - inset
-            ? below
-            : Math.max(inset, anchor.top - gap - card.offsetHeight);
-        card.style.left = `${left}px`;
-        card.style.top = `${top}px`;
-      };
-      const open = () => {
-        cancelClose();
-        if (!card.matches(":popover-open")) card.showPopover();
-        position();
-      };
-      const close = () => {
-        cancelClose();
-        if (card.matches(":popover-open")) card.hidePopover();
-      };
-      const scheduleClose = () => {
-        cancelClose();
-        closeTimer = setTimeout(() => {
-          if (
-            !trigger.matches(":hover, :focus-visible") &&
-            !card.matches(":hover")
-          )
-            close();
-        }, 150);
-      };
-
-      trigger.addEventListener("pointerenter", (event) => {
-        if (
-          event.pointerType === "mouse" &&
-          matchMedia("(hover: hover)").matches
-        )
-          open();
-      });
-      card.addEventListener("pointerenter", cancelClose);
-      item.addEventListener("pointerleave", scheduleClose);
-      card.addEventListener("pointerleave", scheduleClose);
-      trigger.addEventListener("focus", () => {
-        if (trigger.matches(":focus-visible")) open();
-      });
-      trigger.addEventListener("pointerleave", scheduleClose);
-      trigger.addEventListener("blur", scheduleClose);
-      card.addEventListener("beforetoggle", (event) => {
-        if ((event as ToggleEvent).newState === "closed") cancelClose();
-      });
-      window.addEventListener(
-        "resize",
-        () => {
-          if (card.matches(":popover-open")) position();
-        },
-        { signal: lifecycle.signal },
-      );
-      window.addEventListener("scroll", close, {
-        passive: true,
-        signal: lifecycle.signal,
-      });
-      document.addEventListener(
-        "astro:before-swap",
-        () => {
-          close();
-          lifecycle.abort();
-        },
-        { once: true },
-      );
-    });
+<style>
+  .tool-card {
+    display: none;
   }
 
-  initSkillCards();
-  document.addEventListener("astro:page-load", initSkillCards);
-</script>
+  [data-tools]:has([data-tools-trigger]:focus-visible) .tool-card {
+    display: block;
+  }
 
-<style>
-  .skill-card {
-    inset: auto;
+  @media (hover: hover) {
+    [data-tools]:has([data-tools-trigger]:hover, .tool-card:hover)
+      .tool-card {
+      display: block;
+    }
   }
 </style>
