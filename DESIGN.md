@@ -53,6 +53,8 @@ UnoCSSの意味を持つ色はCSSカスタムプロパティ経由で参照し�
 
 ## 共通部品と操作
 
+- 外部HTTP(S)リンクは末尾に `↗` を常時表示します。同一サイトの絶対URL、相対リンク、ページ内リンクには付けません。画像リンクでは画像右上に重ね、新しいタブで開くかどうかは変更しません。表示は [external-links.css](src/styles/external-links.css) で共通化します。
+
 - [Header.astro](src/components/ui/Header.astro) は最小高さ80px、上余白24px・sm以上40pxです。左にホームへの等幅ロゴ、右にBlogリンクとテーマ選択を置きます。Blog一覧では `aria-current="page"`、記事では `aria-current="location"` を付け、ink色と下線で示します。
 - [Footer.astro](src/components/ui/Footer.astro) は上境界線を置き、中央揃えのソーシャルリンクと著作権表示を並べます。[Socials.astro](src/components/ui/Socials.astro) はGitHub・twitter・Zennのテキストリンクで、ホームのプロフィールにも使います。
 - [ThemeToggle.astro](src/components/ui/ThemeToggle.astro) はアイコンボタンとポップアップ内のauto・light・darkのラジオ選択です。選択値を `localStorage` の `theme` に保存し、auto時のみOS設定に追従します。`storage` イベントによる保存値変更も反映します。
@@ -96,7 +98,7 @@ UnoCSSの意味を持つ色はCSSカスタムプロパティ経由で参照し�
 - コードブロックのラッパー内に `code-copy-button` を絶対配置し、上端とインライン終端から各8px離します。最小高さ32px、surface背景、line境界、4px角丸、12pxのテキストです。hover可能かつ精密なポインターでは通常は透明でポインター操作を受けず、ラッパーのhoverまたはfocus-withinで表示し、150msで不透明度を変えます。hover不可または粗いポインターでは常時表示し、最小高さ40pxにします。コード領域は角丸0で、コピー操作用の上余白は追加しません。コピー成功時は「コピー済」、失敗時は「失敗」を表示し、結果をstatusで通知します。成功表示は5秒後に戻り、失敗表示とstatusは次のコピー操作まで保持します。
 - Markdown中の単独段落にある外部URLは、条件に合う場合に [link-card.ts](src/plugins/link-card.ts) でリンクカードへ変換します。OGP画像があれば画像のみのリンクカードを表示し、画像がない場合は元のURLリンクを保ちます。相対内部リンク、アンカー、メール・電話リンクや通常の文中リンクは対象外です。
 - 記事内のリンクカードは背景が透明で、外枠・角丸・影・浮き上がりを付けません。画像のみを表示し、リンクのアクセシブルネームにはURLを使います。表示クラスは `src/styles/link-card.ts` にまとめ、記事用プラグインと `LinkCard.astro` で共用します。
-- OGP取得は `src/lib/link-card-build.ts` で行います。Astro設定読み込み時にToolsのURLとブログの単独行URLを収集し、同じURL・画像への取得を共有します。HTMLは2MiB、画像は8MiBまで、各リクエストはリダイレクトを含めて5秒までです。HTTPSの公開IP宛てのみ許可し、各リダイレクト先も検証します。検証済みのラスター画像を `.astro/link-card-images/` に保存し、表示用の取得結果をViteのビルド時定数として渡します。`LinkCard.astro` はローカル画像を `Image` へ渡し、記事用プラグインはSatteriの画像収集に登録してAstro標準の `getImage()` 経路で最適化します。外部画像の `domains`・`remotePatterns` 設定は不要です。取得・画像検証に失敗した場合は画像なしにフォールバックします。画像やURLを追加した際は開発サーバーを再起動し、公開時は再ビルドします。
+- OGP取得は `src/lib/link-card-build.ts` で行います。Astro設定読み込み時にToolsのURLとブログの単独行URLを収集し、同じURL・画像への取得を共有します。HTMLは4MiB、画像は8MiBまで、各リクエストはリダイレクトを含めて5秒までです。HTTPSの公開IP宛てのみ許可し、各リダイレクト先も検証します。検証済みのラスター画像を `.astro/link-card-images/` に保存し、表示用の取得結果をViteのビルド時定数として渡します。`LinkCard.astro` はローカル画像を `Image` へ渡し、記事用プラグインはSatteriの画像収集に登録してAstro標準の `getImage()` 経路で最適化します。外部画像の `domains`・`remotePatterns` 設定は不要です。取得・画像検証に失敗した場合は画像なしにフォールバックします。画像やURLを追加した際は開発サーバーを再起動し、公開時は再ビルドします。
 - 引用は左に16pxの余白を置き、通常の書体とウェイトで表示します。
 
 ### 404

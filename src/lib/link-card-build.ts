@@ -60,7 +60,7 @@ export async function prepareLinkCards(
   };
   const fetchCard = async (url: string): Promise<LinkCardData> => {
     try {
-      const page = await fetchPublicHttps(url);
+      const page = await fetchPublicHttps(url, { maxBytes: 4 * 1024 * 1024 });
       if (!page.contentType.includes("text/html")) return { image: "" };
       const { result } = await ogs({ html: page.body.toString("utf-8") });
       const candidates = [

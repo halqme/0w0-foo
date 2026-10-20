@@ -13,13 +13,13 @@ const profile: {
   description: "見習いシステムエンジニア",
   category: [
     {
-      name: "趣味",
-      desc: ["音楽", "映画", "合気道（二段）"],
+      name: "分野",
+      desc: ["Node","Web系"],
     },
     {
-      name: "分野",
-      desc: ["Web系（主戦場）", "実験心理学（専攻）"],
-    },
+      name: "専攻・研究",
+      desc: ["実験心理学","LLM"]
+    }
   ],
 };
 ---
@@ -44,7 +44,7 @@ const profile: {
 
     <dl class="col-span-2 grid min-w-0 gap-2 text-start sm:col-span-1">
       {profile.category.map((cat) => (
-        <div class="grid grid-cols-[2rem_minmax(0,1fr)] gap-3 text-sm leading-7">
+        <div class="grid grid-cols-[6rem_minmax(0,1fr)] gap-3 text-sm leading-7">
           <dt class="text-muted">{cat.name}</dt>
           <dd class="m-0 text-muted [overflow-wrap:anywhere]">
             {cat.desc.join(" ◦ ")}

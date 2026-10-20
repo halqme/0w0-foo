@@ -123,6 +123,36 @@ describe("link card preparation", () => {
     },
   );
 
+  it.each([
+    { sizeMiB: 3, accepted: true },
+    { sizeMiB: 5, accepted: false },
+  ])(
+    "handles $sizeMiB MiB HTML with a bounded metadata download",
+    async ({ sizeMiB, accepted }) => {
+      const response = html(
+        `${" ".repeat(sizeMiB * 1024 * 1024)}<meta property="og:image" content="${image}">`,
+      );
+      mocks.fetch.mockImplementation(
+        async (url: string, options?: { maxBytes?: number }) => {
+          if (url === image) return imageResponse();
+          if (response.body.length > (options?.maxBytes ?? 2 * 1024 * 1024))
+            throw new Error("HTTPS response exceeds maxBytes");
+          return response;
+        },
+      );
+      const cards = await prepareLinkCards([page], directory);
+      if (accepted) {
+        expect(cards[page].image).toMatch(/\.png$/);
+        expect(
+          readFileSync(join(directory, basename(cards[page].image))),
+        ).toEqual(bytes);
+      } else {
+        expect(cards[page]).toEqual({ image: "" });
+        expect(readdirSync(directory)).toEqual([]);
+      }
+    },
+  );
+
   it("shares image downloads across distinct cards", async () => {
     mocks.fetch.mockImplementation(async (url: string) =>
       url === image

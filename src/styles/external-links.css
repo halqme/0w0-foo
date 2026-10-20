@@ -1,0 +1,46 @@
+/* Same-site absolute URLs stay internal; subdomains are separate sites. */
+a:is([href^="https://"], [href^="http://"], [href^="//"]):not(
+    [href="https://0w0.foo"],
+    [href^="https://0w0.foo/"],
+    [href^="https://0w0.foo?"],
+    [href^="https://0w0.foo#"],
+    [href="http://0w0.foo"],
+    [href^="http://0w0.foo/"],
+    [href^="http://0w0.foo?"],
+    [href^="http://0w0.foo#"],
+    [href="//0w0.foo"],
+    [href^="//0w0.foo/"],
+    [href^="//0w0.foo?"],
+    [href^="//0w0.foo#"]
+  ) {
+  &::after {
+    content: "↗";
+    content: "↗" / "（外部サイト）";
+    display: inline-block;
+    margin-inline-start: 0.4em;
+    margin-left: 0.4em;
+    padding-bottom: -0.2em;
+    font-family: var(--font-ia-writer-mono), monospace;
+    font-size: 0.8em;
+    line-height: 1;
+    text-decoration: none;
+  }
+
+  /* Image-only cards need an overlay, not another row below the image. */
+  &:has(img) {
+    position: relative;
+
+    &::after {
+      position: absolute;
+      inset-block-start: 8px;
+      inset-inline-end: 8px;
+      margin: 0;
+      padding: 4px;
+      border: 1px solid var(--color-line);
+      border-radius: 4px;
+      background: var(--color-surface);
+      color: var(--color-ink);
+      font-size: 14px;
+    }
+  }
+}
