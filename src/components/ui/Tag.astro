@@ -17,11 +17,9 @@ const {
 } = Astro.props;
 
 const baseClasses = [
-  "inline-flex items-center gap-1 px-2 py-1 text-xs select-none font-medium border rounded-sm hover:border-ink",
-  "before:content-empty before:i-lucide:tag before:text-muted",
-  active
-    ? "border-surface-muted bg-surface text-muted shadow-[1px_1px_0_var(--color-line)]"
-    : "border-line bg-surface-muted text-ink",
+  "inline-flex min-h-6 max-w-full items-baseline gap-2 py-0.5 text-xs font-normal [overflow-wrap:anywhere]",
+  active ? "text-ink underline" : "text-muted",
+  href ? "link-text hover:text-ink" : "",
   className,
 ]
   .filter(Boolean)
@@ -30,20 +28,12 @@ const baseClasses = [
 
 {href ? (
   <a href={href} class={baseClasses} aria-current={active ? "page" : undefined}>
-    <span class="font-mono">{label}</span>
-    {count !== undefined && (
-      <span class="border-line text-muted font-mono ml-1 border-l pl-1.5 text-xs">
-        {count}
-      </span>
-    )}
+    <span class="min-w-0">{label}</span>
+    {count !== undefined && <span class="shrink-0 text-muted">{count}</span>}
   </a>
 ) : (
   <span class={baseClasses}>
-    <span class="font-mono">{label}</span>
-    {count !== undefined && (
-      <span class="border-line text-muted font-mono ml-1 border-l pl-1.5 text-xs">
-        {count}
-      </span>
-    )}
+    <span class="min-w-0">{label}</span>
+    {count !== undefined && <span class="shrink-0 text-muted">{count}</span>}
   </span>
 )}

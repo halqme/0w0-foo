@@ -1,17 +1,14 @@
 ---
 interface Props {
-  icon: string | null;
   title: string;
   id?: string;
 }
 const {
-  icon,
   title,
   id = `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-title`,
 } = Astro.props;
 ---
 
-<h2 id={id} class="text-headline mb-4 flex items-center gap-3 select-none">
-  {icon && <span class={`icon-md ${icon}`} aria-hidden="true"></span>}
+<h2 id={id} class="text-base font-medium text-ink mb-6">
   {title}
 </h2>

@@ -7,19 +7,16 @@ const posts = sortPostsNewestFirst(await getPublishedPosts());
 ---
 
 <Layout title="HALQME's Blog">
-  <section aria-labelledby="blog-title">
-    <div class="mb-4 flex items-center justify-between">
+  <section aria-labelledby="blog-title" class="py-8">
+    <div class="index-header">
       <h1 id="blog-title" class="text-headline">
         Blog
       </h1>
-      <a
-        href="/tags"
-        class="btn-ghost before:content-empty before:i-lucide:tags text-sm"
-      >
+      <a href="/tags" class="text-action">
         Tags
       </a>
     </div>
-    <div class="mt-4">
+    <div>
       {posts.map((post) => (
         <BlogCard post={post} />
       ))}

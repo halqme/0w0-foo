@@ -16,22 +16,13 @@ const tocHeadings = headings.filter(
 );
 ---
 
-<nav
-  aria-label="目次"
-  class="[scrollbar-width:thin] [scrollbar-color:var(--color-line)_transparent] sticky top-24 mt-4 max-h-[calc(100vh-6rem)] overflow-y-auto pr-2"
->
-  <ul class="flex flex-col gap-2.5 text-sm">
+<nav aria-label="目次" class="mt-3">
+  <ul class="flex flex-col gap-1 text-sm">
     {tocHeadings.map((heading) => (
-      <li
-        class={`leading-snug transition-colors ${
-          heading.depth === TOC_HEADING_LEVEL_2
-            ? "text-ink mt-1 font-semibold"
-            : "text-muted pl-4 text-[0.8rem]"
-        }`}
-      >
+      <li class={heading.depth === TOC_HEADING_LEVEL_3 ? "pl-4" : undefined}>
         <a
           href={`#${heading.slug}`}
-          class="text-muted hover:text-ink block py-1"
+          class="link-text block py-1 leading-relaxed text-muted hover:text-ink [overflow-wrap:anywhere]"
         >
           {heading.text}
         </a>

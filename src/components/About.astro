@@ -20,42 +20,35 @@ const profile: {
       name: "分野",
       desc: ["Web系（主戦場）", "実験心理学（専攻）"],
     },
-    {
-      name: "本籍",
-      desc: ["大阪府大阪市"],
-    },
   ],
 };
 ---
 
 <section class="section" aria-labelledby="about-title" id="about">
-  <div class="flex flex-col gap-6 sm:flex-row sm:items-start sm:gap-8">
+  <div class="flex flex-col items-center gap-6 text-center">
     <Image
       src="/chappie-selfie.jpg"
       width="128"
       height="128"
-      class="size-28 shrink-0 rounded-full object-cover"
+      class="size-14 shrink-0 rounded-full object-cover"
       alt="僕のChatGPTの自認顔"
       loading="eager"
     />
 
-    <div class="min-w-0 flex-1">
-      <div class="flex">
-        <h1 id="about-title" class="text-headline mb-2">
-          HAL
-        </h1>
-        <div class="ml-auto md:mr-8">
-          <Socials />
-        </div>
+    <div class="min-w-0 w-full">
+      <h1 id="about-title" class="text-headline mb-2">
+        HAL
+      </h1>
+      <p class="text-base leading-8 text-muted">{profile.description}</p>
+      <div class="mt-3 flex flex-wrap justify-center gap-x-5">
+        <Socials />
       </div>
 
-      <p class="text-body">{profile.description}</p>
-
-      <dl class="mt-6 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-3">
+      <dl class="mx-auto mt-6 grid w-fit max-w-full gap-2 text-start">
         {profile.category.map((cat) => (
-          <div class="min-w-0">
-            <dt class="text-xs text-muted leading-relaxed mb-1">{cat.name}</dt>
-            <dd class="m-0 text-sm text-ink leading-relaxed break-words">
+          <div class="grid grid-cols-[3rem_minmax(0,1fr)] gap-3 text-sm leading-7">
+            <dt class="text-muted text-end">{cat.name}</dt>
+            <dd class="m-0 text-muted [overflow-wrap:anywhere]">
               {cat.desc.join(" ◦ ")}
             </dd>
           </div>

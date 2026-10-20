@@ -155,30 +155,27 @@ const groupHeadingId = (title: string) =>
 ---
 
 <section class="section" aria-labelledby="skills-title" id="skills">
-  <Heading2 icon="i-lucide:tool-case" title="Skills" />
+  <Heading2 title="Skills" />
 
-  <div class="grid grid-cols-1 gap-4 py-5 px-4 bg-surface-muted md:grid-cols-3 md:gap-6">
+  <div class="grid gap-5">
     {groups.map((group) => (
-      <section class="min-w-0" aria-labelledby={groupHeadingId(group.title)}>
-        <h3
-          class="mb-3 font-mono text-md leading-normal border-b"
-          id={groupHeadingId(group.title)}
-        >
+      <details class="min-w-0" aria-labelledby={groupHeadingId(group.title)}>
+        <summary class="disclosure-trigger" id={groupHeadingId(group.title)}>
           {group.title}
-        </h3>
-        <div class="grid gap-1">
+        </summary>
+        <dl class="mt-4 mb-2 grid gap-5 pl-4">
           {group.skills.map((skill) => (
-            <>
-              <span class="font-mono">{skill.name}</span>
-              <p class="mb-2 me-6 pl-0.5em text-sm border-l leading-relaxed text-muted [text-wrap:pretty]">
+            <div>
+              <dt class="text-sm text-ink mb-1">{skill.name}</dt>
+              <dd class="m-0 text-sm leading-7 text-muted [overflow-wrap:anywhere]">
                 {Array.isArray(skill.description)
                   ? skill.description.join(" ")
                   : skill.description}
-              </p>
-            </>
+              </dd>
+            </div>
           ))}
-        </div>
-      </section>
+        </dl>
+      </details>
     ))}
   </div>
 </section>

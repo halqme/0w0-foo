@@ -10,13 +10,13 @@ import {
 const tokens = {
   color: {
     light: {
-      canvas: "#fbfaf4",
-      surface: "#fffef9",
-      "surface-muted": "#f3f0e9",
-      ink: "#302f2d",
-      muted: "#69645f",
-      line: "#ded9d0",
-      accent: "#35624f",
+      canvas: "#fcfcfc",
+      surface: "#ffffff",
+      "surface-muted": "#f4f4f4",
+      ink: "#242424",
+      muted: "#686868",
+      line: "#e4e4e4",
+      accent: "#242424",
       focus: "#14664f",
       pink: "#f4d7dc",
       mint: "#c6eadb",
@@ -28,13 +28,13 @@ const tokens = {
       "signal-success-surface": "#e1f2e8",
     },
     dark: {
-      canvas: "#242321",
-      surface: "#302f2d",
-      "surface-muted": "#3a3835",
-      ink: "#f7f4ed",
-      muted: "#d0c9bf",
-      line: "#57514a",
-      accent: "#b3ceb9",
+      canvas: "#151515",
+      surface: "#1d1d1d",
+      "surface-muted": "#262626",
+      ink: "#ededed",
+      muted: "#a3a3a3",
+      line: "#363636",
+      accent: "#ededed",
       focus: "#a8dfc6",
       pink: "#49393c",
       mint: "#416253",
@@ -78,42 +78,41 @@ export default defineConfig({
     presetAttributify({ prefix: "uno-" }),
     presetTypography({
       cssExtend: {
-        p: { "line-height": "1.5" },
+        p: { "line-height": "1.9" },
       },
     }),
   ],
   preflights: [
     {
       getCSS: () =>
-        `:root {\n    ${themeVars(tokens.color.light)}\n    --font-size-error: ${tokens.size.error};\n    --page-bg: var(--color-canvas);\n    --surface-bg: var(--color-surface);\n    --surface-muted: var(--color-surface-muted);\n    --ink: var(--color-ink);\n    --ink-muted: var(--color-muted);\n    --line: var(--color-line);\n    --accent: var(--color-accent);\n    --focus-ring: var(--color-focus);\n    --pink: var(--color-pink);\n    --mint: var(--color-mint);\n    color-scheme: light;\n  }\n  :root.dark {\n    ${themeVars(tokens.color.dark)}\n    color-scheme: dark;\n  }\n  html { scroll-padding-block-start: 1rem; font-feature-settings: "palt" 1; line-break: strict; word-break: auto-phrase; text-autospace: normal; }\n  :focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }\n  ::selection { background: var(--color-selection); color: var(--color-selection-ink); }\n  a { color: inherit; text-underline-position: from-font; text-decoration-thickness: from-font; }\n  .prose { --un-prose-body: var(--color-ink); --un-prose-headings: var(--color-ink); --un-prose-links: var(--color-accent); --un-prose-borders: var(--color-line); --un-prose-quotes: var(--color-muted); }\n  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }`,
+        `:root {\n    ${themeVars(tokens.color.light)}\n    --font-size-error: ${tokens.size.error};\n    --page-bg: var(--color-canvas);\n    --surface-bg: var(--color-surface);\n    --surface-muted: var(--color-surface-muted);\n    --ink: var(--color-ink);\n    --ink-muted: var(--color-muted);\n    --line: var(--color-line);\n    --accent: var(--color-accent);\n    --focus-ring: var(--color-focus);\n    --pink: var(--color-pink);\n    --mint: var(--color-mint);\n    color-scheme: light;\n  }\n  :root.dark {\n    ${themeVars(tokens.color.dark)}\n    color-scheme: dark;\n  }\n  html { scroll-padding-block-start: 1rem; font-feature-settings: "palt" 1; line-break: strict; word-break: auto-phrase; text-autospace: normal; }\n  :focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }\n  ::selection { background: var(--color-selection); color: var(--color-selection-ink); }\n  a { color: inherit; text-underline-position: from-font; text-decoration-thickness: from-font; }\n  :root .prose { --un-prose-body: var(--color-ink); --un-prose-headings: var(--color-ink); --un-prose-lead: var(--color-muted); --un-prose-links: var(--color-accent); --un-prose-bold: var(--color-ink); --un-prose-counters: var(--color-muted); --un-prose-bullets: var(--color-muted); --un-prose-hr: var(--color-line); --un-prose-quotes: var(--color-muted); --un-prose-quote-borders: var(--color-line); --un-prose-captions: var(--color-muted); --un-prose-kbd: var(--color-ink); --un-prose-code: var(--color-ink); --un-prose-pre-code: var(--color-ink); --un-prose-pre-bg: var(--color-surface-muted); --un-prose-th-borders: var(--color-line); --un-prose-td-borders: var(--color-line); }\n  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }`,
     },
   ],
   content: { filesystem: ["src/plugins/link-card.ts"] },
   rules: [[/^clip-\[(.+)\]$/, ([, value]) => ({ clip: value })]],
-  safelist: [
-    "absolute",
-    "top-0",
-    "right-0",
-    "bg-signal-success-surface",
-    "text-signal-success",
-    "before:i-lucide:check",
-    "before:i-lucide:copy",
-    "before:text-signal-success",
-    "opacity-0",
-    "group-hover:opacity-100",
-    "transition-opacity",
-    "duration-200",
-  ],
   shortcuts: {
-    "text-body": "text-base leading-relaxed text-ink",
-    "text-headline":
-      "text-xl md:text-2xl font-medium tracking-tight text-ink font-mono",
-    "text-label": "text-xs uppercase tracking-wider font-semibold text-muted",
+    "text-body": "text-base leading-8 text-ink",
+    "text-headline": "text-xl font-medium leading-relaxed text-ink",
+    "text-label": "text-xs font-normal leading-relaxed text-muted",
     "icon-sm": "size-4 shrink-0 align-middle",
     "icon-md": "size-5 shrink-0 align-middle",
-    section: "py-6 border-t border-line first:border-t-0",
-    "container-main": "mx-auto px-6 md:px-12",
-    "container-narrow": "container-main max-w-3xl",
+    section: "py-8 first:pt-0",
+    "container-main": "mx-auto w-full max-w-4xl px-6 sm:px-8",
+    "page-header": "mb-10 flex flex-col items-center gap-3 text-center",
+    "index-header":
+      "mb-10 flex flex-wrap items-baseline justify-center gap-x-6 gap-y-2 text-center",
+    "list-title":
+      "text-base font-medium leading-relaxed text-ink [overflow-wrap:anywhere]",
+    "item-meta":
+      "mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs leading-relaxed text-muted",
+    "link-text":
+      "underline underline-offset-4 decoration-line hover:decoration-current",
+    "text-action":
+      "link-text inline-flex min-h-10 items-center text-sm text-muted hover:text-ink focused",
+    "disclosure-trigger":
+      "min-h-10 cursor-pointer py-2 text-sm text-muted marker:text-muted hover:text-ink",
+    "code-copy-button":
+      "absolute top-2 end-2 z-10 inline-flex min-h-8 items-center rounded-sm border border-line bg-surface px-2 text-xs font-sans text-ink focused",
     btn: "inline-flex items-center justify-center gap-2 min-h-10 px-4 py-2 font-medium border border-line rounded-sm focused",
     "btn-ghost": "btn bg-transparent text-ink border-transparent",
     "btn-primary": "btn bg-accent text-canvas border-accent",
@@ -126,10 +125,6 @@ export default defineConfig({
     "theme-option-copy": "grid min-w-0 gap-1",
     "theme-check": "icon-sm ms-auto opacity-0",
     "theme-icon": "icon-sm [&[hidden]]:hidden",
-    "share-btn":
-      "transition-transform duration-150 ease-out hover:-translate-y-0.5 active:translate-y-0 motion-reduce:transform-none motion-reduce:transition-none",
-    tooltip:
-      "absolute -bottom-8 start-1/2 -translate-x-1/2 whitespace-nowrap rounded-sm bg-ink px-2 py-1 text-xs text-canvas opacity-0 transition-opacity duration-150 group-hover:opacity-100",
   },
   theme: {
     colors: {

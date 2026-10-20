@@ -5,7 +5,7 @@ const links = [{ href: "/blog", label: "Blog" }];
 const pathname = Astro.url.pathname;
 ---
 
-<header class="mx-auto flex min-h-[4.5rem] w-full max-w-5xl items-center justify-between border-b border-line px-4 sm:px-6 md:px-12">
+<header class="container-main flex min-h-20 items-center justify-between pt-6 sm:pt-10">
   <a
     class="font-mono text-lg font-medium tracking-[-0.07em] text-ink no-underline"
     href="/"
@@ -20,7 +20,7 @@ const pathname = Astro.url.pathname;
           <li>
             <a
               href={link.href}
-              class="text-sm font-mono font-medium text-muted hover:text-ink aria-[current=page]:text-accent aria-[current=page]:underline aria-[current=location]:text-accent aria-[current=location]:underline underline-offset-4 flex-inline items-center gap-1"
+              class="inline-flex min-h-10 items-center text-sm text-muted hover:text-ink aria-[current=page]:text-ink aria-[current=page]:underline aria-[current=location]:text-ink aria-[current=location]:underline underline-offset-4"
               aria-current={
                 pathname === link.href || pathname === `${link.href}/`
                   ? "page"

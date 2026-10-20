@@ -29,15 +29,12 @@ const sortedTags = [...tagCounts.entries()].toSorted((a, b) => {
 ---
 
 <Layout title="Blog | All Tags | HALQME">
-  <section aria-labelledby="tags-title">
-    <div class="mb-4 flex items-center justify-between">
+  <section aria-labelledby="tags-title" class="py-8">
+    <div class="index-header">
       <h1 id="tags-title" class="text-headline">
         Tags
       </h1>
-      <a
-        href="/blog"
-        class="btn-primary before:content-empty before:i-lucide:arrow-left text-sm"
-      >
+      <a href="/blog" class="text-action">
         Blog
       </a>
     </div>
@@ -45,16 +42,14 @@ const sortedTags = [...tagCounts.entries()].toSorted((a, b) => {
     {sortedTags.length === 0 ? (
       <p class="text-body">タグがありません。</p>
     ) : (
-      <div class="flex flex-wrap gap-3">
+      <div class="flex flex-wrap justify-center gap-x-6 gap-y-2">
         {sortedTags.map(([slug, tag]) => (
           <Tag label={tag.label} href={`/tags/${slug}`} count={tag.count} />
         ))}
       </div>
     )}
 
-    <hr class="border-line my-8" />
-
-    <div class="mt-8">
+    <div class="mt-8 pt-4">
       {posts.map((post) => (
         <BlogCard post={post} />
       ))}

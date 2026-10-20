@@ -35,23 +35,16 @@ const { label, posts } = Astro.props;
 ---
 
 <Layout title={`Blog | #${label} | HALQME`}>
-  <section aria-labelledby="tag-title">
-    <div class="flex items-center justify-between">
-      <h1
-        id="tag-title"
-        class="text-headline bg-canvas before:content-empty before:i-lucide:tag mb-0 flex items-center gap-3 select-none"
-        transition:animate="slide"
-      >
+  <section aria-labelledby="tag-title" class="py-8">
+    <div class="index-header">
+      <h1 id="tag-title" class="text-headline min-w-0 [overflow-wrap:anywhere]">
         {label}
       </h1>
-      <a
-        href="/tags"
-        class="btn-ghost before:content-empty before:i-lucide:tags text-sm"
-      >
+      <a href="/tags" class="text-action">
         Tags
       </a>
     </div>
-    <p class="text-body mt-2 mb-4 font-mono">{posts.length} 件の記事</p>
+    <p class="text-center text-sm text-muted">{posts.length} 件の記事</p>
 
     <div class="mt-8">
       {posts.map((post) => (

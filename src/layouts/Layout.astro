@@ -39,7 +39,7 @@ const absoluteOgImage = ogImage
 ---
 
 <!doctype html>
-<html lang="ja" class="scroll-smooth">
+<html lang="ja" class="motion-safe:scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
@@ -105,7 +105,7 @@ const absoluteOgImage = ogImage
 
     <link rel="canonical" href={canonicalURL} />
   </head>
-  <body class="site-shell bg-canvas text-ink flex min-h-screen flex-col font-sans">
+  <body class="site-shell bg-canvas text-ink flex min-h-dvh flex-col font-sans antialiased">
     <a
       href="#main-content"
       class="focus:bg-ink focus:text-canvas sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:px-4 focus:py-2"
@@ -116,7 +116,7 @@ const absoluteOgImage = ogImage
     <main
       id="main-content"
       tabindex="-1"
-      class="container-main max-w-5xl w-full flex-1 py-6 md:py-12"
+      class="container-main flex-1 pt-12 pb-16 sm:pt-16 sm:pb-20"
     >
       <slot />
     </main>

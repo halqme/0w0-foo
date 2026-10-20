@@ -177,7 +177,7 @@ export const linkCardPlugin = defineHastPlugin({
           "span",
           {
             className: [
-              "font-sans text-lg font-semibold leading-relaxed text-ink line-clamp-2 mb-1",
+              "font-sans text-base font-normal leading-relaxed text-ink underline underline-offset-4 line-clamp-2 mb-1",
             ],
           },
           [createText(title)],
@@ -249,7 +249,7 @@ export const linkCardPlugin = defineHastPlugin({
         );
       }
       cardChildren.push(
-        createElement("span", { className: ["p-5"] }, infoChildren),
+        createElement("span", { className: ["py-4"] }, infoChildren),
       );
 
       ctx.replaceNode(
@@ -258,7 +258,7 @@ export const linkCardPlugin = defineHastPlugin({
           "a",
           {
             className: [
-              "flex flex-col overflow-hidden rounded-xs border border-line bg-surface text-ink no-underline transition-[box-shadow,transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-ink hover:shadow-[2px_2px_0_var(--color-line)] focused motion-reduce:transform-none",
+              "my-6 flex flex-col overflow-hidden text-ink no-underline focused",
             ],
             href,
           },

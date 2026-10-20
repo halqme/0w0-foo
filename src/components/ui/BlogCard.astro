@@ -13,50 +13,37 @@ const { post, activeTag = null } = Astro.props;
 const isActiveTag = (tag: string) => activeTag === slugifyTag(tag);
 ---
 
-<article
-  class="border-line border-t first:border-t-0 py-2 md:py-4"
-  transition:name={`blog-card-${post.id}`}
->
-  <div class="grid gap-1.5 md:grid-cols-[9rem_1fr] md:gap-8">
-    <div class="text-label flex items-center gap-2 text-[0.68rem] md:block md:pt-1 md:text-xs">
-      <time datetime={post.data.published_at.toISOString()}>
-        {post.data.published_at.toLocaleDateString("ja-JP")}
-      </time>
-    </div>
-
-    <div class="mb-4 inline-flex items-center">
-      <h2 class="relative mb-1 text-base font-semibold tracking-tight text-ink md:text-xl">
-        <a
-          href={`/blog/${post.id}/`}
-          class="motion-underline underline-offset-4"
-          transition:name={`blog-title-${post.id}`}
-        >
-          {post.data.title}
-        </a>
-      </h2>
-      {post.data.zenn_slug && (
-        <a
-          href={`https://zenn.dev/hal227/articles/${post.data.zenn_slug}`}
-          class="i-simple-icons:zenn mx-3 text-zenn"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={`Zennで公開中の${post.data.title}`}
-        />
-      )}
-    </div>
+<article class="py-4" transition:name={`blog-card-${post.id}`}>
+  <h2 class="list-title">
+    <a
+      href={`/blog/${post.id}/`}
+      class="link-text"
+      transition:name={`blog-title-${post.id}`}
+    >
+      {post.data.title}
+    </a>
+  </h2>
+  <div class="item-meta">
+    <time datetime={post.data.published_at.toISOString()}>
+      {post.data.published_at.toLocaleDateString("ja-JP")}
+    </time>
+    {post.data.topics.toSorted().map((tag: string) => (
+      <Tag
+        label={tag}
+        href={`/tags/${slugifyTag(tag)}`}
+        active={isActiveTag(tag)}
+      />
+    ))}
+    {post.data.zenn_slug && (
+      <a
+        href={`https://zenn.dev/hal227/articles/${post.data.zenn_slug}`}
+        class="link-text inline-flex min-h-6 items-center text-muted hover:text-ink"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`Zennで公開中の${post.data.title}`}
+      >
+        Zenn
+      </a>
+    )}
   </div>
-  {post.data.topics.length > 0 && (
-    <div class="md:ml-[calc(9rem+2rem)]">
-      <div class="flex flex-wrap gap-1.5">
-        {post.data.topics.toSorted().map((tag: string) => (
-          <Tag
-            label={tag}
-            href={`/tags/${slugifyTag(tag)}`}
-            active={isActiveTag(tag)}
-            class="text-[0.68rem] md:text-xs"
-          />
-        ))}
-      </div>
-    </div>
-  )}
 </article>

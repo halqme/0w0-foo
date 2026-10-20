@@ -30,34 +30,29 @@ const ogImage = `/ogp/${slug}.png`;
   tags={topics}
 >
   <article
-    class="max-w-6xl mx-auto py-4 md:py-6"
+    class="min-w-0 py-8"
+    aria-labelledby="post-title"
     transition:name={`blog-card-${slug}`}
   >
-    <div class="mb-6 flex flex-col justify-center gap-3 text-center md:mb-8 md:gap-4">
-      <h1 class="text-headline" transition:name={`blog-title-${slug}`}>
+    <header class="page-header">
+      <h1
+        id="post-title"
+        class="text-headline [text-wrap:balance] [overflow-wrap:anywhere]"
+        transition:name={`blog-title-${slug}`}
+      >
         {title}
       </h1>
-      <div class="flex flex-wrap justify-center gap-3 md:gap-4">
-        <div class="inline-flex gap-1 items-center text-label before:content-empty before:i-lucide:calendar">
-          <time datetime={published_at.toISOString()}>
-            {published_at.toLocaleDateString("ja-JP")}
-          </time>
-        </div>
-        {readingTime && (
-          <div class="inline-flex gap-1 items-center text-label before:content-empty before:i-lucide:clock">
-            <span>{readingTime}</span>
-          </div>
-        )}
+      <div class="flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm text-muted">
+        <time datetime={published_at.toISOString()}>
+          {published_at.toLocaleDateString("ja-JP")}
+        </time>
+        {readingTime && <span>{readingTime}</span>}
       </div>
       {topics.length > 0 && (
-        <ul class="flex flex-wrap justify-center gap-1.5 md:gap-2">
+        <ul class="flex max-w-full flex-wrap justify-center gap-x-4 gap-y-1">
           {topics.map((tag: string) => (
-            <li>
-              <Tag
-                label={tag}
-                href={`/tags/${slugifyTag(tag)}`}
-                class="text-[0.68rem] md:text-xs"
-              />
+            <li class="min-w-0 max-w-full">
+              <Tag label={tag} href={`/tags/${slugifyTag(tag)}`} />
             </li>
           ))}
         </ul>
@@ -65,55 +60,36 @@ const ogImage = `/ogp/${slug}.png`;
       {zenn_slug && (
         <a
           href={`https://zenn.dev/hal227/articles/${zenn_slug}`}
-          class="text-muted text-sm underline-offset-4 hover:underline"
+          class="text-action"
           target="_blank"
           rel="noopener noreferrer"
         >
-          <span
-            class="i-simple-icons:zenn text-zenn mx-1 mb-1"
-            aria-hidden="true"
-          ></span>
           Zennにも投稿しています
         </a>
       )}
-      <div class="mx-auto mb-4">
-        <ShareButtons path={Astro.url.pathname} title={title} />
-      </div>
-    </div>
+    </header>
 
-    <div class="relative items-stretch lg:grid lg:grid-cols-[1fr_220px] lg:gap-10">
-      <div class="min-w-0">
-        {headings && headings.length > 0 && (
-          <details class="bg-canvas border-line mb-6 rounded-xs border p-3 text-sm lg:hidden">
-            <summary class="list-none [&::-webkit-details-marker]:hidden [&::marker]:content-none before:content-empty before:i-lucide:list before:text-muted flex items-center select-none before:mr-2">
-              <span>目次</span>
-            </summary>
-            <TableOfContents headings={headings} />
-          </details>
-        )}
-        <div class="prose prose-sm prose-neutral dark:prose-invert md:prose-base max-w-none">
-          <slot />
-        </div>
-      </div>
-
-      {headings && headings.length > 0 && (
-        <aside class="relative hidden font-sans lg:block">
-          <TableOfContents headings={headings} />
-        </aside>
-      )}
+    {headings?.some(
+      (heading) => heading.depth === 2 || heading.depth === 3,
+    ) && (
+      <details class="mb-8 text-sm">
+        <summary class="disclosure-trigger">目次</summary>
+        <TableOfContents headings={headings} />
+      </details>
+    )}
+    <div class="post-content prose prose-base max-w-none min-w-0">
+      <slot />
     </div>
-    {/* 記事フッター - シェアボタン */}
-    <div class="mt-8 flex justify-center">
-      <ShareButtons path={Astro.url.pathname.toString()} title={title} />
-    </div>
-    <div class="mt-8 flex justify-end">
+    <footer class="mt-8 pt-8">
+      <ShareButtons path={Astro.url.pathname} title={title} />
       <button
-        class="btn-ghost text-sm"
+        type="button"
+        class="mt-6 text-action"
         onclick="window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })"
       >
         ^ top ^
       </button>
-    </div>
+    </footer>
     <script>
       const NOTIFICATION_DURATION_MS = 5000;
 
@@ -128,7 +104,7 @@ const ogImage = `/ogp/${slug}.png`;
         codeBlock.setAttribute("data-has-copy-button", "true");
 
         const wrapper = document.createElement("div");
-        wrapper.className = "code-block-wrapper relative group block w-full";
+        wrapper.className = "code-block-wrapper relative block w-full";
         wrapper.style.position = "relative";
 
         if (typeof window !== "undefined") {
@@ -148,8 +124,7 @@ const ogImage = `/ogp/${slug}.png`;
 
         const button = document.createElement("button");
         button.type = "button";
-        button.className =
-          "absolute top-0 right-0 flex gap-1 min-h-6 px-2 py-1 text-xs font-medium bg-surface text-ink rounded-sm opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity duration-150 hover:bg-surface-muted z-10 before:content-empty before:i-lucide:copy before:size-4";
+        button.className = "code-copy-button";
         button.innerHTML = `
         <span class="copy-text">コピー</span>
       `;
@@ -158,16 +133,10 @@ const ogImage = `/ogp/${slug}.png`;
         let resetTimer: ReturnType<typeof setTimeout> | undefined;
         const setState = (copied: boolean, failed = false): void => {
           button.innerHTML = copied
-            ? '<span class="copy-text text-signal-success">コピー済</span>'
+            ? '<span class="copy-text">コピー済</span>'
             : failed
               ? '<span class="copy-text">失敗</span>'
               : '<span class="copy-text">コピー</span>';
-          button.classList.toggle("before:i-lucide:copy", !copied);
-          button.classList.toggle("bg-surface", !copied);
-          button.classList.toggle("hover:bg-surface-muted", !copied);
-          button.classList.toggle("bg-signal-success-surface", copied);
-          button.classList.toggle("before:i-lucide:check", copied);
-          button.classList.toggle("before:text-signal-success", copied);
         };
 
         button.addEventListener("click", async (e) => {
@@ -224,3 +193,55 @@ const ogImage = `/ogp/${slug}.png`;
     </script>
   </article>
 </Layout>
+
+<style>
+  .post-content {
+    overflow-wrap: anywhere;
+  }
+
+  .post-content :global(:is(h1, h2, h3, h4, h5, h6)) {
+    font-family: var(--font-shippori-antique);
+    font-weight: 400;
+    line-height: 1.7;
+    margin-block: 2rem 1rem;
+  }
+
+  .post-content :global(:is(h1, h2)) {
+    font-size: 1.125rem;
+  }
+
+  .post-content :global(:is(h3, h4, h5, h6)) {
+    font-size: 1rem;
+  }
+
+  .post-content :global(blockquote) {
+    border: 0;
+    padding-inline-start: 1rem;
+    font-style: normal;
+    font-weight: 400;
+  }
+
+  .post-content :global(pre) {
+    border-radius: 0;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .post-content :global(.code-copy-button) {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 150ms ease-out;
+    }
+
+    .post-content :global(.code-block-wrapper:hover .code-copy-button),
+    .post-content :global(.code-block-wrapper:focus-within .code-copy-button) {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+
+  @media (hover: none), (pointer: coarse) {
+    .post-content :global(.code-copy-button) {
+      min-height: 2.5rem;
+    }
+  }
+</style>

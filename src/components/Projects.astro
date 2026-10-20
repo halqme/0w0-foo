@@ -77,154 +77,63 @@ const projects: {
 ---
 
 <section class="section" aria-labelledby="projects-title" id="projects">
-  <Heading2 icon="i-lucide:folder-git-2" title="Projects" />
+  <Heading2 title="Projects" />
 
-  <div class="grid p-3 sm:p-5 bg-[color-mix(in_srgb,var(--color-pink)_13%,var(--color-canvas))]">
-    {[projects.slice(0, 4), projects.slice(4)].map((group, groupIndex) => (
-      <div
-        class:list={[groupIndex === 1 ? "projects-collapse" : undefined]}
-        id={groupIndex === 1 ? "additional-projects" : undefined}
-      >
-        <div class="projects-collapse-inner grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-10">
-          {group.map((project, index) => {
-            const projectIndex = index + (groupIndex === 1 ? 4 : 0);
-            return (
-              <article
-                class="min-w-0 border-t border-line/70"
-                aria-labelledby={`project-title-${projectIndex}`}
-              >
-                <a
-                  href={project.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="project-link block min-w-0 h-full py-4 sm:py-5 text-ink no-underline"
+  <div class="grid gap-8">
+    {[projects.slice(0, 4), projects.slice(4)].map((group, groupIndex) => {
+      const Container = groupIndex === 1 ? "details" : "div";
+      return (
+        <Container id={groupIndex === 1 ? "additional-projects" : undefined}>
+          {groupIndex === 1 && (
+            <summary class="disclosure-trigger">もっと見る</summary>
+          )}
+          <div class:list={["grid gap-8", groupIndex === 1 && "mt-4"]}>
+            {group.map((project, index) => {
+              const projectIndex = index + (groupIndex === 1 ? 4 : 0);
+              return (
+                <article
+                  class="min-w-0"
                   aria-labelledby={`project-title-${projectIndex}`}
                 >
-                  <div class="flex items-baseline justify-between gap-4">
-                    <h3
-                      id={`project-title-${projectIndex}`}
-                      class="min-w-0 mb-2 font-medium font-mono text-xl leading-tight tracking-tight [overflow-wrap:anywhere]"
+                  <h3
+                    id={`project-title-${projectIndex}`}
+                    class="list-title mb-1"
+                  >
+                    <a
+                      href={project.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="link-text"
                     >
-                      <span class="motion-underline">{project.name}</span>
-                    </h3>
-                    <span
-                      class="icon-sm text-muted i-lucide:arrow-up-right"
-                      aria-hidden="true"
-                    />
-                  </div>
-                  <p class="max-w-[65ch] mb-3 text-base leading-relaxed text-muted [text-wrap:pretty]">
+                      {project.name}
+                    </a>
+                  </h3>
+                  <p class="text-sm leading-7 text-muted [overflow-wrap:anywhere]">
                     {project.description}
                   </p>
                   {project.tag.length > 0 && (
-                    <ul
-                      class="m-0 flex list-none flex-wrap gap-x-3 gap-y-1 p-0 font-mono text-xs leading-relaxed text-muted"
-                      aria-label="使用技術"
-                    >
+                    <ul class="item-meta list-none" aria-label="使用技術">
                       {project.tag.map((tag) => (
                         <li>{tag}</li>
                       ))}
                     </ul>
                   )}
-                </a>
-              </article>
-            );
-          })}
-          {groupIndex === 1 && (
-            <a
-              class="project-link inline-block mb-2 ml-auto text-ink motion-underline sm:col-span-2"
-              href="https://github.com/halqme?tab=repositories"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              GitHubでもっと見る →
-            </a>
-          )}
-        </div>
-      </div>
-    ))}
-
-    <button
-      id="projects-toggle"
-      class="btn-ghost mx-auto mt-4"
-      type="button"
-      aria-expanded="true"
-      aria-controls="additional-projects"
-      data-expand-label={`（﹀ もっと見る ﹀）`}
-      hidden
-    >
-      （︿ 折りたたむ ︿）
-    </button>
-  </div>
-
-  <script>
-    function initProjects() {
-      const projectsSection = document.querySelector("#projects");
-      const toggle = projectsSection?.querySelector("#projects-toggle");
-      const additionalProjects = projectsSection?.querySelector<HTMLElement>(
-        "#additional-projects",
+                </article>
+              );
+            })}
+            {groupIndex === 1 && (
+              <a
+                class="text-action w-fit"
+                href="https://github.com/halqme?tab=repositories"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                GitHubでもっと見る →
+              </a>
+            )}
+          </div>
+        </Container>
       );
-
-      if (
-        toggle instanceof HTMLButtonElement &&
-        additionalProjects &&
-        toggle.dataset.initialized !== "true"
-      ) {
-        toggle.dataset.initialized = "true";
-        const expandLabel = toggle.dataset.expandLabel ?? "表示";
-        additionalProjects.inert = true;
-        additionalProjects.classList.remove("is-expanded");
-        toggle.setAttribute("aria-expanded", "false");
-        toggle.textContent = expandLabel;
-        projectsSection?.classList.add("projects-enhanced");
-        toggle.hidden = false;
-
-        void additionalProjects.offsetHeight;
-        requestAnimationFrame(() => {
-          if (projectsSection?.isConnected) {
-            projectsSection.classList.add("projects-transitions-ready");
-          }
-        });
-
-        toggle.addEventListener("click", () => {
-          const expanded = toggle.getAttribute("aria-expanded") === "true";
-          toggle.setAttribute("aria-expanded", String(!expanded));
-          toggle.textContent = expanded ? expandLabel : "（︿ 折りたたむ ︿）";
-          additionalProjects.inert = expanded;
-          additionalProjects.classList.toggle("is-expanded", !expanded);
-        });
-      }
-    }
-
-    initProjects();
-    document.addEventListener("astro:page-load", initProjects);
-  </script>
-  <style>
-    #projects-toggle[hidden] {
-      display: none;
-    }
-
-    .projects-collapse {
-      display: grid;
-      grid-template-rows: 1fr;
-    }
-
-    .projects-collapse > .projects-collapse-inner {
-      min-height: 0;
-      overflow: hidden;
-    }
-
-    .projects-enhanced .projects-collapse {
-      grid-template-rows: 0fr;
-    }
-
-    .projects-enhanced .projects-collapse.is-expanded {
-      grid-template-rows: 1fr;
-    }
-
-    @media (prefers-reduced-motion: no-preference) {
-      .projects-transitions-ready .projects-collapse {
-        transition: grid-template-rows 250ms ease;
-      }
-    }
-  </style>
+    })}
+  </div>
 </section>

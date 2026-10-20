@@ -7,7 +7,7 @@ const posts = sortPostsNewestFirst(await getPublishedPosts());
 ---
 
 <section class="section" aria-labelledby="articles-title" id="posts">
-  <Heading2 icon="i-lucide:notebook-pen" title="Articles" />
+  <Heading2 title="Articles" />
 
   <div>
     {posts.slice(0, 5).map((post) => (
