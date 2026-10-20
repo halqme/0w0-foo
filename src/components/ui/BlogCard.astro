@@ -37,12 +37,12 @@ const isActiveTag = (tag: string) => activeTag === slugifyTag(tag);
     {post.data.zenn_slug && (
       <a
         href={`https://zenn.dev/hal227/articles/${post.data.zenn_slug}`}
-        class="link-text inline-flex min-h-6 items-center text-muted hover:text-ink"
+        class="link-text inline-flex min-h-6 ml-auto items-center text-muted hover:text-ink"
         target="_blank"
         rel="noopener noreferrer"
-        aria-label={`Zennで公開中の${post.data.title}`}
+        aria-label={`Read ${post.data.title} on Zenn`}
       >
-        Zenn
+        –– Published on Zenn
       </a>
     )}
   </div>
