@@ -7,6 +7,8 @@ import {
   transformerDirectives,
 } from "unocss";
 
+import { linkCardClasses } from "./src/styles/link-card";
+
 const tokens = {
   color: {
     light: {
@@ -89,6 +91,9 @@ export default defineConfig({
     },
   ],
   content: { filesystem: ["src/plugins/link-card.ts"] },
+  safelist: Object.values(linkCardClasses).flatMap((classes) =>
+    classes.split(/\s+/),
+  ),
   rules: [[/^clip-\[(.+)\]$/, ([, value]) => ({ clip: value })]],
   shortcuts: {
     "text-body": "text-base leading-8 text-ink",
@@ -110,7 +115,7 @@ export default defineConfig({
     "text-action":
       "link-text inline-flex min-h-10 items-center text-sm text-muted hover:text-ink focused",
     "disclosure-trigger":
-      "min-h-10 cursor-pointer py-2 text-sm text-muted marker:text-muted hover:text-ink",
+      "min-h-10 select-none py-2 text-sm text-muted marker:text-muted hover:text-ink",
     "code-copy-button":
       "absolute top-2 end-2 z-10 inline-flex min-h-8 items-center rounded-sm border border-line bg-surface px-2 text-xs font-sans text-ink focused",
     btn: "inline-flex items-center justify-center gap-2 min-h-10 px-4 py-2 font-medium border border-line rounded-sm focused",

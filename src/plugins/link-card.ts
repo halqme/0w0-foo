@@ -1,36 +1,15 @@
 import { defineHastPlugin } from "satteri";
 import type { Element, ElementContent, Properties } from "hast";
-import ogs from "open-graph-scraper";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-interface OgpData {
-  description: string;
-  favicon: string;
-  image: string;
-  title: string;
-}
+import {
+  getLinkCardData,
+  linkCardClasses,
+  type LinkCardData,
+} from "../lib/link-card";
 
-const ogpCache = new Map<string, OgpData>();
-
-function isBadgeImageUrl(url: string): boolean {
-  try {
-    const parsedUrl = new URL(url);
-    const pathname = parsedUrl.pathname.toLowerCase();
-    return pathname.endsWith(".svg") || pathname.includes("badge");
-  } catch {
-    return false;
-  }
-}
-
-function resolveUrl(value: string, baseUrl: string): string {
-  if (value.startsWith("http://") || value.startsWith("https://")) return value;
-  return new URL(value, baseUrl).href;
-}
-
-function createText(value: string): ElementContent {
-  return { type: "text", value };
-}
+const ogpCache = new Map<string, LinkCardData>();
 
 function createElement(
   tagName: string,
@@ -43,39 +22,6 @@ function createElement(
     tagName,
     type: "element",
   };
-}
-
-async function fetchOgp(url: string): Promise<OgpData | null> {
-  try {
-    const { result } = await ogs({
-      fetchOptions: {
-        headers: { "User-Agent": "Mozilla/5.0 (compatible; BlogBot/1.0)" },
-      },
-      timeout: 5,
-      url,
-    });
-
-    const parsedUrl = new URL(url);
-    const imageCandidate =
-      [
-        ...(result.ogImage ?? []).map((entry) => entry.url),
-        ...(result.twitterImage ?? []).map((entry) => entry.url),
-      ].find((imageUrl) => !isBadgeImageUrl(imageUrl)) ?? "";
-    const title = result.ogTitle ?? result.twitterTitle ?? parsedUrl.hostname;
-    const description = result.ogDescription ?? result.twitterDescription ?? "";
-    const favicon =
-      result.favicon ??
-      `https://www.google.com/s2/favicons?domain=${parsedUrl.hostname}&sz=32`;
-
-    return {
-      description,
-      favicon,
-      image: imageCandidate,
-      title,
-    };
-  } catch {
-    return null;
-  }
 }
 
 function findAllBareUrls(): string[] {
@@ -113,8 +59,7 @@ function findAllBareUrls(): string[] {
 const allUrls = findAllBareUrls();
 await Promise.allSettled(
   allUrls.map(async (url) => {
-    const data = await fetchOgp(url);
-    if (data) ogpCache.set(url, data);
+    ogpCache.set(url, await getLinkCardData(url));
   }),
 );
 
@@ -165,104 +110,32 @@ export const linkCardPlugin = defineHastPlugin({
 
       if (!isBareUrlLink(linkNode, ctx)) return;
 
-      const ogp = ogpCache.get(href);
-      const displayUrl = new URL(href).hostname;
-      const title = ogp?.title || displayUrl;
-      const description = ogp?.description || "";
-      const favicon = ogp?.favicon ? resolveUrl(ogp.favicon, href) : "";
-      const image = ogp?.image ? resolveUrl(ogp.image, href) : "";
-
-      const infoChildren: ElementContent[] = [
-        createElement(
-          "span",
-          {
-            className: [
-              "font-sans text-base font-normal leading-relaxed text-ink underline underline-offset-4 line-clamp-2 mb-1",
-            ],
-          },
-          [createText(title)],
-        ),
-      ];
-
-      if (description) {
-        infoChildren.push(
-          createElement(
-            "span",
-            {
-              className: [
-                "text-sm leading-relaxed text-muted line-clamp-2 mb-3",
-              ],
-            },
-            [createText(description)],
-          ),
-        );
-      }
-
-      const urlContainerChildren: ElementContent[] = [];
-      if (favicon) {
-        urlContainerChildren.push(
-          createElement("img", {
-            alt: "",
-            className: ["icon-sm rounded-xs"],
-            height: 16,
-            src: favicon,
-            width: 16,
-          }),
-        );
-      }
-      urlContainerChildren.push(
-        createElement("span", { className: ["truncate"] }, [
-          createText(displayUrl),
-        ]),
-      );
-
-      infoChildren.push(
-        createElement(
-          "span",
-          {
-            className: ["flex items-center gap-1.5 text-xs text-muted"],
-          },
-          urlContainerChildren,
-        ),
-      );
-
-      const cardChildren: ElementContent[] = [];
-      if (image) {
-        cardChildren.push(
-          createElement(
-            "span",
-            {
-              className: [
-                "relative aspect-[1200/630] overflow-hidden bg-surface-muted",
-              ],
-            },
-            [
-              createElement("img", {
-                alt: "",
-                className: [
-                  "absolute inset-0 block h-full w-full object-cover outline outline-1 outline-offset-[-1px] outline-[var(--color-image-outline)]",
-                ],
-                src: image,
-              }),
-            ],
-          ),
-        );
-      }
-      cardChildren.push(
-        createElement("span", { className: ["py-4"] }, infoChildren),
-      );
+      const image = ogpCache.get(href)?.image;
+      if (!image) return;
 
       ctx.replaceNode(
         node,
         createElement(
           "a",
           {
-            className: [
-              "my-6 flex flex-col overflow-hidden text-ink no-underline focused",
-            ],
+            className: [linkCardClasses.card],
             href,
+            ariaLabel: href,
           },
-          cardChildren,
+          [
+            createElement(
+              "span",
+              { className: [linkCardClasses.imageContainer] },
+              [
+                createElement("img", {
+                  alt: "",
+                  className: [linkCardClasses.image],
+                  loading: "lazy",
+                  src: image,
+                }),
+              ],
+            ),
+          ],
         ),
       );
     },

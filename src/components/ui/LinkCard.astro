@@ -1,0 +1,27 @@
+---
+import { Image } from "astro:assets";
+import { getLinkCardData, linkCardClasses } from "../../lib/link-card";
+
+interface Props {
+  href: string;
+  class?: string;
+}
+
+const { href, class: className } = Astro.props;
+const { image } = await getLinkCardData(href);
+---
+
+{image && (
+  <div class:list={["flex flex-col overflow-hidden", className]}>
+    <span class={linkCardClasses.imageContainer}>
+      <Image
+        src={image}
+        width={1200}
+        height={630}
+        alt=""
+        class={linkCardClasses.image}
+        loading="eager"
+      />
+    </span>
+  </div>
+)}

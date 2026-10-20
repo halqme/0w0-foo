@@ -131,14 +131,15 @@ describe("linkCardPlugin", () => {
     expect(replacement.tagName).toBe("a");
     expect(replacement.properties.href).toBe(baseUrl);
     const serialized = JSON.stringify(replacement);
-    expect(serialized).toContain("OG title");
-    expect(serialized).toContain("OG description");
+    expect(replacement.properties.ariaLabel).toBe(baseUrl);
     expect(serialized).toContain("https://example.test/hero.png");
-    expect(serialized).toContain("https://example.test/favicon.ico");
+    expect(serialized).not.toContain("OG title");
+    expect(serialized).not.toContain("OG description");
+    expect(serialized).not.toContain("favicon.ico");
     expect(serialized).not.toContain("badge.svg");
   });
 
-  it("uses Twitter metadata and favicon fallback when Open Graph fields are absent", async () => {
+  it("uses a Twitter image when Open Graph images are absent", async () => {
     mocks.readdirSync.mockReturnValue(["one.md"]);
     mocks.readFileSync.mockReturnValue(`---\ntitle: test\n---\n${baseUrl}`);
     mocks.ogs.mockResolvedValue({
@@ -153,24 +154,34 @@ describe("linkCardPlugin", () => {
     plugin.element.visit(paragraph(baseUrl), ctx);
     const replacement = ctx.replaceNodeMock.mock.calls[0][1];
     const serialized = JSON.stringify(replacement);
-    expect(serialized).toContain("Twitter title");
-    expect(serialized).toContain("Twitter description");
-    expect(serialized).toContain(
-      "https://www.google.com/s2/favicons?domain=example.test&sz=32",
-    );
+    expect(replacement.properties.href).toBe(baseUrl);
+    expect(serialized).toContain("https://cdn.test/card.png");
+    expect(serialized).not.toContain("Twitter title");
+    expect(serialized).not.toContain("Twitter description");
   });
 
-  it("uses hostname fallback when OGP retrieval fails", async () => {
+  it("preserves the original URL link when OGP retrieval fails", async () => {
     mocks.readdirSync.mockReturnValue(["one.md"]);
     mocks.readFileSync.mockReturnValue(`---\ntitle: test\n---\n${baseUrl}`);
     mocks.ogs.mockRejectedValue(new Error("offline"));
     const plugin = await importPlugin();
     const ctx = context();
     plugin.element.visit(paragraph(baseUrl), ctx);
-    expect(JSON.stringify(ctx.replaceNodeMock.mock.calls[0][1])).toContain(
-      "example.test",
-    );
+    expect(ctx.replaceNodeMock).not.toHaveBeenCalled();
   });
+
+  it.each([{}, { ogImage: [{ url: "https://example.test/badge.svg" }] }])(
+    "preserves the original URL link without a usable image: %j",
+    async (result) => {
+      mocks.readdirSync.mockReturnValue(["one.md"]);
+      mocks.readFileSync.mockReturnValue(baseUrl);
+      mocks.ogs.mockResolvedValue({ result });
+      const plugin = await importPlugin();
+      const ctx = context();
+      plugin.element.visit(paragraph(baseUrl), ctx);
+      expect(ctx.replaceNodeMock).not.toHaveBeenCalled();
+    },
+  );
 
   it.each(["/local", "#section", "mailto:a@example.test", "tel:123"])(
     "skips excluded href %s",

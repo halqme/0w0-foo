@@ -1,0 +1,34 @@
+---
+import Heading2 from "./ui/Heading2.astro";
+
+const langs: string[] = ["TypeScript", "Go", "Swift"].toSorted();
+const frameworks: string[] = ["Vue", "Hono"].toSorted();
+---
+
+<section class="section" aria-labelledby="skills-title" id="skills">
+  <Heading2 title="Languages & Frameworks" />
+
+  <ul
+    role="list"
+    class="grid grid-cols-[fit-content(55%)_auto_minmax(0,1fr)] gap-x-3 gap-y-1"
+  >
+    {langs.map((lang) => (
+      <li class="col-span-3 grid grid-cols-subgrid items-baseline" data-skill>
+        <span
+          class="link-text min-h-10 min-w-0 justify-self-start text-start text-sm text-ink focused [overflow-wrap:anywhere]"
+        >
+          {lang}
+        </span>
+      </li>
+    ))}
+    {frameworks.map((fw) => (
+      <li class="col-span-3 grid grid-cols-subgrid items-baseline" data-skill>
+        <span
+          class="link-text min-h-10 min-w-0 justify-self-start text-start text-sm text-ink focused [overflow-wrap:anywhere]"
+        >
+          {fw}
+        </span>
+      </li>
+    ))}
+  </ul>
+</section>
