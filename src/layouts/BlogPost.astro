@@ -75,14 +75,15 @@ const ogImage = `/ogp/${slug}.png`;
     <div class="post-content prose prose-base max-w-none min-w-0">
       <slot />
     </div>
-    <footer class="mt-8 pt-8">
+    <footer class="mt-8 flex flex-col items-start pt-8">
       <ShareButtons path={Astro.url.pathname} title={title} />
       <button
         type="button"
-        class="mt-6 text-action"
-        onclick="window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })"
+        class="self-end text-action"
+        aria-label="ページ先頭へ戻る"
+        onclick="if (location.hash) history.replaceState(history.state, '', location.pathname + location.search); window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })"
       >
-        ^ top ^
+        ^ top
       </button>
     </footer>
     <script>

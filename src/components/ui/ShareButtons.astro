@@ -12,55 +12,137 @@ const shareItems = [
   {
     ariaLabel: "Xでシェア",
     href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(title + " " + url)}`,
-    label: "X",
+    icon: "i-simple-icons:x",
+    key: "x",
+    label: "Xでシェア",
   },
   {
     ariaLabel: "Blueskyでシェア",
     href: `https://bsky.app/intent/compose?text=${encodeURIComponent(title + " " + url)}`,
-    label: "Bluesky",
+    icon: "i-simple-icons:bluesky",
+    key: "bluesky",
+    label: "Blueskyでシェア",
   },
   {
     ariaLabel: "Mastodonでシェア",
     href: `https://mastodonshare.com/?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`,
-    label: "Mastodon",
+    icon: "i-simple-icons:mastodon",
+    key: "mastodon",
+    label: "Mastodonでシェア",
   },
   {
     ariaLabel: "はてブに追加",
     href: `https://b.hatena.ne.jp/entry/s/${Astro.site?.hostname}${path}${encodeURIComponent(title)}#bbutton`,
-    label: "はてブ",
+    icon: "i-simple-icons:hatenabookmark",
+    key: "hatena",
+    label: "はてブに追加",
   },
   {
     ariaLabel: "Facebookでシェア",
     href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
-    label: "Facebook",
+    icon: "i-simple-icons:facebook",
+    key: "facebook",
+    label: "Facebookでシェア",
   },
 ];
 ---
 
 <div
-  class="share-buttons flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted"
+  class="share-buttons flex w-full flex-wrap items-center justify-center gap-2"
   role="group"
   aria-label="記事をシェア"
 >
   {shareItems.map((item) => (
-    <a
-      href={item.href}
-      target="_blank"
-      rel="noopener noreferrer"
-      class="text-action"
-      aria-label={item.ariaLabel}
+    <button
+      type="button"
+      data-share-url={item.href}
+      class="share-btn relative inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-sm text-muted hover:text-ink focused"
+      aria-label={`${item.ariaLabel}（新しいタブで開く）`}
     >
-      {item.label}
-    </a>
+      <span class={`icon-md ${item.icon}`} aria-hidden="true" />
+      <span class="share-tooltip" aria-hidden="true">
+        {item.label}
+      </span>
+    </button>
   ))}
-  <button type="button" class="copy-btn text-action" data-url={url}>
-    <span data-copy-label>URLをコピー</span>
+
+  <button
+    type="button"
+    class="share-btn copy-btn relative inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-sm text-muted hover:text-ink focused"
+    data-url={url}
+    aria-label="URLをコピー"
+  >
+    <span
+      class="icon-md i-lucide:link"
+      data-copy-icon
+      aria-hidden="true"
+    ></span>
+    <span class="share-tooltip" data-copy-tooltip aria-hidden="true">
+      URLをコピー
+    </span>
   </button>
 </div>
 <div role="status" aria-live="polite" aria-atomic="true" class="sr-only"></div>
 
+<style>
+  .share-tooltip {
+    position: absolute;
+    left: 50%;
+    inset-block-end: 100%;
+    transform: translateX(-50%);
+    z-index: 10;
+    inline-size: max-content;
+    max-inline-size: 10rem;
+    padding: 4px 8px;
+    border: 1px solid var(--color-line);
+    border-radius: 4px;
+    background: var(--color-surface);
+    color: var(--color-ink);
+    font-size: 12px;
+    line-height: 1.5;
+    visibility: hidden;
+    opacity: 0;
+  }
+
+  @media (width < 40rem) {
+    .share-tooltip {
+      max-inline-size: 5rem;
+    }
+  }
+
+  .share-btn:focus .share-tooltip {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  @media (hover: hover) {
+    .share-btn:hover .share-tooltip {
+      visibility: visible;
+      opacity: 1;
+    }
+  }
+
+  .share-buttons[data-tooltip-dismissed] .share-tooltip {
+    visibility: hidden;
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .share-tooltip {
+      transition: opacity 150ms ease-out;
+    }
+  }
+</style>
+
 <script>
   const NOTIFICATION_DURATION_MS = 5000;
+
+  document.addEventListener("click", (event) => {
+    if (!(event.target instanceof Element)) return;
+    const button = event.target.closest<HTMLButtonElement>("[data-share-url]");
+    const shareUrl = button?.dataset.shareUrl;
+    if (shareUrl) window.open(shareUrl, "_blank", "noopener,noreferrer");
+  });
 
   const initCopyButtons = () => {
     document
@@ -68,6 +150,15 @@ const shareItems = [
       .forEach((button) => {
         if (button.hasAttribute("data-copy-initialized")) return;
         button.setAttribute("data-copy-initialized", "true");
+        const group = button.closest<HTMLElement>(".share-buttons");
+        group?.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") group.dataset.tooltipDismissed = "";
+        });
+        const showTooltip = () => {
+          if (group) delete group.dataset.tooltipDismissed;
+        };
+        group?.addEventListener("focusin", showTooltip);
+        group?.addEventListener("pointerover", showTooltip);
 
         let resetTimer: ReturnType<typeof setTimeout> | undefined;
         let pending = false;
@@ -81,29 +172,39 @@ const shareItems = [
           }
           const liveRegion =
             button.closest(".share-buttons")?.nextElementSibling;
-          const label = button.querySelector<HTMLElement>("[data-copy-label]");
+          const label = button.querySelector<HTMLElement>(
+            "[data-copy-tooltip]",
+          );
+          const icon = button.querySelector<HTMLElement>("[data-copy-icon]");
+          const resetCopyState = () => {
+            if (label) label.textContent = "URLをコピー";
+            if (icon) icon.className = "icon-md i-lucide:link";
+            button.setAttribute("aria-label", "URLをコピー");
+          };
           if (liveRegion?.getAttribute("role") === "status") {
             liveRegion.textContent = "";
           }
-          if (label) label.textContent = "URLをコピー";
+          resetCopyState();
           pending = true;
           button.disabled = true;
 
           try {
             await navigator.clipboard.writeText(url);
-            if (label) {
-              label.textContent = "コピー完了！";
-              resetTimer = setTimeout(() => {
-                label.textContent = "URLをコピー";
-                resetTimer = undefined;
-              }, NOTIFICATION_DURATION_MS);
-            }
+            if (label) label.textContent = "コピー完了！";
+            if (icon) icon.className = "icon-md i-lucide:check";
+            button.setAttribute("aria-label", "コピー完了！");
+            resetTimer = setTimeout(() => {
+              resetCopyState();
+              resetTimer = undefined;
+            }, NOTIFICATION_DURATION_MS);
             if (liveRegion?.getAttribute("role") === "status") {
               liveRegion.textContent = "URLをコピーしました";
             }
           } catch (error) {
             console.error("Failed to copy URL:", error);
             if (label) label.textContent = "コピーに失敗しました";
+            if (icon) icon.className = "icon-md i-lucide:triangle-alert";
+            button.setAttribute("aria-label", "コピーに失敗しました");
             if (liveRegion?.getAttribute("role") === "status") {
               liveRegion.textContent = "コピーに失敗しました";
             }
