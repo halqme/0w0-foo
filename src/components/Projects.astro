@@ -9,68 +9,51 @@ const projects: {
 }[] = [
   {
     description:
-      "次世代のmadge。oxc-toolchainによる高速なdependency-graph生成CLI",
+      "An ultra-fast dependency graph generator built with Oxc, inspired by madge.",
     name: "oxdg",
     tag: ["TypeScript", "oxc", "madge"],
     url: "https://github.com/halqme/oxdg",
   },
   {
-    description:
-      "Markdownでスライドを作成できるBun製ツール。marpみたいだけど、プレゼン機能が充実している",
+    description: "A Markdown slide generator and presentation tool.",
     name: "bundeck",
     tag: ["TypeScript", "Bun", "Solid"],
     url: "https://github.com/halqme/bundeck",
   },
   {
-    description: "Bun.secrets WrapperなCLI",
+    description: "A CLI wrapper for Bun.secrets.",
     name: "@halqme/bunlt",
-    tag: ["TypeScript", "Bun", "Sercret-Manager"],
+    tag: ["TypeScript", "Bun"],
     url: "https://github.com/halqme/bunlt",
   },
   {
-    description: "大阪公立大学合氣道部の情報基盤。モノレポ",
-    name: "omu-aikido/foundation",
-    tag: ["TypeScript", "Hono", "Vue.js", "nuxt"],
-    url: "https://github.com/omu-aikido/foundation",
-  },
-  {
-    description: "Bun向けの宣言的TUIフレームワーク。レイアウトエンジンはZig",
+    description: "Declarative TUI framework for Bun.",
     name: "btuin",
     tag: ["TypeScript", "Bun", "Zig"],
     url: "https://github.com/halqme/btuin",
   },
   {
-    description:
-      "Apple Foundation Models用CLIチャットツール。macOS 27からはfmを使うので要らない",
-    name: "Fai",
-    tag: ["Swift"],
-    url: "https://github.com/halqme/Fai",
-  },
-  {
-    description:
-      "極小の音声入力アプリ。音声入力にハマったときに作りかけて、そのまま",
+    description: "Tiny dictation app.",
     name: "Dicta",
-    tag: ["Swift"],
+    tag: ["Swift", "FluidAudio"],
     url: "https://github.com/halqme/Dicta",
   },
   {
-    description:
-      "Piの拡張機能・スキルのセット。GPT-Lunaシリーズなど高効率モデルのために設計。タスクを失敗せずに走りきることに注力している",
+    description: "Extensions and skills for Pi.",
     name: "Pi-Kit",
-    tag: ["Pi-Coding-Agent", "TypeScript"],
+    tag: ["TypeScript"],
     url: "https://github.com/halqme/pi-kit",
   },
   {
-    description: "普段使っているスキルたち",
+    description: "The skills for programer and japanese.",
     name: "skills",
     tag: [],
     url: "https://github.com/halqme/skills",
   },
   {
-    description:
-      "fastfetchカッコいい！と思った結果webのコンテキストにおけるfetchのややこしさを見事に踏み抜いた逸品",
+    description: "Fastfetch for the web.",
     name: "browserfetch",
-    tag: [],
+    tag: ["Vue","TypeScript"],
     url: "https://browserfetch.apps.0w0.foo",
   },
 ];
@@ -79,7 +62,7 @@ const projects: {
 <section class="section" aria-labelledby="projects-title" id="projects">
   <Heading2 title="Projects" />
 
-  <div class="grid gap-8">
+  <div class="grid gap-6 sm:gap-8">
     {[projects.slice(0, 4), projects.slice(4)].map((group, groupIndex) => {
       const Container = groupIndex === 1 ? "details" : "div";
       return (
@@ -87,7 +70,7 @@ const projects: {
           {groupIndex === 1 && (
             <summary class="disclosure-trigger">もっと見る</summary>
           )}
-          <div class:list={["grid gap-8", groupIndex === 1 && "mt-4"]}>
+          <div class:list={["grid gap-6 sm:gap-8", groupIndex === 1 && "mt-4"]}>
             {group.map((project, index) => {
               const projectIndex = index + (groupIndex === 1 ? 4 : 0);
               return (
@@ -95,29 +78,40 @@ const projects: {
                   class="min-w-0"
                   aria-labelledby={`project-title-${projectIndex}`}
                 >
-                  <h3
-                    id={`project-title-${projectIndex}`}
-                    class="list-title mb-1"
-                  >
-                    <a
-                      href={project.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="link-text"
+                  <div class="mb-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    <h3
+                      id={`project-title-${projectIndex}`}
+                      class="list-title min-w-0"
                     >
-                      {project.name}
-                    </a>
-                  </h3>
-                  <p class="text-sm leading-7 text-muted [overflow-wrap:anywhere]">
+                      <a
+                        href={project.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="link-text"
+                      >
+                        {project.name}
+                      </a>
+                    </h3>
+                    {project.tag.length > 0 && (
+                      <>
+                        <span class="text-label mx-2">|</span>
+                        <ul
+                          class="text-label min-w-0 flex flex-wrap gap-x-3 gap-y-1 list-none [overflow-wrap:anywhere]"
+                          aria-label="使用技術"
+                        >
+                          {project.tag.map((tag) => (
+                            <li>{tag}</li>
+                          ))}
+                        </ul>
+                      </>
+                    )}
+                  </div>
+                  <p
+                    class="text-sm leading-normal text-muted [overflow-wrap:anywhere] sm:leading-7"
+                    lang="en"
+                  >
                     {project.description}
                   </p>
-                  {project.tag.length > 0 && (
-                    <ul class="item-meta list-none" aria-label="使用技術">
-                      {project.tag.map((tag) => (
-                        <li>{tag}</li>
-                      ))}
-                    </ul>
-                  )}
                 </article>
               );
             })}
