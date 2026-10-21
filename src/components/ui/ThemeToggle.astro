@@ -194,37 +194,28 @@
       });
   };
 
-  let themeTransition: ViewTransition | undefined;
+  let themeTransitionTimer: number | undefined;
+  const stopThemeTransition = () => {
+    window.clearTimeout(themeTransitionTimer);
+    themeTransitionTimer = undefined;
+    delete document.documentElement.dataset.themeTransition;
+  };
   const changeTheme = (next: Theme) => {
-    themeTransition?.skipTransition();
-    theme = next;
+    window.clearTimeout(themeTransitionTimer);
     const root = document.documentElement;
-    const dark = next === "dark" || (next === "auto" && media.matches);
-    const update = () => {
-      applyTheme(theme);
-      syncSelection();
-    };
-    if (
-      !document.startViewTransition ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
-      root.classList.contains("dark") === dark
-    ) {
-      update();
-      return;
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      root.dataset.themeTransition = "";
+      // Commit the current palette before changing its transition target.
+      getComputedStyle(root).getPropertyValue("--color-canvas");
+      themeTransitionTimer = window.setTimeout(stopThemeTransition, 350);
+    } else {
+      stopThemeTransition();
     }
-    root.dataset.themeTransition = "";
-    const transition = document.startViewTransition(update);
-    themeTransition = transition;
-    void transition.finished.finally(() => {
-      if (themeTransition !== transition) return;
-      delete root.dataset.themeTransition;
-      themeTransition = undefined;
-    });
+    applyTheme(next);
+    syncSelection();
   };
 
-  document.addEventListener("astro:before-preparation", () => {
-    themeTransition?.skipTransition();
-  });
+  document.addEventListener("astro:before-preparation", stopThemeTransition);
 
   const readStoredTheme = (): Theme | null => {
     try {

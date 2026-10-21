@@ -65,6 +65,20 @@ const tokens = {
   },
 };
 
+// Registered colors interpolate on the root without replacing live UI with snapshots.
+const themeColors = Object.entries(tokens.color.light).filter(
+  ([name]) => name !== "elevation",
+);
+const themeColorMotion = themeColors
+  .map(
+    ([name, value]) =>
+      `@property --color-${name} { syntax: "<color>"; inherits: true; initial-value: ${value}; }`,
+  )
+  .join("\n");
+const themeColorTransitions = themeColors
+  .map(([name]) => `--color-${name} 300ms cubic-bezier(0.2, 0, 0, 1)`)
+  .join(", ");
+
 const themeVars = (palette: typeof tokens.color.light) =>
   Object.entries(palette)
     .map(([name, value]) => `--color-${name}: ${value};`)
@@ -85,6 +99,10 @@ export default defineConfig({
     }),
   ],
   preflights: [
+    {
+      getCSS: () =>
+        `${themeColorMotion}\n@media (prefers-reduced-motion: no-preference) { :root[data-theme-transition] { transition: ${themeColorTransitions}; } }`,
+    },
     {
       getCSS: () =>
         `:root {\n    ${themeVars(tokens.color.light)}\n    --font-size-error: ${tokens.size.error};\n    --page-bg: var(--color-canvas);\n    --surface-bg: var(--color-surface);\n    --surface-muted: var(--color-surface-muted);\n    --ink: var(--color-ink);\n    --ink-muted: var(--color-muted);\n    --line: var(--color-line);\n    --accent: var(--color-accent);\n    --focus-ring: var(--color-focus);\n    --pink: var(--color-pink);\n    --mint: var(--color-mint);\n    color-scheme: light;\n  }\n  :root.dark {\n    ${themeVars(tokens.color.dark)}\n    color-scheme: dark;\n  }\n  html { scroll-padding-block-start: 1rem; font-feature-settings: "palt" 1; line-break: strict; word-break: auto-phrase; text-autospace: normal; }\n  :focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }\n  ::selection { background: var(--color-selection); color: var(--color-selection-ink); }\n  a { color: inherit; text-underline-position: from-font; text-decoration-thickness: from-font; }\n  :root .prose { --un-prose-body: var(--color-ink); --un-prose-headings: var(--color-ink); --un-prose-lead: var(--color-muted); --un-prose-links: var(--color-accent); --un-prose-bold: var(--color-ink); --un-prose-counters: var(--color-muted); --un-prose-bullets: var(--color-muted); --un-prose-hr: var(--color-line); --un-prose-quotes: var(--color-muted); --un-prose-quote-borders: var(--color-line); --un-prose-captions: var(--color-muted); --un-prose-kbd: var(--color-ink); --un-prose-code: var(--color-ink); --un-prose-pre-code: var(--color-ink); --un-prose-pre-bg: var(--color-surface-muted); --un-prose-th-borders: var(--color-line); --un-prose-td-borders: var(--color-line); }\n  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }`,
