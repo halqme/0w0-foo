@@ -141,23 +141,5 @@ const absoluteOgImage = ogImage
       <slot />
     </main>
     <Footer />
-    <script>
-      let focusPageHeading = true;
-
-      document.addEventListener("astro:before-preparation", (event) => {
-        const navigation = event as Event & { navigationType?: string };
-        focusPageHeading = navigation.navigationType !== "traverse";
-      });
-
-      document.addEventListener("astro:after-swap", () => {
-        if (!focusPageHeading) return;
-        const target = location.hash
-          ? document.getElementById(decodeURIComponent(location.hash.slice(1)))
-          : document.querySelector<HTMLElement>("main h1");
-        if (!(target instanceof HTMLElement)) return;
-        target.tabIndex = -1;
-        target.focus();
-      });
-    </script>
   </body>
 </html>

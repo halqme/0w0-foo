@@ -194,6 +194,38 @@
       });
   };
 
+  let themeTransition: ViewTransition | undefined;
+  const changeTheme = (next: Theme) => {
+    themeTransition?.skipTransition();
+    theme = next;
+    const root = document.documentElement;
+    const dark = next === "dark" || (next === "auto" && media.matches);
+    const update = () => {
+      applyTheme(theme);
+      syncSelection();
+    };
+    if (
+      !document.startViewTransition ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      root.classList.contains("dark") === dark
+    ) {
+      update();
+      return;
+    }
+    root.dataset.themeTransition = "";
+    const transition = document.startViewTransition(update);
+    themeTransition = transition;
+    void transition.finished.finally(() => {
+      if (themeTransition !== transition) return;
+      delete root.dataset.themeTransition;
+      themeTransition = undefined;
+    });
+  };
+
+  document.addEventListener("astro:before-preparation", () => {
+    themeTransition?.skipTransition();
+  });
+
   const readStoredTheme = (): Theme | null => {
     try {
       const stored = localStorage.getItem("theme");
@@ -236,7 +268,7 @@
       syncSelection();
       return;
     }
-    applyTheme(input.value);
+    changeTheme(input.value);
     try {
       localStorage.setItem("theme", input.value);
     } catch {
@@ -326,12 +358,12 @@
     );
   });
   media.addEventListener("change", () => {
-    if (theme === "auto") applyTheme("auto");
+    if (theme === "auto") changeTheme("auto");
   });
   window.addEventListener("storage", (event) => {
     if (event.key !== "theme") return;
     const stored = isTheme(event.newValue) ? event.newValue : "auto";
-    applyTheme(stored);
+    changeTheme(stored);
     syncSelection();
   });
 </script>
