@@ -1,34 +1,45 @@
 ---
 import Heading2 from "./ui/Heading2.astro";
 
-const langs: string[] = ["TypeScript", "Go", "Swift"].toSorted();
-const frameworks: string[] = ["Vue", "Hono"].toSorted();
+const langs: string[] = ["TypeScript", "Go", "Swift"];
+const frameworks: string[] = ["Vue / Nuxt", "Hono"];
 ---
 
 <section class="section" aria-labelledby="languages-title" id="languages">
-  <Heading2 title="Languages & Frameworks" />
+  <Heading2 title="Languages & Frameworks" id="languages-title" />
 
-  <ul
-    role="list"
-    class="grid grid-cols-[fit-content(55%)_auto_minmax(0,1fr)] gap-x-3 gap-y-1"
-  >
-    {langs.map((lang) => (
-      <li class="col-span-3 grid grid-cols-subgrid items-baseline" data-languages>
-        <span
-          class="min-h-10 min-w-0 justify-self-start text-start text-sm text-ink focused [overflow-wrap:anywhere]"
-        >
-          {lang}
-        </span>
-      </li>
-    ))}
-    {frameworks.map((fw) => (
-      <li class="col-span-3 grid grid-cols-subgrid items-baseline" data-frameworks>
-        <span
-          class="min-h-10 min-w-0 justify-self-start text-start text-sm text-ink focused [overflow-wrap:anywhere]"
-        >
-          {fw}
-        </span>
-      </li>
-    ))}
-  </ul>
+  <div class="grid gap-4">
+    <div class="grid gap-2 sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-6">
+      <h3 id="language-list-title" class="text-label pt-1">
+        Languages
+      </h3>
+      <ul
+        role="list"
+        aria-labelledby="language-list-title"
+        class="flex min-w-0 flex-wrap gap-x-6 gap-y-2 text-sm leading-7 text-ink"
+      >
+        {langs.map((lang) => (
+          <li class="min-w-0 [overflow-wrap:anywhere]" data-languages>
+            {lang}
+          </li>
+        ))}
+      </ul>
+    </div>
+    <div class="grid gap-2 border-t border-line pt-4 sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-6">
+      <h3 id="framework-list-title" class="text-label pt-1">
+        Frameworks
+      </h3>
+      <ul
+        role="list"
+        aria-labelledby="framework-list-title"
+        class="flex min-w-0 flex-wrap gap-x-6 gap-y-2 text-sm leading-7 text-ink"
+      >
+        {frameworks.map((fw) => (
+          <li class="min-w-0 [overflow-wrap:anywhere]" data-frameworks>
+            {fw}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
 </section>
