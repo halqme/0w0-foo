@@ -1,25 +1,8 @@
-/* Same-site absolute URLs stay internal; subdomains are separate sites. */
-a:is([href^="https://"], [href^="http://"], [href^="//"]):not(
-    [href="https://0w0.foo"],
-    [href^="https://0w0.foo/"],
-    [href^="https://0w0.foo?"],
-    [href^="https://0w0.foo#"],
-    [href="http://0w0.foo"],
-    [href^="http://0w0.foo/"],
-    [href^="http://0w0.foo?"],
-    [href^="http://0w0.foo#"],
-    [href="//0w0.foo"],
-    [href^="//0w0.foo/"],
-    [href^="//0w0.foo?"],
-    [href^="//0w0.foo#"]
-  ) {
+a[target="_blank"] {
   &::after {
-    content: "↗";
-    content: "↗" / "（外部サイト）";
-    display: inline-block;
-    margin-inline-start: 0.4em;
-    margin-left: 0.4em;
-    padding-bottom: -0.2em;
+    content: "\00a0↗";
+    content: "\00a0↗" / "（新しいタブで開く）";
+    white-space: nowrap;
     font-family: var(--font-ia-writer-mono), monospace;
     font-size: 0.8em;
     line-height: 1;
@@ -31,6 +14,8 @@ a:is([href^="https://"], [href^="http://"], [href^="//"]):not(
     position: relative;
 
     &::after {
+      content: "↗";
+      content: "↗" / "（新しいタブで開く）";
       position: absolute;
       inset-block-start: 8px;
       inset-inline-end: 8px;

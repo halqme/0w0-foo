@@ -53,7 +53,7 @@ UnoCSSの意味を持つ色はCSSカスタムプロパティ経由で参照し�
 
 ## 共通部品と操作
 
-- 外部HTTP(S)リンクは末尾に `↗` を常時表示します。同一サイトの絶対URL、相対リンク、ページ内リンクには付けません。画像リンクでは画像右上に重ね、新しいタブで開くかどうかは変更しません。表示は [external-links.css](src/styles/external-links.css) で共通化します。
+- `target="_blank"` のリンクだけに `↗` を常時表示し、新しいタブで開くことを示します。URLによる判定は行いません。記号は改行禁止スペースでリンク末尾につなぎ、画像リンクでは画像右上に重ねます。表示は [external-links.css](src/styles/external-links.css) で共通化します。
 
 - [Header.astro](src/components/ui/Header.astro) は最小高さ80px、上余白24px・sm以上40pxです。左にホームへの等幅ロゴ、右にBlogリンクとテーマ選択を置きます。Blog一覧では `aria-current="page"`、記事では `aria-current="location"` を付け、ink色と下線で示します。
 - [Footer.astro](src/components/ui/Footer.astro) は上境界線を置き、中央揃えのソーシャルリンクと著作権表示を並べます。[Socials.astro](src/components/ui/Socials.astro) はGitHub・twitter・Zennのテキストリンクで、ホームのプロフィールにも使います。
@@ -77,7 +77,7 @@ UnoCSSの意味を持つ色はCSSカスタムプロパティ経由で参照し�
 
 - [About.astro](src/components/About.astro) は56pxの丸形プロフィール画像と、`HAL` のH1・紹介文を横に並べます。趣味・分野はsm以上で右側、それより狭い幅では次の行に置きます。定義リストのラベル列は2rem、値は残りの幅を使い、左揃えで折り返します。ソーシャルリンクは下の1行にまとめ、幅に応じて折り返します。
 - [Projects.astro](src/components/Projects.astro) は単列の記事型リストです。最初の4件を表示し、残りはネイティブの `details` にまとめます。初期状態は閉じており、`もっと見る` で展開します。展開部分にはGitHubのリポジトリ一覧へのリンクも置きます。各項目は `list-title` の名前リンク、説明、`item-meta` の技術タグの順に配置し、項目間の余白は28pxです。タイトルとメタデータの文字組はBlogCardと共通です。
-- [Tools.astro](src/components/Tools.astro) は [src/data/tools.ts](src/data/tools.ts) の項目を `名前 — 種類` の1行で表示します。名前・区切り・種類の列を揃え、長い名前や種類は折り返します。名前は公式サイトへのリンクです。ホバー・キーボードフォーカスで、共通のLinkCardによるOGP画像と本人のコメントを含むプレビューを表示します。表示と配置はCSSのみで、名前の行の下に重ねて表示します。画像の外側に余白を設けず、コメントの余白は8pxです。カード内へポインターを移しても表示を保ち、ホバーとキーボードフォーカスが外れると閉じます。カード幅は画面幅に合わせて制限し、高さが画面の60%を超える場合は内部をスクロールします。画像を取得できない場合はコメントのみ表示します。
+- [Tools.astro](src/components/Tools.astro) は [src/data/tools.ts](src/data/tools.ts) の項目を `名前 — 種類` の1行で表示します。名前・区切り・種類の列を揃え、長い名前や種類は折り返します。名前は公式サイトへのリンクです。ホバー・キーボードフォーカスで、共通のLinkCardによるOGP画像と本人のコメントを含むプレビューを表示します。表示と配置はCSSのみで、名前列の右側に行の縦中央を基準として重ねて表示します。画像の外側に余白を設けず、コメントの余白は8pxです。カード内へポインターを移しても表示を保ち、ホバーとキーボードフォーカスが外れると閉じます。カード幅は画面幅に合わせて制限し、高さが画面の60%を超える場合は内部をスクロールします。画像を取得できない場合はコメントのみ表示します。
 - [Posts.astro](src/components/Posts.astro) はArticles見出しの下に最新5記事を並べます。記事表示には共通の [BlogCard.astro](src/components/ui/BlogCard.astro) を使います。
 
 ### ブログ一覧とタグ

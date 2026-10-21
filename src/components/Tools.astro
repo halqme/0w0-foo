@@ -10,44 +10,47 @@ import { tools } from "../data/tools";
 
   <ul
     role="list"
-    class="grid grid-cols-[fit-content(55%)_auto_minmax(0,1fr)] gap-x-3 gap-y-1"
+    class="grid grid-cols-[fit-content(55%)_auto_minmax(0,1fr)] auto-rows-[minmax(2.5rem,auto)] items-baseline gap-x-3 gap-y-1"
   >
-    {tools.toSorted((a, b) => a.type.localeCompare(b.type)).map((tool, index) => (
-      <li
-        class="relative col-span-3 grid grid-cols-subgrid items-baseline min-h-10"
-        data-tools
-      >
-        <a
-          href={tool.url}
-          class="link-text min-w-0 justify-self-start text-start text-sm text-ink focused [overflow-wrap:anywhere]"
-          aria-describedby={`skill-card-${index}`}
-          data-tools-trigger
-        >
-          {tool.name}
-        </a>
-        <span class="text-sm text-muted" aria-hidden="true">
-          —
-        </span>
-        <span class="min-w-0 text-sm text-muted [overflow-wrap:anywhere]">
-          {tool.type}
-        </span>
-        <div
-          id={`tool-card-${index}`}
-          role="tooltip"
-          class="tool-card absolute col-start-2 start-0 top-1/2 z-10 w-80 max-w-[calc(100vw-3rem)] -translate-y-1/2"
-          data-tools-card
-        >
-          <div class="max-h-[60dvh] overflow-y-auto overscroll-contain rounded-md border border-line bg-surface text-ink shadow-popup">
-            <LinkCard href={tool.url} />
-            <div class="grid gap-1 p-2 text-sm leading-7">
-              {tool.comments.map((comment) => (
-                <p>{comment}</p>
-              ))}
+    {tools
+      .toSorted((a, b) => a.type.localeCompare(b.type))
+      .map((tool, index) => (
+        <li class="contents" role="listitem">
+          <div class="relative min-w-0 min-h-10" data-tools>
+            <a
+              href={tool.url}
+              class="link-text text-start text-sm text-ink focused [overflow-wrap:break-word]"
+              aria-describedby={`tool-card-${index}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-tools-trigger
+            >
+              {tool.name}
+            </a>
+            <div
+              id={`tool-card-${index}`}
+              role="tooltip"
+              class="tool-card absolute start-full top-1/2 ms-3 z-10 w-80 max-w-[calc(100vw-3rem)] -translate-y-1/2"
+              data-tools-card
+            >
+              <div class="max-h-[60dvh] overflow-y-auto overscroll-contain rounded-md border border-line bg-surface text-ink shadow-popup">
+                <LinkCard href={tool.url} />
+                <div class="grid gap-1 p-2 text-sm leading-7">
+                  {tool.comments.map((comment) => (
+                    <p>{comment}</p>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </li>
-    ))}
+          <span class="text-sm text-muted" aria-hidden="true">
+            —
+          </span>
+          <span class="min-w-0 text-sm text-muted [overflow-wrap:anywhere]">
+            {tool.type}
+          </span>
+        </li>
+      ))}
   </ul>
 </section>
 
@@ -61,8 +64,7 @@ import { tools } from "../data/tools";
   }
 
   @media (hover: hover) {
-    [data-tools]:has([data-tools-trigger]:hover, .tool-card:hover)
-      .tool-card {
+    [data-tools]:has([data-tools-trigger]:hover, .tool-card:hover) .tool-card {
       display: block;
     }
   }
