@@ -27,7 +27,7 @@ import "../styles/transitions.css";
 import "../styles/external-links.css";
 
 interface Props {
-  title: string;
+  title?: string;
   description?: string;
   ogImage?: string;
   ogType?: "website" | "article";
@@ -38,13 +38,15 @@ interface Props {
 
 const {
   title,
-  description = "HALQME",
+  description,
   ogImage,
   ogType = "website",
   pubDate,
   modifiedDate,
   tags,
 } = Astro.props;
+
+const titled = title ? `${title} | 0w0.foo` : '0w0.foo'
 
 const canonicalURL = new URL(
   Astro.url.pathname,
@@ -70,7 +72,7 @@ const absoluteOgImage = ogImage
       content="sJQvvU3-0_kqP3PkfIUhC8E_tSSMM12-Ib_VISr1Ax4"
     />
     <ClientRouter />
-    <title>{title}</title>
+    <title>{titled}</title>
     <script is:inline>
       (() => {
         const valid = ["auto", "light", "dark"];
@@ -89,22 +91,21 @@ const absoluteOgImage = ogImage
         );
       })();
     </script>
-    {absoluteOgImage && (
-      <>
-        <meta property="og:title" content={title} />
-        <meta property="og:description" content={description} />
-        <meta property="og:type" content={ogType} />
-        <meta property="og:url" content={canonicalURL} />
-        <meta property="og:image" content={absoluteOgImage} />
-        <meta property="og:site_name" content="0w0.foo" />
-        <meta property="og:locale" content="ja_JP" />
+    <meta property="og:title" content={titled} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:site_name" content="0w0.foo" />
+    <meta property="og:locale" content="ja_JP" />
+    {absoluteOgImage && <meta property="og:image" content={absoluteOgImage} />}
 
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={title} />
-        <meta name="twitter:description" content={description} />
-        <meta name="twitter:image" content={absoluteOgImage} />
-      </>
-    )}
+    <meta
+      name="twitter:card"
+      content={absoluteOgImage ? "summary_large_image" : "summary"}
+    />
+    <meta name="twitter:title" content={titled} />
+    <meta name="twitter:description" content={description} />
+    {absoluteOgImage && <meta name="twitter:image" content={absoluteOgImage} />}
 
     {ogType === "article" && pubDate && (
       <meta property="article:published_time" content={pubDate.toISOString()} />

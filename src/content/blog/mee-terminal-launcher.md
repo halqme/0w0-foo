@@ -14,7 +14,7 @@ GoとAI Driven Developmentの練習をかねて、ターミナルランチャー
 
 ## meeとは
 
-[HALQME/mee](https://github.com/HALQME/mee)（読み方：メエェ）はGoで書かれた高速で拡張性の高いターミナルランチャーです。
+[halqme/mee](https://github.com/halqme/mee)（読み方：メエェ）はGoで書かれた高速で拡張性の高いターミナルランチャーです。
 
 - **Raycastっぽい操作感** - RaycastのようなUIをターミナル上で実現
 - **Pluginシステム** - Pluginで機能を拡張できる

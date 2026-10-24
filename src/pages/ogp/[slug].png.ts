@@ -103,7 +103,7 @@ export const GET: APIRoute = async ({ params, props }) => {
                     children: [
                       {
                         props: {
-                          alt: "HALQME",
+                          alt: "halqme",
                           height: 48,
                           src: faviconDataUrl,
                           width: 48,
@@ -112,7 +112,7 @@ export const GET: APIRoute = async ({ params, props }) => {
                       },
                       {
                         props: {
-                          children: "HALQME",
+                          children: "halqme",
                           style: {
                             color: "#666666",
                             fontSize: "28px",

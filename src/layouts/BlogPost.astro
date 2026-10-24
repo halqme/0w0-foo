@@ -11,19 +11,29 @@ import { slugifyTag } from "../lib/tag";
 import Layout from "./Layout.astro";
 
 type Props = CollectionEntry<"blog">["data"] & {
+  description: string;
   slug: string;
   readingTime?: string;
   headings?: MarkdownHeading[];
 };
 
-const { title, published_at, topics, zenn_slug, slug, readingTime, headings } =
-  Astro.props;
+const {
+  title,
+  description,
+  published_at,
+  topics,
+  zenn_slug,
+  slug,
+  readingTime,
+  headings,
+} = Astro.props;
 
 const ogImage = `/ogp/${slug}.png`;
 ---
 
 <Layout
   title={title}
+  description={description}
   ogImage={ogImage}
   ogType="article"
   pubDate={published_at}

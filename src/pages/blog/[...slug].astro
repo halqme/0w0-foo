@@ -29,10 +29,17 @@ const readingTimeText =
   readingTimeMinutes < MIN_READING_TIME
     ? `${MIN_READING_TIME}分未満`
     : `約${readingTimeMinutes}分`;
+const description =
+  html
+    .match(/<p(?:\s[^>]*)?>(.*?)<\/p>/s)?.[1]
+    ?.replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;|&amp;|&lt;|&gt;|&quot;/g, " ")
+    .trim() || post.data.title;
 ---
 
 <BlogPost
   {...post.data}
+  description={description}
   slug={post.id}
   readingTime={readingTimeText}
   headings={headings}
