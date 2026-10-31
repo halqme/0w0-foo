@@ -13,30 +13,11 @@ const projects = (await getCollection("works")).slice(0, 4);
     {projects.map((project) => (
       <li class="min-w-0" aria-labelledby={`project-title-${project.id}`}>
         <div class="mb-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <div class="relative min-w-0 min-h-10" data-projects>
-            <a
-              href={project.data.repo}
-              class="link-text text-start text-sm text-ink focused [overflow-wrap:break-word]"
-              id={`project-title-${project.id}`}
-              aria-describedby={`project-card-${project.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              data-projects-trigger
-            >
-              {project.data.title}
-            </a>
-            <div
-              id={`project-card-${project.id}`}
-              role="tooltip"
-              class="tool-card absolute start-full top-1/2 ms-3 z-10 w-80 max-w-[calc(100vw-3rem)] -translate-y-1/2"
-              data-projects-card
-            >
-              <LinkCard
-                class="max-h-[60dvh] overflow-y-auto overscroll-contain rounded-md border border-line bg-surface text-ink shadow-popup"
-                href={project.data.repo}
-              />
-            </div>
-          </div>
+          <LinkCard
+            id={`project-title-${project.id}`}
+            href={project.data.repo}
+            label={project.data.title}
+          />
           {project.data.tags.length > 0 && (
             <>
               <span class="text-label mx-2">|</span>
@@ -67,20 +48,3 @@ const projects = (await getCollection("works")).slice(0, 4);
     ))}
   </ul>
 </section>
-
-<style>
-  .tool-card {
-    display: none;
-  }
-
-  [data-projects]:has([data-projects-trigger]:focus-visible) .tool-card {
-    display: block;
-  }
-
-  @media (hover: hover) {
-    [data-projects]:has([data-projects-trigger]:hover, .tool-card:hover)
-      .tool-card {
-      display: block;
-    }
-  }
-</style>

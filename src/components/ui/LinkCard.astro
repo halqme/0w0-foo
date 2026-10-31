@@ -1,32 +1,74 @@
 ---
-import { Image } from "astro:assets";
-import type { ImageMetadata } from "astro";
-import { getLinkCardData, linkCardClasses } from "../../lib/link-card";
+import { getLinkCardPreview } from "../../lib/link-card-build";
+import { linkCardClasses } from "../../lib/link-card";
 
 interface Props {
   href: string;
-  class?: string;
+  id: string;
+  label: string;
+  comments?: string[];
 }
 
-const { href, class: className } = Astro.props;
-const { image } = getLinkCardData(href);
-const images = import.meta.glob<{ default: ImageMetadata }>(
-  "/.astro/link-card-images/*",
-);
-const source = image ? (await images[image]?.())?.default : undefined;
+const { href, id, label, comments = [] } = Astro.props;
+const source = await getLinkCardPreview(href);
+const hasPreview = Boolean(source) || comments.length > 0;
 ---
 
-{source && (
-  <div class:list={["flex flex-col overflow-hidden", className]}>
-    <span class={linkCardClasses.imageContainer}>
-      <Image
-        src={source}
-        width={1200}
-        height={630}
-        alt=""
-        class={linkCardClasses.image}
-        loading="lazy"
-      />
-    </span>
-  </div>
-)}
+<div class="link-preview relative min-w-0 min-h-10">
+  <a
+    {id}
+    {href}
+    class="link-text text-start text-sm text-ink focused [overflow-wrap:break-word]"
+    aria-describedby={comments.length > 0 ? `${id}-preview` : undefined}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    {label}
+  </a>
+  {hasPreview && (
+    <div
+      id={`${id}-preview`}
+      role={comments.length > 0 ? "tooltip" : undefined}
+      aria-hidden={comments.length === 0 ? "true" : undefined}
+      class="preview absolute start-full top-1/2 ms-3 z-10 w-80 max-w-[calc(100vw-3rem)] -translate-y-1/2"
+    >
+      <div class="max-h-[60dvh] overflow-y-auto overscroll-contain rounded-md border border-line bg-surface text-ink shadow-popup">
+        {source && (
+          <span class:list={["block", linkCardClasses.imageContainer]}>
+            <img
+              src={source}
+              width={1200}
+              height={630}
+              alt=""
+              class={linkCardClasses.image}
+              loading="lazy"
+            />
+          </span>
+        )}
+        {comments.length > 0 && (
+          <div class="grid gap-1 p-2 text-sm leading-7">
+            {comments.map((comment) => (
+              <p>{comment}</p>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )}
+</div>
+
+<style>
+  .preview {
+    display: none;
+  }
+
+  .link-preview:has(a:focus-visible) .preview {
+    display: block;
+  }
+
+  @media (hover: hover) {
+    .link-preview:has(a:hover, .preview:hover) .preview {
+      display: block;
+    }
+  }
+</style>

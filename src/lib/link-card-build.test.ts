@@ -22,7 +22,7 @@ const mocks = vi.hoisted(() => ({ fetch: vi.fn() }));
 vi.mock("./public-https", () => ({ fetchPublicHttps: mocks.fetch }));
 import {
   findBlogLinkUrls,
-  findWorkRepoUrls,
+  getLinkCardPreview,
   prepareLinkCards,
 } from "./link-card-build";
 
@@ -52,26 +52,25 @@ beforeEach(async () => {
 });
 afterEach(() => rmSync(directory, { recursive: true, force: true }));
 
-describe("work repository discovery", () => {
-  it("finds repository URLs in work frontmatter, including nested files", () => {
-    mkdirSync(join(directory, "nested"));
-    writeFileSync(
-      join(directory, "one.md"),
-      "---\nrepo: https://example.com/one\n---\n",
+describe("link previews", () => {
+  it("generates an inline image from the supplied URL and shares concurrent requests", async () => {
+    mocks.fetch.mockImplementation(async (url: string) =>
+      url === image
+        ? imageResponse()
+        : html(`<meta property="og:image" content="${image}">`, url),
     );
-    writeFileSync(
-      join(directory, "nested", "two.md"),
-      "---\nrepo: 'https://example.com/two'\n---\n",
-    );
-    writeFileSync(
-      join(directory, "other.md"),
-      "---\ntitle: Other\n---\nrepo: https://example.com/body\n",
-    );
-
-    expect(findWorkRepoUrls(directory).toSorted()).toEqual([
-      "https://example.com/one",
-      "https://example.com/two",
+    const [first, second] = await Promise.all([
+      getLinkCardPreview(page, directory),
+      getLinkCardPreview(page, directory),
     ]);
+    expect(first).toMatch(/^data:image\/webp;base64,/);
+    expect(second).toBe(first);
+    expect(mocks.fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("returns no preview when metadata cannot be fetched", async () => {
+    mocks.fetch.mockRejectedValue(new Error("offline"));
+    expect(await getLinkCardPreview(page, directory)).toBe("");
   });
 });
 

@@ -3,21 +3,11 @@ import { defineConfig, fontProviders } from "astro/config";
 import { satteri } from "@astrojs/markdown-satteri";
 import UnoCSS from "unocss/astro";
 import { createLinkCardPlugin } from "./src/plugins/link-card";
-import { tools } from "./src/data/tools";
-import {
-  findBlogLinkUrls,
-  findWorkRepoUrls,
-  prepareLinkCards,
-} from "./src/lib/link-card-build";
+import { findBlogLinkUrls, prepareLinkCards } from "./src/lib/link-card-build";
 
-const cards = await prepareLinkCards([
-  ...tools.map(({ url }) => url),
-  ...findBlogLinkUrls(),
-  ...findWorkRepoUrls(),
-]);
+const cards = await prepareLinkCards(findBlogLinkUrls());
 
 export default defineConfig({
-  vite: { define: { LINK_CARD_DATA: JSON.stringify(cards) } },
   fonts: [
     {
       cssVariable: "--font-shippori-antique",

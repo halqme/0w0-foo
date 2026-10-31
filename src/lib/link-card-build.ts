@@ -1,8 +1,9 @@
 import { globSync, readFileSync } from "node:fs";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
+
 import sharp from "sharp";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import ogs from "open-graph-scraper";
 import type { LinkCardData } from "./link-card";
 import { fetchPublicHttps } from "./public-https";
@@ -24,19 +25,33 @@ export function findBlogLinkUrls(
   return [...urls];
 }
 
-export function findWorkRepoUrls(
-  directory = join(process.cwd(), "src/content/works"),
-): string[] {
-  const urls = new Set<string>();
-  for (const file of globSync("**/*.md", { cwd: directory })) {
-    const content = readFileSync(join(directory, file), "utf-8");
-    const frontmatter = content.match(/^---\s*\r?\n([\s\S]*?)\r?\n---/);
-    const repo = frontmatter?.[1].match(
-      /^repo:\s*["']?(https:\/\/[^\s"']+)["']?\s*$/m,
-    )?.[1];
-    if (repo) urls.add(repo);
+const previews = new Map<string, Promise<string>>();
+
+export function getLinkCardPreview(
+  url: string,
+  directory = join(process.cwd(), ".astro/link-card-images"),
+): Promise<string> {
+  const key = `${directory}\0${url}`;
+  let preview = previews.get(key);
+  if (!preview) {
+    preview = (async () => {
+      const cards = await prepareLinkCards([url], directory);
+      const image = cards[url]?.image;
+      if (!image) return "";
+      try {
+        const bytes = await readFile(join(directory, basename(image)));
+        const optimized = await sharp(bytes)
+          .resize({ width: 640, withoutEnlargement: true })
+          .webp()
+          .toBuffer();
+        return `data:image/webp;base64,${optimized.toString("base64")}`;
+      } catch {
+        return "";
+      }
+    })();
+    previews.set(key, preview);
   }
-  return [...urls];
+  return preview;
 }
 
 export async function prepareLinkCards(

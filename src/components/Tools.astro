@@ -16,33 +16,12 @@ import { tools } from "../data/tools";
       .toSorted((a, b) => a.type.localeCompare(b.type))
       .map((tool, index) => (
         <li class="contents" role="listitem">
-          <div class="relative min-w-0 min-h-10" data-tools>
-            <a
-              href={tool.url}
-              class="link-text text-start text-sm text-ink focused [overflow-wrap:break-word]"
-              aria-describedby={`tool-card-${index}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              data-tools-trigger
-            >
-              {tool.name}
-            </a>
-            <div
-              id={`tool-card-${index}`}
-              role="tooltip"
-              class="tool-card absolute start-full top-1/2 ms-3 z-10 w-80 max-w-[calc(100vw-3rem)] -translate-y-1/2"
-              data-tools-card
-            >
-              <div class="max-h-[60dvh] overflow-y-auto overscroll-contain rounded-md border border-line bg-surface text-ink shadow-popup">
-                <LinkCard href={tool.url} />
-                <div class="grid gap-1 p-2 text-sm leading-7">
-                  {tool.comments.map((comment) => (
-                    <p>{comment}</p>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
+          <LinkCard
+            id={`tool-${index}`}
+            href={tool.url}
+            label={tool.name}
+            comments={tool.comments}
+          />
           <span class="text-sm text-muted" aria-hidden="true">
             —
           </span>
@@ -53,19 +32,3 @@ import { tools } from "../data/tools";
       ))}
   </ul>
 </section>
-
-<style>
-  .tool-card {
-    display: none;
-  }
-
-  [data-tools]:has([data-tools-trigger]:focus-visible) .tool-card {
-    display: block;
-  }
-
-  @media (hover: hover) {
-    [data-tools]:has([data-tools-trigger]:hover, .tool-card:hover) .tool-card {
-      display: block;
-    }
-  }
-</style>
