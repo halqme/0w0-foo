@@ -64,19 +64,21 @@ UnoCSSの意味を持つ色はCSSカスタムプロパティ経由で参照し�
 
 ## ページ構成
 
-| ルート            | 構成                                                                                                     |
-| ----------------- | -------------------------------------------------------------------------------------------------------- |
-| `/`               | [index.astro](src/pages/index.astro)。プロフィール → Projects → Skills → Articlesの順。Articlesは最新5件 |
-| `/blog`           | [blog/index.astro](src/pages/blog/index.astro)。公開記事を新しい順に一覧表示し、Tagsへのリンクを置く     |
-| `/blog/[...slug]` | [blog/[...slug].astro](src/pages/blog/%5B...slug%5D.astro)。公開記事を生成し、記事レイアウトへ渡す       |
-| `/tags`           | [tags/index.astro](src/pages/tags/index.astro)。件数付きタグ一覧と記事一覧                               |
-| `/tags/[tag]`     | [tags/[tag].astro](src/pages/tags/%5Btag%5D.astro)。選択タグの記事一覧と件数                             |
-| `/404`            | [404.astro](src/pages/404.astro)。404、見出し、日本語説明、トップへのリンク                              |
+| ルート             | 構成                                                                                                     |
+| ------------------ | -------------------------------------------------------------------------------------------------------- |
+| `/`                | [index.astro](src/pages/index.astro)。プロフィール → Projects → Skills → Articlesの順。Articlesは最新5件 |
+| `/works`           | [works/index.astro](src/pages/works/index.astro)。プロジェクト一覧とGitHubへのリンク                     |
+| `/works/[...slug]` | [works/[...slug].astro](src/pages/works/%5B...slug%5D.astro)。作品の説明とプロジェクトへのリンク         |
+| `/blog`            | [blog/index.astro](src/pages/blog/index.astro)。公開記事を新しい順に一覧表示し、Tagsへのリンクを置く     |
+| `/blog/[...slug]`  | [blog/[...slug].astro](src/pages/blog/%5B...slug%5D.astro)。公開記事を生成し、記事レイアウトへ渡す       |
+| `/tags`            | [tags/index.astro](src/pages/tags/index.astro)。件数付きタグ一覧と記事一覧                               |
+| `/tags/[tag]`      | [tags/[tag].astro](src/pages/tags/%5Btag%5D.astro)。選択タグの記事一覧と件数                             |
+| `/404`             | [404.astro](src/pages/404.astro)。404、見出し、日本語説明、トップへのリンク                              |
 
 ### ホーム
 
 - [About.astro](src/components/About.astro) は56pxの丸形プロフィール画像と、`HAL` のH1・紹介文を横に並べます。趣味・分野はsm以上で右側、それより狭い幅では次の行に置きます。定義リストのラベル列は2rem、値は残りの幅を使い、左揃えで折り返します。ソーシャルリンクは下の1行にまとめ、幅に応じて折り返します。
-- [Projects.astro](src/components/Projects.astro) は単列の記事型リストです。最初の4件を表示し、残りはネイティブの `details` にまとめます。初期状態は閉じており、`もっと見る` で展開します。展開部分にはGitHubのリポジトリ一覧へのリンクも置きます。各項目は `list-title` の名前リンク、説明、`item-meta` の技術タグの順に配置し、項目間の余白は28pxです。タイトルとメタデータの文字組はBlogCardと共通です。
+- [Projects.astro](src/components/Projects.astro) はプロジェクトの先頭4件と一覧へのリンクを表示します。`/works` は [src/content/works](src/content/works) の項目を単列に並べ、各作品の詳細ページとGitHubのリポジトリ一覧へリンクします。詳細ページは作品名、説明、技術タグ、外部リンクとMarkdown本文を表示します。
 - [Tools.astro](src/components/Tools.astro) は [src/data/tools.ts](src/data/tools.ts) の項目を `名前 — 種類` の1行で表示します。名前・区切り・種類の列を揃え、長い名前や種類は折り返します。名前は公式サイトへのリンクです。ホバー・キーボードフォーカスで、共通のLinkCardによるOGP画像と本人のコメントを含むプレビューを表示します。表示と配置はCSSのみで、名前列の右側に行の縦中央を基準として重ねて表示します。画像の外側に余白を設けず、コメントの余白は8pxです。カード内へポインターを移しても表示を保ち、ホバーとキーボードフォーカスが外れると閉じます。カード幅は画面幅に合わせて制限し、高さが画面の60%を超える場合は内部をスクロールします。画像を取得できない場合はコメントのみ表示します。
 - [Posts.astro](src/components/Posts.astro) はArticles見出しの下に最新5記事を並べます。記事表示には共通の [BlogCard.astro](src/components/ui/BlogCard.astro) を使います。
 

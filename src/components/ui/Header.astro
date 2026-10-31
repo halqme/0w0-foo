@@ -1,9 +1,10 @@
 ---
 import ThemeToggle from "../ui/ThemeToggle.astro";
 
-const links = [
+const links: { href: string; label: string }[] = [
   { href: "/", label: "Home" },
   { href: "/blog", label: "Blog" },
+  { href: "/works", label: "Works" },
 ];
 const pathname = Astro.url.pathname;
 ---
