@@ -20,7 +20,11 @@ import sharp from "sharp";
 
 const mocks = vi.hoisted(() => ({ fetch: vi.fn() }));
 vi.mock("./public-https", () => ({ fetchPublicHttps: mocks.fetch }));
-import { findBlogLinkUrls, prepareLinkCards } from "./link-card-build";
+import {
+  findBlogLinkUrls,
+  findWorkRepoUrls,
+  prepareLinkCards,
+} from "./link-card-build";
 
 const page = "https://example.com/article";
 const image = "https://cdn.example.com/hero.png?v=1";
@@ -47,6 +51,29 @@ beforeEach(async () => {
     .toBuffer();
 });
 afterEach(() => rmSync(directory, { recursive: true, force: true }));
+
+describe("work repository discovery", () => {
+  it("finds repository URLs in work frontmatter, including nested files", () => {
+    mkdirSync(join(directory, "nested"));
+    writeFileSync(
+      join(directory, "one.md"),
+      "---\nrepo: https://example.com/one\n---\n",
+    );
+    writeFileSync(
+      join(directory, "nested", "two.md"),
+      "---\nrepo: 'https://example.com/two'\n---\n",
+    );
+    writeFileSync(
+      join(directory, "other.md"),
+      "---\ntitle: Other\n---\nrepo: https://example.com/body\n",
+    );
+
+    expect(findWorkRepoUrls(directory).toSorted()).toEqual([
+      "https://example.com/one",
+      "https://example.com/two",
+    ]);
+  });
+});
 
 describe("link card preparation", () => {
   it("resolves against the final page URL and stores validated image bytes for local Astro imports", async () => {

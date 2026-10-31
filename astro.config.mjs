@@ -4,11 +4,16 @@ import { satteri } from "@astrojs/markdown-satteri";
 import UnoCSS from "unocss/astro";
 import { createLinkCardPlugin } from "./src/plugins/link-card";
 import { tools } from "./src/data/tools";
-import { findBlogLinkUrls, prepareLinkCards } from "./src/lib/link-card-build";
+import {
+  findBlogLinkUrls,
+  findWorkRepoUrls,
+  prepareLinkCards,
+} from "./src/lib/link-card-build";
 
 const cards = await prepareLinkCards([
   ...tools.map(({ url }) => url),
   ...findBlogLinkUrls(),
+  ...findWorkRepoUrls(),
 ]);
 
 export default defineConfig({

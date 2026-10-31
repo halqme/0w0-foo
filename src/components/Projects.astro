@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import Heading2 from "./ui/Heading2.astro";
+import LinkCard from "./ui/LinkCard.astro";
 
 const projects = (await getCollection("works")).slice(0, 4);
 ---
@@ -8,15 +9,34 @@ const projects = (await getCollection("works")).slice(0, 4);
 <section class="section" aria-labelledby="projects-title" id="projects">
   <Heading2 title="Projects" />
 
-  <div class="grid gap-6 sm:gap-8">
+  <ul class="grid gap-6 sm:gap-8">
     {projects.map((project) => (
-      <article class="min-w-0" aria-labelledby={`project-title-${project.id}`}>
+      <li class="min-w-0" aria-labelledby={`project-title-${project.id}`}>
         <div class="mb-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <h3 id={`project-title-${project.id}`} class="list-title min-w-0">
-            <a href={`/works/${project.id}`} class="link-text">
+          <div class="relative min-w-0 min-h-10" data-projects>
+            <a
+              href={project.data.repo}
+              class="link-text text-start text-sm text-ink focused [overflow-wrap:break-word]"
+              id={`project-title-${project.id}`}
+              aria-describedby={`project-card-${project.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-projects-trigger
+            >
               {project.data.title}
             </a>
-          </h3>
+            <div
+              id={`project-card-${project.id}`}
+              role="tooltip"
+              class="tool-card absolute start-full top-1/2 ms-3 z-10 w-80 max-w-[calc(100vw-3rem)] -translate-y-1/2"
+              data-projects-card
+            >
+              <LinkCard
+                class="max-h-[60dvh] overflow-y-auto overscroll-contain rounded-md border border-line bg-surface text-ink shadow-popup"
+                href={project.data.repo}
+              />
+            </div>
+          </div>
           {project.data.tags.length > 0 && (
             <>
               <span class="text-label mx-2">|</span>
@@ -36,11 +56,31 @@ const projects = (await getCollection("works")).slice(0, 4);
           lang="en"
         >
           {project.data.description}
+          <a
+            class="link-text text-start text-sm text-ink focused mx-2 [overflow-wrap:break-word]"
+            href={`/works/${project.id}`}
+          >
+            [more detail]
+          </a>
         </p>
-      </article>
+      </li>
     ))}
-  </div>
-  <a href="/works" class="text-action mt-6">
-    プロジェクト一覧を見る
-  </a>
+  </ul>
 </section>
+
+<style>
+  .tool-card {
+    display: none;
+  }
+
+  [data-projects]:has([data-projects-trigger]:focus-visible) .tool-card {
+    display: block;
+  }
+
+  @media (hover: hover) {
+    [data-projects]:has([data-projects-trigger]:hover, .tool-card:hover)
+      .tool-card {
+      display: block;
+    }
+  }
+</style>

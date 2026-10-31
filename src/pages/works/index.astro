@@ -15,40 +15,33 @@ const works = await getCollection("works");
     {works.length === 0 ? (
       <p class="text-sm text-muted">プロジェクトはまだありません。</p>
     ) : (
-      <div class="grid gap-6 sm:gap-8">
+      <div class="grid gap-8 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-8">
         {works.map((work) => (
           <article class="min-w-0">
-            <div class="mb-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <h2 class="list-title min-w-0">
-                <a href={`/works/${work.id}`} class="link-text">
-                  {work.data.title}
-                </a>
-              </h2>
-              {work.data.tags.length > 0 && (
-                <ul
-                  class="text-label min-w-0 flex flex-wrap gap-x-3 gap-y-1 list-none [overflow-wrap:anywhere]"
-                  aria-label="使用技術"
-                >
-                  {work.data.tags.map((tag) => (
-                    <li>{tag}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
-            <p class="text-sm leading-normal text-muted [overflow-wrap:anywhere] sm:leading-7">
+            <h2 class="list-title">
+              <a href={`/works/${work.id}`} class="link-text">
+                {work.data.title}
+              </a>
+            </h2>
+            <p
+              class="mt-2 text-sm leading-normal text-muted [overflow-wrap:anywhere] sm:leading-7"
+              lang="en"
+            >
               {work.data.description}
             </p>
+            {work.data.tags.length > 0 && (
+              <ul
+                class="text-label mt-2 flex flex-wrap gap-x-3 gap-y-1 list-none [overflow-wrap:anywhere]"
+                aria-label="使用技術"
+              >
+                {work.data.tags.map((tag) => (
+                  <li>{tag}</li>
+                ))}
+              </ul>
+            )}
           </article>
         ))}
       </div>
     )}
-    <a
-      class="text-action mt-6 w-fit"
-      href="https://github.com/halqme?tab=repositories"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      GitHubでもっと見る
-    </a>
   </section>
 </Layout>

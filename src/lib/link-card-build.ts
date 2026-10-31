@@ -24,6 +24,21 @@ export function findBlogLinkUrls(
   return [...urls];
 }
 
+export function findWorkRepoUrls(
+  directory = join(process.cwd(), "src/content/works"),
+): string[] {
+  const urls = new Set<string>();
+  for (const file of globSync("**/*.md", { cwd: directory })) {
+    const content = readFileSync(join(directory, file), "utf-8");
+    const frontmatter = content.match(/^---\s*\r?\n([\s\S]*?)\r?\n---/);
+    const repo = frontmatter?.[1].match(
+      /^repo:\s*["']?(https:\/\/[^\s"']+)["']?\s*$/m,
+    )?.[1];
+    if (repo) urls.add(repo);
+  }
+  return [...urls];
+}
+
 export async function prepareLinkCards(
   urls: string[],
   directory = join(process.cwd(), ".astro/link-card-images"),
