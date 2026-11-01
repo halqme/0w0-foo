@@ -17,7 +17,7 @@ export const tools: {
     comments: ["Rust製の最強エディタ"],
   },
   {
-    name: "fx",
+    name: "@vercel-labs/fx",
     type: "Coding Agent",
     url: "https://fx.sh/",
     comments: ["Zig製コーディングエージェント"],
@@ -45,5 +45,19 @@ export const tools: {
     type: "Terminal",
     url: "https://www.superlogical.com/rex",
     comments: ["新進気鋭のターミナル"],
+  },
+  {
+    name: "Cursor",
+    type: "Coding Agent",
+    url: "https://cursor.sh",
+    comments: ["Grok Premiumからクラウドエージェントとして利用"],
+  },
+  {
+    name: "Claude Code",
+    type: "Coding Agent",
+    url: "https://claude.com",
+    comments: [
+      "Claude CodeからじゃないとClaudeが使えないため。仕方なくね。仕方なく。",
+    ],
   },
 ];
