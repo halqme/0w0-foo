@@ -46,7 +46,7 @@ describe("markdown code highlighting", () => {
     );
 
     expect(code).toContain(
-      '<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="ts">',
+      '<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8" data-language="ts"><code tabindex="0">',
     );
     expect(code).toContain('<span style="color:#f97583">const </span>');
     expect(code).toContain("&lt;b&gt;");
@@ -127,6 +127,6 @@ describe("markdown code highlighting", () => {
     const { code } = await render("```ts\n```");
 
     expect(code).toContain('data-language="ts"');
-    expect(code).toContain("<code></code>");
+    expect(code).toContain('<code tabindex="0"></code>');
   });
 });

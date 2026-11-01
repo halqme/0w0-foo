@@ -229,6 +229,14 @@ const ogImage = `/ogp/${slug}.png`;
 
   .post-content :global(pre) {
     border-radius: 0;
+    padding-inline-end: 4.5rem;
+    overflow: hidden;
+  }
+
+  /* Scrolling the pre would move this padding, and the line would pass under the copy button. */
+  .post-content :global(pre code) {
+    display: block;
+    overflow-x: auto;
   }
 
   @media (hover: hover) and (pointer: fine) {

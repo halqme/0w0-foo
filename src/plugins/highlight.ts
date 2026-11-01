@@ -42,9 +42,9 @@ function highlightCodeBlock(code: string, language: string): string {
   const dataLanguage = supported ? language : "plaintext";
   const html = textDecoder.decode(codeToHtml(code, { lang, theme: codeTheme }));
   return html.replace(
-    /^<pre class="highlights" style="([^"]*)">/,
+    /^<pre class="highlights" style="([^"]*)"><code>/,
     (_match, style: string) =>
-      `<pre class="astro-code github-dark" style="${style}; overflow-x: auto;" tabindex="0" data-language="${escapeAttribute(dataLanguage)}">`,
+      `<pre class="astro-code github-dark" style="${style}" data-language="${escapeAttribute(dataLanguage)}"><code tabindex="0">`,
   );
 }
 
