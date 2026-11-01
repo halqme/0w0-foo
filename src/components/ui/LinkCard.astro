@@ -62,6 +62,17 @@ const hasPreview = Boolean(source) || comments.length > 0;
     display: none;
   }
 
+  @media (width < 40rem) {
+    .preview {
+      position: static;
+      inset: auto;
+      margin: 0.5rem 0 0;
+      width: 100%;
+      max-width: 100%;
+      transform: none;
+    }
+  }
+
   .link-preview:has(a:focus-visible) .preview {
     display: block;
   }
