@@ -223,8 +223,33 @@ const ogImage = `/ogp/${slug}.png`;
   .post-content :global(blockquote) {
     border: 0;
     padding-inline-start: 1rem;
+    color: inherit;
     font-style: normal;
     font-weight: 400;
+  }
+
+  .post-content :global(blockquote p)::before,
+  .post-content :global(blockquote p)::after {
+    content: none;
+  }
+
+  /* The prose disc is the browser bullet. A 1px line matches the site's rules. */
+  .post-content :global(ul) {
+    list-style: none;
+  }
+
+  .post-content :global(ul > li) {
+    position: relative;
+  }
+
+  .post-content :global(ul > li)::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: -0.875rem;
+    top: calc(0.5lh - 0.5px);
+    width: 0.5rem;
+    height: 1px;
+    background: var(--color-muted);
   }
 
   .post-content :global(pre) {
