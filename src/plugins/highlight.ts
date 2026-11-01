@@ -1,0 +1,82 @@
+import { codeToHtml, isSupportedLanguage, type Lang } from "@pierre/highlights";
+import { githubDark } from "@pierre/highlights/themes";
+import { defineHastPlugin, htmlToHast, type HastNode } from "satteri";
+
+const textDecoder = new TextDecoder();
+
+// Astro's default highlighter skips this language and leaves the fence as-is.
+const excludedLanguages = ["math"];
+
+function escapeAttribute(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+function highlightCodeBlock(code: string, language: string): string {
+  const supported = isSupportedLanguage(language);
+  const lang: Lang = supported ? language : "plain";
+  const dataLanguage = supported ? language : "plaintext";
+  const html = textDecoder.decode(
+    codeToHtml(code, { lang, theme: githubDark }),
+  );
+  return html.replace(
+    /^<pre class="highlights" style="([^"]*)">/,
+    (_match, style: string) =>
+      `<pre class="astro-code github-dark" style="${style}; overflow-x: auto;" tabindex="0" data-language="${escapeAttribute(dataLanguage)}">`,
+  );
+}
+
+function readString(
+  value: object | undefined,
+  key: string,
+): string | undefined {
+  if (!value || !Object.hasOwn(value, key)) return undefined;
+  const property = Reflect.get(value, key);
+  return typeof property === "string" && property.length > 0
+    ? property
+    : undefined;
+}
+
+function languageFromCode(node: HastNode): string | undefined {
+  if (node.type !== "element" || node.tagName !== "code") return undefined;
+  const className = node.properties?.className;
+  const languageClass = Array.isArray(className)
+    ? className.find(
+        (value) => typeof value === "string" && value.startsWith("language-"),
+      )
+    : undefined;
+  const dataLang = readString(node.data, "lang");
+  if (dataLang) return dataLang;
+  if (typeof languageClass === "string") {
+    return languageClass.slice("language-".length);
+  }
+  return "plaintext";
+}
+
+export function createHighlightPlugin() {
+  return defineHastPlugin({
+    name: "pierre-highlights-github-dark",
+    element: {
+      filter: ["pre"],
+      visit(node, ctx) {
+        const codeChild = node.children?.find(
+          (child) => child.type === "element" && child.tagName === "code",
+        );
+        if (!codeChild) return;
+        const language = languageFromCode(codeChild);
+        if (!language || excludedLanguages.includes(language)) return;
+        const code = ctx.textContent(codeChild).replace(/\n$/, "");
+        const tree = htmlToHast(highlightCodeBlock(code, language), {
+          fragment: true,
+        });
+        if (!("children" in tree)) return;
+        const highlighted = tree.children[0];
+        if (!highlighted || highlighted.type !== "element") return;
+        ctx.replaceNode(node, highlighted);
+      },
+    },
+  });
+}

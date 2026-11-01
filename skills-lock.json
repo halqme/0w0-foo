@@ -85,6 +85,12 @@
       "skillPath": "packages/playground/.agents/skills/frontend-design/SKILL.md",
       "computedHash": "537c1df9d0c694ecf9139a911f9ad0bd111a7ebc173a55457568459e543fe75b"
     },
+    "highlights": {
+      "source": "pierrecomputer/pierre",
+      "sourceType": "github",
+      "skillPath": "skills/highlights/SKILL.md",
+      "computedHash": "ba575abcb25ebbeb066f5a9e14026f29847297e801cb6618a3aa2ee02f13e164"
+    },
     "interface-review": {
       "source": "jakubkrehel/skills",
       "sourceType": "github",

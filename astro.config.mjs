@@ -3,6 +3,7 @@ import mdx from "@astrojs/mdx";
 import { defineConfig, fontProviders } from "astro/config";
 import { satteri } from "@astrojs/markdown-satteri";
 import UnoCSS from "unocss/astro";
+import { createHighlightPlugin } from "./src/plugins/highlight";
 import { createLinkCardPlugin } from "./src/plugins/link-card";
 import { findBlogLinkUrls, prepareLinkCards } from "./src/lib/link-card-build";
 
@@ -31,9 +32,11 @@ export default defineConfig({
     mdx(),
   ],
   markdown: {
+    // Shiki stays off. createHighlightPlugin renders fences with @pierre/highlights.
+    syntaxHighlight: false,
     processor: satteri({
       features: { gfm: true },
-      hastPlugins: [createLinkCardPlugin(cards)],
+      hastPlugins: [createHighlightPlugin(), createLinkCardPlugin(cards)],
     }),
   },
   site: "https://0w0.foo",
