@@ -10,7 +10,7 @@ const TOC_HEADING_LEVEL_2 = 2;
 const TOC_HEADING_LEVEL_3 = 3;
 
 const { headings } = Astro.props;
-// H2 と h3 のみを抽出
+// link-text の下線は要素の箱に付く。block や inline-block にすると、折り返した各行ではなく箱の下に線が出る。
 const tocHeadings = headings.filter(
   (h) => h.depth === TOC_HEADING_LEVEL_2 || h.depth === TOC_HEADING_LEVEL_3,
 );
@@ -19,10 +19,20 @@ const tocHeadings = headings.filter(
 <nav aria-label="目次" class="mt-3">
   <ul class="flex flex-col gap-1 text-sm">
     {tocHeadings.map((heading) => (
-      <li class={heading.depth === TOC_HEADING_LEVEL_3 ? "pl-4" : undefined}>
+      <li
+        class:list={[
+          "py-1",
+          heading.depth === TOC_HEADING_LEVEL_3 ? "ps-4" : undefined,
+        ]}
+      >
         <a
           href={`#${heading.slug}`}
-          class="link-text block py-1 leading-relaxed text-muted hover:text-ink [overflow-wrap:anywhere]"
+          class:list={[
+            "link-text leading-relaxed [overflow-wrap:anywhere]",
+            heading.depth === TOC_HEADING_LEVEL_3
+              ? "text-muted hover:text-ink"
+              : "text-ink",
+          ]}
         >
           {heading.text}
         </a>
