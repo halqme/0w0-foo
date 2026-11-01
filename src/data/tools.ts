@@ -41,9 +41,9 @@ export const tools: {
     comments: ["Raycastオルタナティブなランチャー"],
   },
   {
-    name: "Ghostty",
+    name: "Rex",
     type: "Terminal",
-    url: "https://ghostty.org",
-    comments: ["ターミナルエミュレータのなかではとくに完成度が高いと思う"],
+    url: "https://www.superlogical.com/rex",
+    comments: ["新進気鋭のターミナル"],
   },
 ];
