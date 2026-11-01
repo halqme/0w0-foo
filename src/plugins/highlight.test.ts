@@ -11,6 +11,22 @@ async function render(source: string) {
   return processor.render(source);
 }
 
+const channel = (hex: string, offset: number) => {
+  const value = Number.parseInt(hex.slice(offset, offset + 2), 16) / 255;
+  return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+};
+
+const luminance = (hex: string) =>
+  0.2126 * channel(hex, 1) +
+  0.7152 * channel(hex, 3) +
+  0.0722 * channel(hex, 5);
+
+function contrast(foreground: string, background: string): number {
+  const lighter = Math.max(luminance(foreground), luminance(background));
+  const darker = Math.min(luminance(foreground), luminance(background));
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
 function visibleCode(html: string): string {
   return html
     .replace(/<[^>]+>/g, "")
@@ -79,6 +95,32 @@ describe("markdown code highlighting", () => {
     expect(code).toContain("<p>inline <code>const x = 1</code></p>");
     expect(code).toContain('<code class="language-math">E = mc^2\n</code>');
     expect(code).not.toContain("astro-code");
+  });
+
+  it("keeps comment text at least 4.5:1 against the code background", async () => {
+    const { code } = await render(
+      ["```ts", "// note", "/** doc */", "const answer = 1;", "```"].join("\n"),
+    );
+    const background = code.match(/background-color:(#[0-9a-f]{6})/i)?.[1];
+    const comments = [
+      ...code.matchAll(
+        /<span style="color:(#[0-9a-f]{6})">([\s\S]*?)<\/span>/gi,
+      ),
+    ].filter(
+      (match) =>
+        match[2].includes("// note") || match[2].includes("/** doc */"),
+    );
+
+    expect(background).toBeTruthy();
+    expect(comments.some((match) => match[2].includes("// note"))).toBe(true);
+    expect(comments.some((match) => match[2].includes("/** doc */"))).toBe(
+      true,
+    );
+    for (const match of comments) {
+      expect(contrast(match[1] ?? "", background ?? "")).toBeGreaterThanOrEqual(
+        4.5,
+      );
+    }
   });
 
   it("renders an empty fence as an empty code block", async () => {

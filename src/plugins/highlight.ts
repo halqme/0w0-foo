@@ -1,8 +1,29 @@
-import { codeToHtml, isSupportedLanguage, type Lang } from "@pierre/highlights";
+import {
+  codeToHtml,
+  isSupportedLanguage,
+  type Lang,
+  type Theme,
+} from "@pierre/highlights";
 import { githubDark } from "@pierre/highlights/themes";
 import { defineHastPlugin, htmlToHast, type HastNode } from "satteri";
 
 const textDecoder = new TextDecoder();
+
+// #6a737d is 3.05:1 on this theme's #24292e background. Keep #8b949e (4.77:1).
+const readableComment = { color: "#8b949e" };
+const codeTheme: Theme = {
+  ...githubDark,
+  style: {
+    ...githubDark.style,
+    syntax: {
+      ...githubDark.style.syntax,
+      comment: readableComment,
+      "comment.doc": readableComment,
+      "comment.documentation": readableComment,
+      predictive: readableComment,
+    },
+  },
+};
 
 // Astro's default highlighter skips this language and leaves the fence as-is.
 const excludedLanguages = ["math"];
@@ -19,9 +40,7 @@ function highlightCodeBlock(code: string, language: string): string {
   const supported = isSupportedLanguage(language);
   const lang: Lang = supported ? language : "plain";
   const dataLanguage = supported ? language : "plaintext";
-  const html = textDecoder.decode(
-    codeToHtml(code, { lang, theme: githubDark }),
-  );
+  const html = textDecoder.decode(codeToHtml(code, { lang, theme: codeTheme }));
   return html.replace(
     /^<pre class="highlights" style="([^"]*)">/,
     (_match, style: string) =>
