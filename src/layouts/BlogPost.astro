@@ -77,8 +77,14 @@ const ogImage = `/ogp/${slug}.png`;
     {headings?.some(
       (heading) => heading.depth === 2 || heading.depth === 3,
     ) && (
-      <details class="mb-8 text-sm">
-        <summary class="disclosure-trigger">目次</summary>
+      <details class="toc mb-8 text-sm">
+        <summary class="disclosure-trigger">
+          <span
+            class="toc-chevron icon-sm i-lucide:chevron-right"
+            aria-hidden="true"
+          ></span>
+          目次
+        </summary>
         <TableOfContents headings={headings} />
       </details>
     )}
@@ -218,6 +224,31 @@ const ogImage = `/ogp/${slug}.png`;
 
   .post-content :global(:is(h3, h4, h5, h6)) {
     font-size: 1rem;
+  }
+
+  .toc {
+    interpolate-size: allow-keywords;
+  }
+
+  .toc-chevron {
+    transition: transform 150ms ease-out;
+  }
+
+  .toc[open] > summary .toc-chevron {
+    transform: rotate(90deg);
+  }
+
+  /* Native details hides the body immediately, so the height cannot ease closed. */
+  .toc::details-content {
+    height: 0;
+    overflow: clip;
+    transition:
+      height 150ms ease-out,
+      content-visibility 150ms allow-discrete;
+  }
+
+  .toc[open]::details-content {
+    height: auto;
   }
 
   .post-content :global(blockquote) {
