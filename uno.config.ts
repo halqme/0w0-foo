@@ -109,9 +109,14 @@ export default defineConfig({
     },
   ],
   content: { filesystem: ["src/plugins/link-card.ts"] },
-  safelist: Object.values(linkCardClasses).flatMap((classes) =>
-    classes.split(/\s+/),
-  ),
+  // Do not remove `code-copy-button`. Production UnoCSS does not see this
+  // script-only class, so dropping it leaves the copy button in normal flow.
+  safelist: [
+    "code-copy-button",
+    ...Object.values(linkCardClasses).flatMap((classes) =>
+      classes.split(/\s+/),
+    ),
+  ],
   rules: [[/^clip-\[(.+)\]$/, ([, value]) => ({ clip: value })]],
   shortcuts: {
     "text-body": "text-base leading-8 text-ink",
