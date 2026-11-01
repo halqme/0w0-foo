@@ -1,4 +1,5 @@
 import sitemap from "@astrojs/sitemap";
+import mdx from "@astrojs/mdx";
 import { defineConfig, fontProviders } from "astro/config";
 import { satteri } from "@astrojs/markdown-satteri";
 import UnoCSS from "unocss/astro";
@@ -27,6 +28,7 @@ export default defineConfig({
       injectReset: true,
     }),
     sitemap(),
+    mdx(),
   ],
   markdown: {
     processor: satteri({

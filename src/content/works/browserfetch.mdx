@@ -6,6 +6,12 @@ url: https://browserfetch.apps.0w0.foo
 tags: [Vue, TypeScript]
 ---
 
+import WorkImage from "../../components/works/WorkImage.astro";
+import screenshot from "./assets/browserfetch.webp";
+
 Fastfetchに着想を得たWebアプリです。VueとTypeScriptで作っています。
 
-リンク先からブラウザーで開けます。
+<WorkImage
+  src={screenshot}
+  alt="browserfetchでブラウザーやOSの情報を表示した画面"
+/>
