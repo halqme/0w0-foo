@@ -32,7 +32,7 @@ const shareItems = [
   },
   {
     ariaLabel: "はてブに追加",
-    href: `https://b.hatena.ne.jp/entry/s/${Astro.site?.hostname}${path}${encodeURIComponent(title)}#bbutton`,
+    href: `https://b.hatena.ne.jp/entry/panel/?url=${encodeURIComponent(url)}&btitle=${encodeURIComponent(title)}`,
     icon: "i-simple-icons:hatenabookmark",
     key: "hatena",
     label: "はてブに追加",
