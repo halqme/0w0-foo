@@ -3,6 +3,7 @@ import mdx from "@astrojs/mdx";
 import { defineConfig, fontProviders } from "astro/config";
 import { satteri } from "@astrojs/markdown-satteri";
 import UnoCSS from "unocss/astro";
+import { createHeadingMarkPlugin } from "./src/plugins/heading-mark";
 import { createHighlightPlugin } from "./src/plugins/highlight";
 import { createLinkCardPlugin } from "./src/plugins/link-card";
 import { findBlogLinkUrls, prepareLinkCards } from "./src/lib/link-card-build";
@@ -14,6 +15,12 @@ export default defineConfig({
     {
       cssVariable: "--font-shippori-antique",
       name: "Shippori Antique",
+      provider: fontProviders.fontsource(),
+      weights: [400],
+    },
+    {
+      cssVariable: "--font-shippori-antique-b1",
+      name: "Shippori Antique B1",
       provider: fontProviders.fontsource(),
       weights: [400],
     },
@@ -36,7 +43,11 @@ export default defineConfig({
     syntaxHighlight: false,
     processor: satteri({
       features: { gfm: true },
-      hastPlugins: [createHighlightPlugin(), createLinkCardPlugin(cards)],
+      hastPlugins: [
+        createHeadingMarkPlugin(),
+        createHighlightPlugin(),
+        createLinkCardPlugin(cards),
+      ],
     }),
   },
   site: "https://0w0.foo",

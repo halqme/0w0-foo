@@ -15,7 +15,7 @@ const { Content } = await render(work);
 ---
 
 <Layout title={work.data.title} description={work.data.description}>
-  <article class="min-w-0 py-8" aria-labelledby="work-title">
+  <article class="article-column py-8" aria-labelledby="work-title">
     <header class="page-header">
       <h1 id="work-title" class="text-headline [overflow-wrap:anywhere]">
         {work.data.title}
@@ -58,7 +58,7 @@ const { Content } = await render(work);
       </div>
     </header>
     <div class="py-8">
-      <div class="post-content prose prose-base max-w-none min-w-0">
+      <div class="post-content prose prose-sm max-w-none min-w-0">
         <Content />
       </div>
     </div>

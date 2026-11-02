@@ -51,6 +51,7 @@ const tokens = {
   font: {
     mono: "var(--font-ia-writer-mono)",
     sans: "var(--font-shippori-antique)",
+    emphasis: "var(--font-shippori-antique-b1)",
   },
   size: {
     hero: "clamp(4.5rem, 17vw, 12rem)",
@@ -94,7 +95,81 @@ export default defineConfig({
     presetAttributify({ prefix: "uno-" }),
     presetTypography({
       cssExtend: {
-        p: { "line-height": "1.9" },
+        p: { "line-height": "1.8" },
+        a: { "font-weight": "400" },
+        strong: {
+          "font-family": tokens.font.emphasis,
+          "font-weight": "400",
+        },
+        b: {
+          "font-family": tokens.font.emphasis,
+          "font-weight": "400",
+        },
+        code: { "font-weight": "500" },
+        h1: {
+          "font-family": tokens.font.emphasis,
+          "font-weight": "400",
+          "font-size": "1.25rem",
+          "line-height": "1.4",
+          position: "relative",
+        },
+        h2: {
+          "font-family": tokens.font.emphasis,
+          "font-weight": "400",
+          "font-size": "1.25rem",
+          "line-height": "1.4",
+          position: "relative",
+        },
+        h3: {
+          "font-family": tokens.font.emphasis,
+          "font-weight": "400",
+          "font-size": "1.125rem",
+          "line-height": "1.4",
+          position: "relative",
+        },
+        h4: {
+          "font-family": tokens.font.emphasis,
+          "font-weight": "400",
+          "font-size": "1rem",
+          "line-height": "1.4",
+          position: "relative",
+        },
+        h5: {
+          "font-family": tokens.font.emphasis,
+          "font-weight": "400",
+          "font-size": "1rem",
+          "line-height": "1.4",
+          position: "relative",
+        },
+        h6: {
+          "font-family": tokens.font.emphasis,
+          "font-weight": "400",
+          "font-size": "1rem",
+          "line-height": "1.4",
+          position: "relative",
+        },
+        "h1 strong": { "font-weight": "400" },
+        "h2 strong": { "font-weight": "400" },
+        "h3 strong": { "font-weight": "400" },
+        "h4 strong": { "font-weight": "400" },
+        ".heading-mark": {
+          "font-family": tokens.font.mono,
+          "font-weight": "400",
+          color: "var(--color-muted)",
+          "white-space": "pre",
+        },
+        ".heading-mark::before": {
+          content: "attr(data-mark)",
+        },
+        blockquote: {
+          "font-style": "normal",
+          "font-weight": "400",
+          color: "var(--color-ink)",
+          "border-inline-start-width": "2px",
+          "border-inline-start-color": "var(--color-muted)",
+        },
+        "blockquote p:first-of-type::before": { content: "none" },
+        "blockquote p:last-of-type::after": { content: "none" },
       },
     }),
   ],
@@ -104,8 +179,13 @@ export default defineConfig({
         `${themeColorMotion}\n@media (prefers-reduced-motion: no-preference) { :root[data-theme-transition] { transition: ${themeColorTransitions}; } }`,
     },
     {
+      // 53rem: the 40rem column has a gutter wide enough for `###### `.
       getCSS: () =>
-        `:root {\n    ${themeVars(tokens.color.light)}\n    --font-size-error: ${tokens.size.error};\n    --page-bg: var(--color-canvas);\n    --surface-bg: var(--color-surface);\n    --surface-muted: var(--color-surface-muted);\n    --ink: var(--color-ink);\n    --ink-muted: var(--color-muted);\n    --line: var(--color-line);\n    --accent: var(--color-accent);\n    --focus-ring: var(--color-focus);\n    --pink: var(--color-pink);\n    --mint: var(--color-mint);\n    color-scheme: light;\n  }\n  :root.dark {\n    ${themeVars(tokens.color.dark)}\n    color-scheme: dark;\n  }\n  html { scroll-padding-block-start: 1rem; font-feature-settings: "palt" 1; line-break: strict; word-break: auto-phrase; text-autospace: normal; }\n  :focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }\n  ::selection { background: var(--color-selection); color: var(--color-selection-ink); }\n  a { color: inherit; text-underline-position: from-font; text-decoration-thickness: from-font; }\n  :root .prose { --un-prose-body: var(--color-ink); --un-prose-headings: var(--color-ink); --un-prose-lead: var(--color-muted); --un-prose-links: var(--color-accent); --un-prose-bold: var(--color-ink); --un-prose-counters: var(--color-muted); --un-prose-bullets: var(--color-muted); --un-prose-hr: var(--color-line); --un-prose-quotes: var(--color-muted); --un-prose-quote-borders: var(--color-line); --un-prose-captions: var(--color-muted); --un-prose-kbd: var(--color-ink); --un-prose-code: var(--color-ink); --un-prose-pre-code: var(--color-ink); --un-prose-pre-bg: var(--color-surface-muted); --un-prose-th-borders: var(--color-line); --un-prose-td-borders: var(--color-line); }\n  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after, *::details-content { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }`,
+        `@media (min-width: 53rem) { .prose .heading-mark { position: absolute; inset-inline-end: 100%; } }`,
+    },
+    {
+      getCSS: () =>
+        `:root {\n    ${themeVars(tokens.color.light)}\n    --font-size-error: ${tokens.size.error};\n    --page-bg: var(--color-canvas);\n    --surface-bg: var(--color-surface);\n    --surface-muted: var(--color-surface-muted);\n    --ink: var(--color-ink);\n    --ink-muted: var(--color-muted);\n    --line: var(--color-line);\n    --accent: var(--color-accent);\n    --focus-ring: var(--color-focus);\n    --pink: var(--color-pink);\n    --mint: var(--color-mint);\n    color-scheme: light;\n  }\n  :root.dark {\n    ${themeVars(tokens.color.dark)}\n    color-scheme: dark;\n  }\n  html { scroll-padding-block-start: 1rem; line-break: strict; text-autospace: normal; font-synthesis-weight: none; }\n  :focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }\n  ::selection { background: var(--color-selection); color: var(--color-selection-ink); }\n  a { color: inherit; text-underline-position: from-font; text-decoration-thickness: from-font; }\n  :root .prose { --un-prose-body: var(--color-ink); --un-prose-headings: var(--color-ink); --un-prose-lead: var(--color-muted); --un-prose-links: var(--color-accent); --un-prose-bold: var(--color-ink); --un-prose-counters: var(--color-muted); --un-prose-bullets: var(--color-muted); --un-prose-hr: var(--color-line); --un-prose-quotes: var(--color-muted); --un-prose-quote-borders: var(--color-line); --un-prose-captions: var(--color-muted); --un-prose-kbd: var(--color-ink); --un-prose-code: var(--color-ink); --un-prose-pre-code: var(--color-ink); --un-prose-pre-bg: var(--color-surface-muted); --un-prose-th-borders: var(--color-line); --un-prose-td-borders: var(--color-line); }\n  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after, *::details-content { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }`,
     },
   ],
   content: { filesystem: ["src/plugins/link-card.ts"] },
@@ -120,17 +200,19 @@ export default defineConfig({
   rules: [[/^clip-\[(.+)\]$/, ([, value]) => ({ clip: value })]],
   shortcuts: {
     "text-body": "text-base leading-8 text-ink",
-    "text-headline": "text-xl font-medium leading-relaxed text-ink",
+    "text-headline":
+      "text-xl font-normal leading-[1.4] text-ink [text-wrap:balance]",
     "text-label": "text-xs font-normal leading-relaxed text-muted",
     "icon-sm": "size-4 shrink-0 align-middle",
     "icon-md": "size-5 shrink-0 align-middle",
     section: "py-8 first:pt-0",
     "container-main": "mx-auto w-full max-w-4xl px-6 sm:px-8",
+    "article-column": "mx-auto w-full min-w-0 max-w-[40rem]",
     "page-header": "mb-10 flex flex-col items-center gap-3 text-center",
     "index-header":
       "mb-10 flex flex-wrap items-baseline justify-center gap-x-6 gap-y-2 text-center",
     "list-title":
-      "text-base font-medium leading-relaxed text-ink [overflow-wrap:anywhere]",
+      "text-base font-normal leading-relaxed text-ink [overflow-wrap:anywhere]",
     "item-meta":
       "mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs leading-relaxed text-muted",
     "link-text": "no-underline",
@@ -140,7 +222,7 @@ export default defineConfig({
       "flex min-h-10 list-none items-center gap-1 py-2 text-sm text-muted select-none hover:text-ink [&::-webkit-details-marker]:hidden",
     "code-copy-button":
       "absolute top-2 end-2 z-10 inline-flex min-h-8 items-center rounded-sm border border-line bg-surface px-2 text-xs font-sans text-ink focused",
-    btn: "inline-flex items-center justify-center gap-2 min-h-10 px-4 py-2 font-medium border border-line rounded-sm focused",
+    btn: "inline-flex items-center justify-center gap-2 min-h-10 px-4 py-2 font-normal border border-line rounded-sm focused",
     "btn-ghost": "btn bg-transparent text-ink border-transparent",
     "btn-primary": "btn bg-accent text-canvas border-accent",
     "sr-only":
@@ -169,7 +251,11 @@ export default defineConfig({
       "signal-success-surface": "var(--color-signal-success-surface)",
       zenn: "#3EA8FF",
     },
-    font: { mono: tokens.font.mono, sans: tokens.font.sans },
+    font: {
+      mono: tokens.font.mono,
+      sans: tokens.font.sans,
+      emphasis: tokens.font.emphasis,
+    },
     text: {
       md: { fontSize: "1.0625rem", lineHeight: "1.5" },
       hero: { fontSize: tokens.size.hero, lineHeight: "0.95" },

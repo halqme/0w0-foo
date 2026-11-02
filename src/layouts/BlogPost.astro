@@ -39,12 +39,9 @@ const ogImage = `/ogp/${slug}.png`;
   pubDate={published_at}
   tags={topics}
 >
-  <article class="min-w-0 py-8" aria-labelledby="post-title">
+  <article class="article-column py-8" aria-labelledby="post-title">
     <header class="page-header">
-      <h1
-        id="post-title"
-        class="text-headline [text-wrap:balance] [overflow-wrap:anywhere]"
-      >
+      <h1 id="post-title" class="text-headline [overflow-wrap:anywhere]">
         {title}
       </h1>
       <div class="flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm text-muted">
@@ -88,7 +85,7 @@ const ogImage = `/ogp/${slug}.png`;
         <TableOfContents headings={headings} />
       </details>
     )}
-    <div class="post-content prose prose-base max-w-none min-w-0">
+    <div class="post-content prose prose-sm max-w-none min-w-0">
       <slot />
     </div>
     <footer class="mt-8 flex flex-col items-start pt-8">
@@ -208,21 +205,25 @@ const ogImage = `/ogp/${slug}.png`;
 
 <style>
   .post-content {
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
 
   .post-content :global(:is(h1, h2, h3, h4, h5, h6)) {
-    font-family: var(--font-shippori-antique);
+    font-family: var(--font-shippori-antique-b1);
     font-weight: 400;
-    line-height: 1.7;
+    line-height: 1.4;
     margin-block: 2rem 1rem;
   }
 
   .post-content :global(:is(h1, h2)) {
+    font-size: 1.25rem;
+  }
+
+  .post-content :global(h3) {
     font-size: 1.125rem;
   }
 
-  .post-content :global(:is(h3, h4, h5, h6)) {
+  .post-content :global(:is(h4, h5, h6)) {
     font-size: 1rem;
   }
 
@@ -253,6 +254,7 @@ const ogImage = `/ogp/${slug}.png`;
 
   .post-content :global(blockquote) {
     border: 0;
+    border-inline-start: 2px solid var(--color-muted);
     padding-inline-start: 1rem;
     color: inherit;
     font-style: normal;
@@ -262,6 +264,11 @@ const ogImage = `/ogp/${slug}.png`;
   .post-content :global(blockquote p)::before,
   .post-content :global(blockquote p)::after {
     content: none;
+  }
+
+  .post-content :global(strong) {
+    font-family: var(--font-shippori-antique-b1);
+    font-weight: 400;
   }
 
   /* The prose disc is the browser bullet. A 1px line matches the site's rules. */
