@@ -105,7 +105,11 @@ export default defineConfig({
           "font-family": tokens.font.emphasis,
           "font-weight": "400",
         },
-        code: { "font-weight": "500" },
+        code: { "font-weight": "500", "font-size": "0.875rem" },
+        kbd: { "font-size": "0.875rem" },
+        pre: { "font-size": "0.875rem" },
+        table: { "font-size": "0.875rem" },
+        figcaption: { "font-size": "0.875rem" },
         h1: {
           "font-family": tokens.font.emphasis,
           "font-weight": "400",
@@ -202,7 +206,7 @@ export default defineConfig({
     "text-body": "text-base leading-8 text-ink",
     "text-headline":
       "text-xl font-normal leading-[1.4] text-ink [text-wrap:balance]",
-    "text-label": "text-xs font-normal leading-relaxed text-muted",
+    "text-label": "text-sm font-normal leading-relaxed text-muted",
     "icon-sm": "size-4 shrink-0 align-middle",
     "icon-md": "size-5 shrink-0 align-middle",
     section: "py-8 first:pt-0",
@@ -214,7 +218,7 @@ export default defineConfig({
     "list-title":
       "text-base font-normal leading-relaxed text-ink [overflow-wrap:anywhere]",
     "item-meta":
-      "mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs leading-relaxed text-muted",
+      "mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm leading-relaxed text-muted",
     "link-text": "no-underline",
     "text-action":
       "link-text inline-flex min-h-10 items-center text-sm text-muted hover:text-ink focused",

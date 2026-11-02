@@ -316,7 +316,12 @@ const ogImage = `/ogp/${slug}.png`;
     }
   }
 
+  /* A one-line block is shorter than the 40px target placed 8px from the top. */
   @media (hover: none), (pointer: coarse) {
+    .post-content :global(pre) {
+      min-height: calc(0.5rem + 2.5rem + 0.5rem);
+    }
+
     .post-content :global(.code-copy-button) {
       min-height: 2.5rem;
     }

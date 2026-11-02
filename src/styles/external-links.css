@@ -4,7 +4,7 @@ a[target="_blank"] {
     content: "\00a0↗" / "（新しいタブで開く）";
     white-space: nowrap;
     font-family: var(--font-ia-writer-mono), monospace;
-    font-size: 0.8em;
+    font-size: 1em;
     line-height: 1;
     text-decoration: none;
   }

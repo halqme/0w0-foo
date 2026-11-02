@@ -7,7 +7,7 @@ export const linkCardClasses = {
   title:
     "font-sans text-base font-normal leading-relaxed text-ink underline underline-offset-4 line-clamp-2 mb-1",
   description: "text-sm leading-relaxed text-muted line-clamp-2 mb-3",
-  host: "flex items-center gap-1.5 text-xs text-muted",
+  host: "flex items-center gap-1.5 text-sm text-muted",
   favicon: "icon-sm rounded-xs",
   displayUrl: "truncate",
 } as const;
