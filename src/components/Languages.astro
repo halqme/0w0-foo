@@ -1,41 +1,77 @@
 ---
+import { css } from "../../styled-system/css";
 import Heading2 from "./ui/Heading2.astro";
+import { section, textLabel } from "../styles/ui";
+
+const groups = css({
+  display: "grid",
+  gap: "4",
+});
+const group = css({
+  display: "grid",
+  gap: "2",
+  sm: {
+    gridTemplateColumns: "9rem minmax(0, 1fr)",
+    gap: "6",
+  },
+});
+const dividedGroup = css({
+  display: "grid",
+  gap: "2",
+  borderTopWidth: "1px",
+  borderTopStyle: "solid",
+  borderTopColor: "line",
+  pt: "4",
+  sm: {
+    gridTemplateColumns: "9rem minmax(0, 1fr)",
+    gap: "6",
+  },
+});
+const label = css({
+  pt: "1",
+});
+const items = css({
+  display: "flex",
+  minW: "0",
+  flexWrap: "wrap",
+  columnGap: "6",
+  rowGap: "2",
+  fontSize: "sm",
+  lineHeight: "1.75rem",
+  color: "ink",
+});
+const item = css({
+  minW: "0",
+  overflowWrap: "anywhere",
+});
 
 const langs: string[] = ["TypeScript", "Go", "Swift"];
 const frameworks: string[] = ["Vue / Nuxt", "Hono", "Vite / Vite Plus"];
 ---
 
-<section class="section" aria-labelledby="languages-title" id="languages">
+<section class={section} aria-labelledby="languages-title" id="languages">
   <Heading2 title="Languages & Frameworks" id="languages-title" />
 
-  <div class="grid gap-4">
-    <div class="grid gap-2 sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-6">
-      <h3 id="language-list-title" class="text-label pt-1">
+  <div class={groups}>
+    <div class={group}>
+      <h3 id="language-list-title" class:list={[textLabel, label]}>
         Languages
       </h3>
-      <ul
-        role="list"
-        aria-labelledby="language-list-title"
-        class="flex min-w-0 flex-wrap gap-x-6 gap-y-2 text-sm leading-7 text-ink"
-      >
+      <ul role="list" aria-labelledby="language-list-title" class={items}>
         {langs.map((lang) => (
-          <li class="min-w-0 [overflow-wrap:anywhere]" data-languages>
+          <li class={item} data-languages>
             {lang}
           </li>
         ))}
       </ul>
     </div>
-    <div class="grid gap-2 border-t border-line pt-4 sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-6">
-      <h3 id="framework-list-title" class="text-label pt-1">
+    <div class={dividedGroup}>
+      <h3 id="framework-list-title" class:list={[textLabel, label]}>
         Frameworks
       </h3>
-      <ul
-        role="list"
-        aria-labelledby="framework-list-title"
-        class="flex min-w-0 flex-wrap gap-x-6 gap-y-2 text-sm leading-7 text-ink"
-      >
+      <ul role="list" aria-labelledby="framework-list-title" class={items}>
         {frameworks.map((fw) => (
-          <li class="min-w-0 [overflow-wrap:anywhere]" data-frameworks>
+          <li class={item} data-frameworks>
             {fw}
           </li>
         ))}

@@ -1,37 +1,70 @@
 ---
 import { getCollection } from "astro:content";
+import { css } from "../../../styled-system/css";
 import Layout from "../../layouts/Layout.astro";
+import {
+  focused,
+  indexHeader,
+  linkText,
+  listTitle,
+  textHeadline,
+  textLabel,
+} from "../../styles/ui";
+
+const section = css({ py: "8" });
+const grid = css({
+  display: "grid",
+  rowGap: "6",
+  sm: {
+    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+    columnGap: "8",
+  },
+});
+const card = css({ minW: "0", py: "6" });
+const description = css({
+  mt: "2",
+  fontSize: "sm",
+  lineHeight: { base: "normal", sm: "1.75rem" },
+  color: "muted",
+  overflowWrap: "anywhere",
+});
+const tags = css({
+  mt: "2",
+  display: "flex",
+  flexWrap: "wrap",
+  columnGap: "3",
+  rowGap: "1",
+  listStyle: "none",
+  overflowWrap: "anywhere",
+});
 
 const works = await getCollection("works");
 ---
 
 <Layout title="Works" description="制作したプロジェクトの一覧">
-  <section aria-labelledby="works-title" class="py-8">
-    <div class="index-header">
-      <h1 id="works-title" class="text-headline">
+  <section aria-labelledby="works-title" class={section}>
+    <div class={indexHeader}>
+      <h1 id="works-title" class={textHeadline}>
         Works
       </h1>
     </div>
     {works.length && (
-      <div class="grid gap-y-6 sm:grid-cols-2 sm:gap-x-8">
+      <div class={grid}>
         {works.map((work) => (
-          <article class="min-w-0 py-6">
-            <h2 class="list-title">
-              <a href={`/works/${work.id}`} class="link-text focused">
+          <article class={card}>
+            <h2 class={listTitle}>
+              <a
+                href={`/works/${work.id}`}
+                class:list={["link-text", linkText, focused]}
+              >
                 {work.data.title}
               </a>
             </h2>
-            <p
-              class="mt-2 text-sm leading-normal text-muted [overflow-wrap:anywhere] sm:leading-7"
-              lang="en"
-            >
+            <p class={description} lang="en">
               {work.data.description}
             </p>
             {work.data.tags.length > 0 && (
-              <ul
-                class="text-label mt-2 flex flex-wrap gap-x-3 gap-y-1 list-none [overflow-wrap:anywhere]"
-                aria-label="使用技術"
-              >
+              <ul class:list={[textLabel, tags]} aria-label="使用技術">
                 {work.data.tags.map((tag) => (
                   <li>{tag}</li>
                 ))}

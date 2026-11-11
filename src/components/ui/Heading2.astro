@@ -1,4 +1,6 @@
 ---
+import { css } from "../../../styled-system/css";
+
 interface Props {
   title: string;
   id?: string;
@@ -11,7 +13,15 @@ const {
 
 <h2
   id={id}
-  class="text-headline font-emphasis font-bold leading-snug text-ink mb-6"
+  class={css({
+    mb: "6",
+    fontFamily: "emphasis",
+    fontSize: "xl",
+    fontWeight: "bold",
+    lineHeight: "snug",
+    color: "ink",
+    textWrap: "balance",
+  })}
 >
   {title}
 </h2>

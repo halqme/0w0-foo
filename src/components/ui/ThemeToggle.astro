@@ -1,7 +1,55 @@
-<div class="relative flex shrink-0 items-center text-ink" data-theme-picker>
+---
+import { css } from "../../../styled-system/css";
+import Icon from "./Icon.astro";
+import {
+  focused,
+  srOnly,
+  themeCheck,
+  themeIcon,
+  themeOption,
+  themeOptionCopy,
+} from "../../styles/ui";
+
+const picker = css({
+  position: "relative",
+  display: "flex",
+  flexShrink: "0",
+  alignItems: "center",
+  color: "ink",
+});
+const trigger = css({
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minH: "10",
+  minW: "10",
+  color: "muted",
+  _hover: { color: "ink" },
+});
+const panel = css({
+  position: "absolute",
+  top: "100%",
+  mt: "2",
+  insetInlineEnd: "0",
+  zIndex: "20",
+  w: "10.5rem",
+  maxW: "calc(100vw - 2rem)",
+  p: "1",
+  borderWidth: "1px",
+  borderStyle: "solid",
+  borderColor: "line",
+  borderRadius: "lg",
+  bg: "surface",
+  boxShadow: "popup",
+  "&[hidden]": { display: "none" },
+});
+const tight = css({ lineHeight: "tight" });
+---
+
+<div class={picker} data-theme-picker>
   <button
     type="button"
-    class="inline-flex items-center justify-center min-h-10 min-w-10 text-muted hover:text-ink focused"
+    class:list={[trigger, focused]}
     id="theme-trigger"
     aria-label="カラーテーマ: auto"
     aria-expanded="false"
@@ -14,72 +62,67 @@
       data-theme-icon
       aria-hidden="true"
     >
-      <span class="theme-icon i-lucide:monitor" data-icon="auto"></span>
-      <span class="theme-icon i-lucide:sun" data-icon="light"></span>
-      <span class="theme-icon i-lucide:moon" data-icon="dark"></span>
+      <Icon
+        name="monitor"
+        class:list={["theme-icon", themeIcon]}
+        marker="auto"
+      />
+      <Icon name="sun" class:list={["theme-icon", themeIcon]} marker="light" />
+      <Icon name="moon" class:list={["theme-icon", themeIcon]} marker="dark" />
     </span>
-    <span class="hidden" data-theme-label>
+    <span class={css({ display: "none" })} data-theme-label>
       auto
     </span>
   </button>
   <fieldset
-    class="t-dropdown absolute top-full mt-2 end-0 z-20 w-42 max-w-[calc(100vw-2rem)] p-1 border border-line rounded-lg bg-surface shadow-popup [&[hidden]]:hidden"
+    class:list={["t-dropdown", panel]}
     id="theme-options"
     aria-label="カラーテーマ"
     data-theme-panel
     hidden
   >
-    <label class="theme-option">
+    <label class={themeOption}>
       <input
-        class="sr-only peer"
+        class:list={["peer", srOnly]}
         type="radio"
         name="color-theme"
         value="auto"
         data-theme-option
         checked
       />
-      <span class="theme-icon i-lucide:monitor" aria-hidden="true"></span>
-      <span class="theme-option-copy">
-        <span class="leading-tight">auto</span>
+      <Icon name="monitor" class:list={["theme-icon", themeIcon]} />
+      <span class={themeOptionCopy}>
+        <span class={tight}>auto</span>
       </span>
-      <span
-        class="theme-check i-lucide:check peer-checked:opacity-100"
-        aria-hidden="true"
-      ></span>
+      <Icon name="check" class={themeCheck} />
     </label>
-    <label class="theme-option">
+    <label class={themeOption}>
       <input
-        class="sr-only peer"
+        class:list={["peer", srOnly]}
         type="radio"
         name="color-theme"
         value="light"
         data-theme-option
       />
-      <span class="theme-icon i-lucide:sun" aria-hidden="true"></span>
-      <span class="theme-option-copy">
-        <span class="leading-tight">light</span>
+      <Icon name="sun" class:list={["theme-icon", themeIcon]} />
+      <span class={themeOptionCopy}>
+        <span class={tight}>light</span>
       </span>
-      <span
-        class="theme-check i-lucide:check peer-checked:opacity-100"
-        aria-hidden="true"
-      ></span>
+      <Icon name="check" class={themeCheck} />
     </label>
-    <label class="theme-option">
+    <label class={themeOption}>
       <input
-        class="sr-only peer"
+        class:list={["peer", srOnly]}
         type="radio"
         name="color-theme"
         value="dark"
         data-theme-option
       />
-      <span class="theme-icon i-lucide:moon" aria-hidden="true"></span>
-      <span class="theme-option-copy">
-        <span class="leading-tight">dark</span>
+      <Icon name="moon" class:list={["theme-icon", themeIcon]} />
+      <span class={themeOptionCopy}>
+        <span class={tight}>dark</span>
       </span>
-      <span
-        class="theme-check i-lucide:check peer-checked:opacity-100"
-        aria-hidden="true"
-      ></span>
+      <Icon name="check" class={themeCheck} />
     </label>
   </fieldset>
 </div>
@@ -87,7 +130,7 @@
   role="status"
   aria-live="polite"
   aria-atomic="true"
-  class="sr-only"
+  class={srOnly}
   data-theme-status
 ></p>
 

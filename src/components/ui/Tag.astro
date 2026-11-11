@@ -1,5 +1,38 @@
 ---
 import type { HTMLAttributes } from "astro/types";
+import { css } from "../../../styled-system/css";
+
+const tag = css({
+  display: "inline-flex",
+  minH: "6",
+  maxW: "full",
+  alignItems: "baseline",
+  gap: "2",
+  py: "0.5",
+  fontSize: "sm",
+  lineHeight: "1.25rem",
+  fontWeight: "normal",
+  color: "muted",
+  overflowWrap: "anywhere",
+  "&[aria-current=page]": { color: "ink" },
+});
+const tagLink = css({
+  display: "inline-flex",
+  minH: "6",
+  maxW: "full",
+  alignItems: "baseline",
+  gap: "2",
+  py: "0.5",
+  fontSize: "sm",
+  lineHeight: "1.25rem",
+  fontWeight: "normal",
+  color: "muted",
+  overflowWrap: "anywhere",
+  "&[aria-current=page]": { color: "ink" },
+  _hover: { color: "ink" },
+});
+const labelText = css({ minW: "0" });
+const countText = css({ flexShrink: "0", color: "muted" });
 
 interface Props {
   label: string;
@@ -24,25 +57,22 @@ const {
 } = Astro.props;
 
 const current = ariaCurrent ?? (active ? "page" : undefined);
-
-const baseClasses = [
-  "inline-flex min-h-6 max-w-full items-baseline gap-2 py-0.5 text-sm font-normal text-muted [overflow-wrap:anywhere]",
-  "aria-[current=page]:text-ink",
-  href ? "hover:text-ink" : "",
-  className,
-]
-  .filter(Boolean)
-  .join(" ");
+const tone = href ? tagLink : tag;
 ---
 
 {href ? (
-  <a href={href} class={baseClasses} {...attrs} aria-current={current}>
-    <span class="min-w-0">{label}</span>
-    {count !== undefined && <span class="shrink-0 text-muted">{count}</span>}
+  <a
+    href={href}
+    class:list={[tone, className]}
+    {...attrs}
+    aria-current={current}
+  >
+    <span class={labelText}>{label}</span>
+    {count !== undefined && <span class={countText}>{count}</span>}
   </a>
 ) : (
-  <span class={baseClasses} {...attrs} aria-current={current}>
-    <span class="min-w-0">{label}</span>
-    {count !== undefined && <span class="shrink-0 text-muted">{count}</span>}
+  <span class:list={[tone, className]} {...attrs} aria-current={current}>
+    <span class={labelText}>{label}</span>
+    {count !== undefined && <span class={countText}>{count}</span>}
   </span>
 )}

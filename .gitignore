@@ -6,6 +6,7 @@ result
 .cache/
 # generated types
 .astro/
+styled-system/
 
 # dependencies
 node_modules/

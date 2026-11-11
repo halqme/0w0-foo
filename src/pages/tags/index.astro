@@ -1,13 +1,30 @@
 ---
+import { css } from "../../../styled-system/css";
 import { getPublishedPosts, sortPostsNewestFirst } from "../../lib/blog";
 import BlogCard from "../../components/ui/BlogCard.astro";
 import Tag from "../../components/ui/Tag.astro";
 import { slugifyTag } from "../../lib/tag";
 import Layout from "../../layouts/Layout.astro";
+import {
+  indexHeader,
+  textAction,
+  textBody,
+  textHeadline,
+} from "../../styles/ui";
 
-const posts = sortPostsNewestFirst(await getPublishedPosts());
+const section = css({ py: "8" });
+const tagRow = css({
+  display: "flex",
+  flexWrap: "wrap",
+  justifyContent: "center",
+  columnGap: "6",
+  rowGap: "2",
+});
+const posts = css({ mt: "8", pt: "4" });
 
-const tagCounts = posts.reduce((acc, post) => {
+const published = sortPostsNewestFirst(await getPublishedPosts());
+
+const tagCounts = published.reduce((acc, post) => {
   post.data.topics.forEach((tag: string) => {
     const slug = slugifyTag(tag);
     const current = acc.get(slug);
@@ -29,28 +46,28 @@ const sortedTags = [...tagCounts.entries()].toSorted((a, b) => {
 ---
 
 <Layout title="Blog | All Tags">
-  <section aria-labelledby="tags-title" class="py-8">
-    <div class="index-header">
-      <h1 id="tags-title" class="text-headline">
+  <section aria-labelledby="tags-title" class={section}>
+    <div class={indexHeader}>
+      <h1 id="tags-title" class={textHeadline}>
         Tags
       </h1>
-      <a href="/blog" class="text-action">
+      <a href="/blog" class:list={["text-action", textAction]}>
         Blog
       </a>
     </div>
 
     {sortedTags.length === 0 ? (
-      <p class="text-body">タグがありません。</p>
+      <p class={textBody}>タグがありません。</p>
     ) : (
-      <div class="flex flex-wrap justify-center gap-x-6 gap-y-2">
+      <div class={tagRow}>
         {sortedTags.map(([slug, tag]) => (
           <Tag label={tag.label} href={`/tags/${slug}`} count={tag.count} />
         ))}
       </div>
     )}
 
-    <div class="mt-8 pt-4">
-      {posts.map((post) => (
+    <div class={posts}>
+      {published.map((post) => (
         <BlogCard post={post} />
       ))}
     </div>

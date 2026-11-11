@@ -1,5 +1,35 @@
 ---
+import { css } from "../../../styled-system/css";
 import ThemeToggle from "../ui/ThemeToggle.astro";
+import { containerMain } from "../../styles/ui";
+
+const bar = css({
+  display: "flex",
+  minH: "20",
+  alignItems: "center",
+  justifyContent: "space-between",
+  pt: { base: "6", sm: "10" },
+});
+const cluster = css({
+  display: "flex",
+  alignItems: "center",
+  gap: { base: "2", sm: "4" },
+});
+const row = css({
+  display: "flex",
+  alignItems: "center",
+});
+const headerLink = css({
+  display: "inline-flex",
+  minH: "10",
+  alignItems: "center",
+  fontFamily: "mono",
+  fontSize: "sm",
+  lineHeight: "none",
+  color: "muted",
+  _hover: { color: "ink" },
+  "&[aria-current=page], &[aria-current=location]": { color: "ink" },
+});
 
 const links: { href: string; label: string }[] = [
   { href: "/", label: "Home" },
@@ -10,16 +40,16 @@ const links: { href: string; label: string }[] = [
 const pathname = Astro.url.pathname;
 ---
 
-<header class="container-main flex min-h-20 items-center justify-between pt-6 sm:pt-10">
+<header class:list={[containerMain, bar]}>
   <div aria-hidden="true" />
-  <div class="flex items-center gap-2 sm:gap-4">
-    <nav class="flex items-center" aria-label="メインナビゲーション">
-      <ul class="flex items-center gap-2 sm:gap-4">
+  <div class={cluster}>
+    <nav class={row} aria-label="メインナビゲーション">
+      <ul class={cluster}>
         {links.map((link) => (
-          <li class="flex items-center">
+          <li class={row}>
             <a
               href={link.href}
-              class="header-link inline-flex min-h-10 items-center font-mono text-sm leading-none text-muted hover:text-ink aria-[current=page]:text-ink aria-[current=location]:text-ink"
+              class:list={["header-link", headerLink]}
               aria-current={
                 pathname === link.href || pathname === `${link.href}/`
                   ? "page"

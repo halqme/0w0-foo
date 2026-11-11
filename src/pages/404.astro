@@ -1,18 +1,32 @@
 ---
+import { css } from "../../styled-system/css";
 import Layout from "../layouts/Layout.astro";
+import { textAction, textBody, textHeadline } from "../styles/ui";
+
+const section = css({ py: "8", textAlign: "center" });
+const code = css({
+  mb: "3",
+  fontSize: "sm",
+  lineHeight: "1.25rem",
+  color: "muted",
+});
+const message = css({ mt: "4" });
+const back = css({ mt: "8" });
 ---
 
 <Layout
   title="404 Page Not Found"
   description="お探しのページは見つかりませんでした"
 >
-  <section aria-labelledby="page-not-find" class="py-8 text-center">
-    <p class="mb-3 text-sm text-muted">404</p>
-    <h1 id="page-not-find" class="text-headline">
+  <section aria-labelledby="page-not-find" class={section}>
+    <p class={code}>404</p>
+    <h1 id="page-not-find" class={textHeadline}>
       Page Not Found
     </h1>
-    <p class="text-body mt-4">お探しのページは見つかりませんでした。</p>
-    <a href="/" class="mt-8 text-action">
+    <p class:list={[textBody, message]}>
+      お探しのページは見つかりませんでした。
+    </p>
+    <a href="/" class:list={[back, "text-action", textAction]}>
       Back to Top
     </a>
   </section>

@@ -1,0 +1,179 @@
+/* Registered colors interpolate on the root without replacing live UI with snapshots. */
+@property --color-canvas {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #fcfcfc;
+}
+@property --color-surface {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #ffffff;
+}
+@property --color-surface-muted {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #f4f4f4;
+}
+@property --color-ink {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #242424;
+}
+@property --color-muted {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #686868;
+}
+@property --color-line {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #e4e4e4;
+}
+@property --color-accent {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #242424;
+}
+@property --color-focus {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #14664f;
+}
+@property --color-pink {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #f4d7dc;
+}
+@property --color-mint {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #c6eadb;
+}
+@property --color-selection {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #bfe9d9;
+}
+@property --color-selection-ink {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #163c31;
+}
+@property --color-image-outline {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: oklch(0 0 0 / 0.1);
+}
+@property --color-signal-success {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #176b47;
+}
+@property --color-signal-success-surface {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #e1f2e8;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-theme-transition] {
+    transition:
+      --color-canvas 300ms cubic-bezier(0.2, 0, 0, 1),
+      --color-surface 300ms cubic-bezier(0.2, 0, 0, 1),
+      --color-surface-muted 300ms cubic-bezier(0.2, 0, 0, 1),
+      --color-ink 300ms cubic-bezier(0.2, 0, 0, 1),
+      --color-muted 300ms cubic-bezier(0.2, 0, 0, 1),
+      --color-line 300ms cubic-bezier(0.2, 0, 0, 1),
+      --color-accent 300ms cubic-bezier(0.2, 0, 0, 1),
+      --color-focus 300ms cubic-bezier(0.2, 0, 0, 1),
+      --color-pink 300ms cubic-bezier(0.2, 0, 0, 1),
+      --color-mint 300ms cubic-bezier(0.2, 0, 0, 1),
+      --color-selection 300ms cubic-bezier(0.2, 0, 0, 1),
+      --color-selection-ink 300ms cubic-bezier(0.2, 0, 0, 1),
+      --color-image-outline 300ms cubic-bezier(0.2, 0, 0, 1),
+      --color-signal-success 300ms cubic-bezier(0.2, 0, 0, 1),
+      --color-signal-success-surface 300ms cubic-bezier(0.2, 0, 0, 1);
+  }
+}
+
+:root {
+  --color-canvas: #fcfcfc;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f4f4f4;
+  --color-ink: #242424;
+  --color-muted: #686868;
+  --color-line: #e4e4e4;
+  --color-accent: #242424;
+  --color-focus: #14664f;
+  --color-pink: #f4d7dc;
+  --color-mint: #c6eadb;
+  --color-selection: #bfe9d9;
+  --color-selection-ink: #163c31;
+  --color-elevation: 0 4px 12px rgb(48 47 45 / 0.12);
+  --color-image-outline: oklch(0 0 0 / 0.1);
+  --color-signal-success: #176b47;
+  --color-signal-success-surface: #e1f2e8;
+  color-scheme: light;
+}
+
+:root.dark {
+  --color-canvas: #151515;
+  --color-surface: #1d1d1d;
+  --color-surface-muted: #262626;
+  --color-ink: #ededed;
+  --color-muted: #a3a3a3;
+  --color-line: #363636;
+  --color-accent: #ededed;
+  --color-focus: #a8dfc6;
+  --color-pink: #49393c;
+  --color-mint: #416253;
+  --color-selection: #365d4c;
+  --color-selection-ink: #f5f5e9;
+  --color-elevation: 0 4px 12px rgb(0 0 0 / 0.35);
+  --color-image-outline: oklch(1 0 0 / 0.1);
+  --color-signal-success: #a5dfbc;
+  --color-signal-success-surface: #244a35;
+  color-scheme: dark;
+}
+
+html {
+  scroll-padding-block-start: 1rem;
+  line-break: strict;
+  font-synthesis-weight: none;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--color-selection);
+  color: var(--color-selection-ink);
+}
+
+a {
+  color: inherit;
+  text-underline-position: from-font;
+  text-decoration-thickness: from-font;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after,
+  *::details-content {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

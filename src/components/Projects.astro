@@ -1,18 +1,62 @@
 ---
 import { getCollection } from "astro:content";
+import { css } from "../../styled-system/css";
 import Heading2 from "./ui/Heading2.astro";
 import LinkCard from "./ui/LinkCard.astro";
+import { focused, linkText, section, textLabel } from "../styles/ui";
+
+const projectList = css({
+  display: "grid",
+  gap: { base: "6", sm: "8" },
+});
+const titleRow = css({
+  mb: "1",
+  display: "flex",
+  flexWrap: "wrap",
+  alignItems: "baseline",
+  columnGap: "3",
+  rowGap: "1",
+});
+const separator = css({
+  mx: "2",
+});
+const tags = css({
+  display: "flex",
+  minW: "0",
+  flexWrap: "wrap",
+  columnGap: "3",
+  rowGap: "1",
+  listStyle: "none",
+  overflowWrap: "anywhere",
+});
+const description = css({
+  fontSize: "sm",
+  lineHeight: { base: "normal", sm: "1.75rem" },
+  color: "muted",
+  overflowWrap: "anywhere",
+});
+const detailLink = css({
+  mx: "2",
+  textAlign: "start",
+  fontSize: "sm",
+  lineHeight: "1.25rem",
+  color: "ink",
+  overflowWrap: "break-word",
+});
 
 const projects = (await getCollection("works")).slice(0, 4);
 ---
 
-<section class="section" aria-labelledby="projects-title" id="projects">
+<section class={section} aria-labelledby="projects-title" id="projects">
   <Heading2 title="Projects" />
 
-  <ul class="grid gap-6 sm:gap-8">
+  <ul class={projectList}>
     {projects.map((project) => (
-      <li class="min-w-0" aria-labelledby={`project-title-${project.id}`}>
-        <div class="mb-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+      <li
+        class={css({ minW: "0" })}
+        aria-labelledby={`project-title-${project.id}`}
+      >
+        <div class={titleRow}>
           <LinkCard
             id={`project-title-${project.id}`}
             href={project.data.repo}
@@ -20,11 +64,8 @@ const projects = (await getCollection("works")).slice(0, 4);
           />
           {project.data.tags.length > 0 && (
             <>
-              <span class="text-label mx-2">|</span>
-              <ul
-                class="text-label min-w-0 flex flex-wrap gap-x-3 gap-y-1 list-none [overflow-wrap:anywhere]"
-                aria-label="使用技術"
-              >
+              <span class:list={[textLabel, separator]}>|</span>
+              <ul class:list={[textLabel, tags]} aria-label="使用技術">
                 {project.data.tags.map((tag) => (
                   <li>{tag}</li>
                 ))}
@@ -32,13 +73,10 @@ const projects = (await getCollection("works")).slice(0, 4);
             </>
           )}
         </div>
-        <p
-          class="text-sm leading-normal text-muted [overflow-wrap:anywhere] sm:leading-7"
-          lang="en"
-        >
+        <p class={description} lang="en">
           {project.data.description}
           <a
-            class="link-text text-start text-sm text-ink focused mx-2 [overflow-wrap:break-word]"
+            class:list={["link-text", linkText, focused, detailLink]}
             href={`/works/${project.id}`}
           >
             [more detail]

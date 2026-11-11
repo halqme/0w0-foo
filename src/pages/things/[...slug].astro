@@ -1,8 +1,37 @@
 ---
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
+import { css } from "../../../styled-system/css";
 import ThingsRoute from "../../components/things/ThingsRoute.astro";
 import Layout from "../../layouts/Layout.astro";
+import {
+  articleColumn,
+  pageHeader,
+  textAction,
+  textHeadline,
+  textLabel,
+} from "../../styles/ui";
+
+const article = css({ py: "8" });
+const wrap = css({ overflowWrap: "anywhere" });
+const frame = css({ display: "grid", placeItems: "center" });
+const photo = css({
+  mx: "auto",
+  display: "block",
+  h: "auto",
+  maxH: "80",
+  w: "auto",
+  maxW: "full",
+  objectFit: "contain",
+});
+const source = css({ marginLeft: "100%" });
+const lines = css({ display: "grid", gap: "4" });
+const line = css({
+  fontSize: "sm",
+  lineHeight: "1.75rem",
+  color: "ink",
+  overflowWrap: "anywhere",
+});
 
 export async function getStaticPaths() {
   const things = await getCollection("things");
@@ -19,28 +48,28 @@ const { thing } = Astro.props;
   title={thing.data.title}
   description={thing.data.description[0] ?? thing.data.title}
 >
-  <article class="article-column py-8" aria-labelledby="thing-title">
-    <header class="page-header">
-      <p class="text-label [overflow-wrap:anywhere]">{thing.data.maker}</p>
-      <h1 id="thing-title" class="text-headline [overflow-wrap:anywhere]">
+  <article class:list={[articleColumn, article]} aria-labelledby="thing-title">
+    <header class={pageHeader}>
+      <p class:list={[textLabel, wrap]}>{thing.data.maker}</p>
+      <h1 id="thing-title" class:list={[textHeadline, wrap]}>
         {thing.data.title}
       </h1>
     </header>
-    <figure class="bg-transcale">
+    <figure>
       <div
         transition:name={`thing-image-${thing.id}`}
-        class="thing-image grid place-items-center"
+        class:list={["thing-image", frame]}
       >
         <Image
           src={thing.data.image}
           alt={thing.data.title}
-          class="mx-auto block h-auto max-h-80 w-auto max-w-full object-contain"
+          class={photo}
           loading="eager"
         />
       </div>
       <a
         href={thing.data.source}
-        class="text-action ml-full"
+        class:list={["text-action", textAction, source]}
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`${thing.data.title}の画像の出典`}
@@ -49,11 +78,9 @@ const { thing } = Astro.props;
       </a>
     </figure>
     {thing.data.description.length > 0 && (
-      <div class="grid gap-4">
-        {thing.data.description.map((line) => (
-          <p class="text-sm leading-7 text-ink [overflow-wrap:anywhere]">
-            {line}
-          </p>
+      <div class={lines}>
+        {thing.data.description.map((entry) => (
+          <p class={line}>{entry}</p>
         ))}
       </div>
     )}

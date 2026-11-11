@@ -1,7 +1,62 @@
 ---
 import { Image } from "astro:assets";
+import { css } from "../../styled-system/css";
 
 import Socials from "./ui/Socials.astro";
+import { section, textHeadline } from "../styles/ui";
+
+const aboutGrid = css({
+  display: "grid",
+  gridTemplateColumns: "3.5rem minmax(0, 1fr)",
+  alignItems: "center",
+  columnGap: "4",
+  rowGap: "4",
+  sm: {
+    gridTemplateColumns: "3.5rem minmax(0, 1fr) auto",
+    columnGap: "6",
+  },
+});
+const avatar = css({
+  w: "14",
+  h: "14",
+  flexShrink: "0",
+  borderRadius: "full",
+  objectFit: "cover",
+});
+const identity = css({
+  minW: "0",
+  textAlign: "start",
+});
+const bio = css({
+  fontSize: "sm",
+  lineHeight: "1.75rem",
+  color: "muted",
+});
+const facts = css({
+  display: "grid",
+  gridColumn: { base: "span 2 / span 2", sm: "span 1 / span 1" },
+  minW: "0",
+  gap: "2",
+  textAlign: "start",
+});
+const fact = css({
+  display: "grid",
+  gridTemplateColumns: "6rem minmax(0, 1fr)",
+  gap: "3",
+  fontSize: "sm",
+  lineHeight: "1.75rem",
+});
+const factValue = css({
+  m: "0",
+  color: "muted",
+  overflowWrap: "anywhere",
+});
+const socialRow = css({
+  display: "flex",
+  flexWrap: "wrap",
+  gridColumn: { base: "span 2 / span 2", sm: "span 3 / span 3" },
+  columnGap: "5",
+});
 
 const profile: {
   description: string;
@@ -28,36 +83,34 @@ const profile: {
 };
 ---
 
-<section class="section" aria-labelledby="about-title" id="about">
-  <div class="grid grid-cols-[3.5rem_minmax(0,1fr)] items-center gap-x-4 gap-y-4 sm:grid-cols-[3.5rem_minmax(0,1fr)_auto] sm:gap-x-6">
+<section class={section} aria-labelledby="about-title" id="about">
+  <div class={aboutGrid}>
     <Image
       src="/chappie-selfie.jpg"
       width="128"
       height="128"
-      class="size-14 shrink-0 rounded-full object-cover"
+      class={avatar}
       alt="僕のChatGPTの自認顔"
       loading="eager"
     />
 
-    <div class="min-w-0 text-start">
-      <h1 id="about-title" class="text-headline">
+    <div class={identity}>
+      <h1 id="about-title" class={textHeadline}>
         HAL
       </h1>
-      <p class="text-sm leading-7 text-muted">{profile.description}</p>
+      <p class={bio}>{profile.description}</p>
     </div>
 
-    <dl class="col-span-2 grid min-w-0 gap-2 text-start sm:col-span-1">
+    <dl class={facts}>
       {profile.category.map((cat) => (
-        <div class="grid grid-cols-[6rem_minmax(0,1fr)] gap-3 text-sm leading-7">
-          <dt class="text-muted">{cat.name}</dt>
-          <dd class="m-0 text-muted [overflow-wrap:anywhere]">
-            {cat.desc.join(" ◦ ")}
-          </dd>
+        <div class={fact}>
+          <dt class={css({ color: "muted" })}>{cat.name}</dt>
+          <dd class={factValue}>{cat.desc.join(" ◦ ")}</dd>
         </div>
       ))}
     </dl>
 
-    <div class="col-span-2 flex flex-wrap gap-x-5 sm:col-span-3">
+    <div class={socialRow}>
       <Socials />
     </div>
   </div>

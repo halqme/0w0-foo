@@ -53,7 +53,7 @@ Cloudflare Workers Buildsでは以下を設定します。ビルドとデプロ�
 - `src/pages/` — ページとルート
 - `src/components/`、`src/layouts/` — UIコンポーネントと共通レイアウト
 - `src/content/blog/`、`src/content.config.ts` — ブログ記事とコンテンツ定義
-- `src/styles/`、`uno.config.ts` — スタイルとUnoCSS設定
+- `src/styles/`、`panda.config.ts` — スタイルとPanda CSS設定
 - `public/` — 公開静的ファイル
 
 画面の構成・スタイル仕様は[DESIGN.md](DESIGN.md)を参照してください。記事の公開状態やメタデータは[`src/content.config.ts`](src/content.config.ts)のschemaで定義しています。

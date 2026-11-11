@@ -1,7 +1,19 @@
 ---
 import type { CollectionEntry } from "astro:content";
+import { css } from "../../../styled-system/css";
 import Tag from "./Tag.astro";
 import { slugifyTag } from "../../lib/tag";
+import { itemMeta, linkText, listTitle } from "../../styles/ui";
+
+const card = css({ py: "4" });
+const zennLink = css({
+  display: "inline-flex",
+  minH: "6",
+  alignItems: "center",
+  marginInlineStart: "auto",
+  color: "muted",
+  _hover: { color: "ink" },
+});
 
 interface Props {
   post: CollectionEntry<"blog">;
@@ -13,13 +25,13 @@ const { post, activeTag = null } = Astro.props;
 const isActiveTag = (tag: string) => activeTag === slugifyTag(tag);
 ---
 
-<article class="py-4">
-  <h2 class="list-title">
-    <a href={`/blog/${post.id}/`} class="link-text">
+<article class={card}>
+  <h2 class={listTitle}>
+    <a href={`/blog/${post.id}/`} class:list={["link-text", linkText]}>
       {post.data.title}
     </a>
   </h2>
-  <div class="item-meta">
+  <div class={itemMeta}>
     <time datetime={post.data.published_at.toISOString()}>
       {post.data.published_at.toLocaleDateString("ja-JP")}
     </time>
@@ -33,7 +45,7 @@ const isActiveTag = (tag: string) => activeTag === slugifyTag(tag);
     {post.data.zenn_slug && (
       <a
         href={`https://zenn.dev/hal227/articles/${post.data.zenn_slug}`}
-        class="link-text inline-flex min-h-6 ml-auto items-center text-muted hover:text-ink"
+        class:list={["link-text", linkText, zennLink]}
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`Read ${post.data.title} on Zenn`}

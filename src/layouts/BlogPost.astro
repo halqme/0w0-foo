@@ -1,14 +1,55 @@
 ---
 import type { MarkdownHeading } from "astro";
 import type { CollectionEntry } from "astro:content";
+import { css } from "../../styled-system/css";
 
+import Icon from "../components/ui/Icon.astro";
 import ShareButtons from "../components/ui/ShareButtons.astro";
 import Tag from "../components/ui/Tag.astro";
 import TableOfContents from "../components/ui/TableOfContents.astro";
 
 import { slugifyTag } from "../lib/tag";
+import {
+  articleColumn,
+  disclosureTrigger,
+  pageHeader,
+  textAction,
+  textHeadline,
+} from "../styles/ui";
 
 import Layout from "./Layout.astro";
+
+const article = css({ py: "8" });
+const titleText = css({ overflowWrap: "anywhere" });
+const meta = css({
+  display: "flex",
+  flexWrap: "wrap",
+  justifyContent: "center",
+  columnGap: "4",
+  rowGap: "1",
+  fontSize: "sm",
+  lineHeight: "1.25rem",
+  color: "muted",
+});
+const tags = css({
+  display: "flex",
+  maxW: "full",
+  flexWrap: "wrap",
+  justifyContent: "center",
+  columnGap: "4",
+  rowGap: "1",
+});
+const tagItem = css({ minW: "0", maxW: "full" });
+const toc = css({ mb: "8", fontSize: "sm", lineHeight: "1.25rem" });
+const content = css({ maxW: "none", minW: "0" });
+const articleFooter = css({
+  mt: "8",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-start",
+  pt: "8",
+});
+const toTop = css({ alignSelf: "flex-end" });
 
 type Props = CollectionEntry<"blog">["data"] & {
   description: string;
@@ -39,21 +80,21 @@ const ogImage = `/ogp/${slug}.png`;
   pubDate={published_at}
   tags={topics}
 >
-  <article class="article-column py-8" aria-labelledby="post-title">
-    <header class="page-header">
-      <h1 id="post-title" class="text-headline [overflow-wrap:anywhere]">
+  <article class:list={[articleColumn, article]} aria-labelledby="post-title">
+    <header class={pageHeader}>
+      <h1 id="post-title" class:list={[textHeadline, titleText]}>
         {title}
       </h1>
-      <div class="flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm text-muted">
+      <div class={meta}>
         <time datetime={published_at.toISOString()}>
           {published_at.toLocaleDateString("ja-JP")}
         </time>
         {readingTime && <span>{readingTime}</span>}
       </div>
       {topics.length > 0 && (
-        <ul class="flex max-w-full flex-wrap justify-center gap-x-4 gap-y-1">
+        <ul class={tags}>
           {topics.map((tag: string) => (
-            <li class="min-w-0 max-w-full">
+            <li class={tagItem}>
               <Tag label={tag} href={`/tags/${slugifyTag(tag)}`} />
             </li>
           ))}
@@ -62,7 +103,7 @@ const ogImage = `/ogp/${slug}.png`;
       {zenn_slug && (
         <a
           href={`https://zenn.dev/hal227/articles/${zenn_slug}`}
-          class="text-action"
+          class:list={["text-action", textAction]}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -74,25 +115,22 @@ const ogImage = `/ogp/${slug}.png`;
     {headings?.some(
       (heading) => heading.depth === 2 || heading.depth === 3,
     ) && (
-      <details class="toc mb-8 text-sm">
-        <summary class="disclosure-trigger">
-          <span
-            class="toc-chevron icon-sm i-lucide:chevron-right"
-            aria-hidden="true"
-          ></span>
+      <details class:list={["toc", toc]}>
+        <summary class={disclosureTrigger}>
+          <Icon name="chevron-right" class="toc-chevron" />
           目次
         </summary>
         <TableOfContents headings={headings} />
       </details>
     )}
-    <div class="post-content prose prose-sm max-w-none min-w-0">
+    <div class:list={["post-content", "prose", "prose-sm", content]}>
       <slot />
     </div>
-    <footer class="mt-8 flex flex-col items-start pt-8">
+    <footer class={articleFooter}>
       <ShareButtons path={Astro.url.pathname} title={title} />
       <button
         type="button"
-        class="self-end text-action"
+        class:list={[toTop, "text-action", textAction]}
         aria-label="ページ先頭へ戻る"
         onclick="if (location.hash) history.replaceState(history.state, '', location.pathname + location.search); window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })"
       >
@@ -100,6 +138,8 @@ const ogImage = `/ogp/${slug}.png`;
       </button>
     </footer>
     <script>
+      import { codeBlockWrapper, codeCopyButton, srOnly } from "../styles/ui";
+
       const NOTIFICATION_DURATION_MS = 5000;
 
       function addCopyButton(codeBlock: HTMLElement): void {
@@ -113,7 +153,7 @@ const ogImage = `/ogp/${slug}.png`;
         codeBlock.setAttribute("data-has-copy-button", "true");
 
         const wrapper = document.createElement("div");
-        wrapper.className = "code-block-wrapper relative block w-full";
+        wrapper.className = codeBlockWrapper;
         wrapper.style.position = "relative";
 
         if (typeof window !== "undefined") {
@@ -129,11 +169,11 @@ const ogImage = `/ogp/${slug}.png`;
         liveRegion.setAttribute("role", "status");
         liveRegion.setAttribute("aria-live", "polite");
         liveRegion.setAttribute("aria-atomic", "true");
-        liveRegion.className = "sr-only";
+        liveRegion.className = srOnly;
 
         const button = document.createElement("button");
         button.type = "button";
-        button.className = "code-copy-button";
+        button.className = codeCopyButton;
         button.innerHTML = `
         <span class="copy-text">コピー</span>
       `;

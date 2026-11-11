@@ -2,7 +2,7 @@ import sitemap from "@astrojs/sitemap";
 import mdx from "@astrojs/mdx";
 import { defineConfig, fontProviders } from "astro/config";
 import { satteri } from "@astrojs/markdown-satteri";
-import UnoCSS from "unocss/astro";
+import { pandacss } from "@pandacss/vite";
 import { createHeadingMarkPlugin } from "./src/plugins/heading-mark";
 import { createHighlightPlugin } from "./src/plugins/highlight";
 import { createLinkCardPlugin } from "./src/plugins/link-card";
@@ -31,13 +31,10 @@ export default defineConfig({
       weights: [400, 700],
     },
   ],
-  integrations: [
-    UnoCSS({
-      injectReset: true,
-    }),
-    sitemap(),
-    mdx(),
-  ],
+  vite: {
+    plugins: [pandacss({ transform: true })],
+  },
+  integrations: [sitemap(), mdx(), rss()],
   markdown: {
     // Shiki stays off. createHighlightPlugin renders fences with @pierre/highlights.
     syntaxHighlight: false,

@@ -4,6 +4,8 @@ import Header from "../components/ui/Header.astro";
 import Footer from "../components/ui/Footer.astro";
 import { ClientRouter } from "astro:transitions";
 import type { TransitionAnimationPair } from "astro";
+import { css } from "../../styled-system/css";
+import { containerMain } from "../styles/ui";
 
 const pageAnimation: TransitionAnimationPair = {
   old: {
@@ -22,9 +24,45 @@ const pageAnimation: TransitionAnimationPair = {
 };
 
 // oxlint-disable-next-line no-unassigned-import
-import "../styles/transitions.css";
-// oxlint-disable-next-line no-unassigned-import
-import "../styles/external-links.css";
+import "../index.css";
+
+const root = css({
+  _motionSafe: { scrollBehavior: "smooth" },
+});
+const shell = css({
+  bg: "canvas",
+  color: "ink",
+  display: "flex",
+  minH: "100dvh",
+  flexDirection: "column",
+  fontFamily: "sans",
+});
+const skipLink = css({
+  srOnly: true,
+  _focus: {
+    position: "absolute",
+    top: "2",
+    left: "2",
+    zIndex: "50",
+    w: "auto",
+    h: "auto",
+    m: "0",
+    overflow: "visible",
+    clip: "auto",
+    whiteSpace: "normal",
+    borderWidth: "0",
+    borderRadius: "sm",
+    px: "4",
+    py: "2",
+    bg: "ink",
+    color: "canvas",
+  },
+});
+const mainColumn = css({
+  flex: "1 1 0%",
+  pt: { base: "12", sm: "16" },
+  pb: { base: "16", sm: "20" },
+});
 
 interface Props {
   title?: string;
@@ -60,7 +98,7 @@ const absoluteOgImage = ogImage
 ---
 
 <!doctype html>
-<html lang="ja" class="motion-safe:scroll-smooth">
+<html lang="ja" class={root}>
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
@@ -126,11 +164,8 @@ const absoluteOgImage = ogImage
 
     <link rel="canonical" href={canonicalURL} />
   </head>
-  <body class="site-shell bg-canvas text-ink flex min-h-dvh flex-col font-sans antialiased">
-    <a
-      href="#main-content"
-      class="focus:bg-ink focus:text-canvas sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:px-4 focus:py-2"
-    >
+  <body class={shell}>
+    <a href="#main-content" class={skipLink}>
       メインコンテンツへスキップ
     </a>
     <Header />
@@ -138,7 +173,7 @@ const absoluteOgImage = ogImage
       id="main-content"
       transition:name="page-content"
       transition:animate={{ forwards: pageAnimation, backwards: pageAnimation }}
-      class="container-main flex-1 pt-12 pb-16 sm:pt-16 sm:pb-20"
+      class:list={[containerMain, mainColumn]}
     >
       <slot />
     </main>

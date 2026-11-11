@@ -1,6 +1,40 @@
 ---
 import { getCollection, render } from "astro:content";
+import { css } from "../../../styled-system/css";
 import Layout from "../../layouts/Layout.astro";
+import {
+  articleColumn,
+  pageHeader,
+  textAction,
+  textHeadline,
+  textLabel,
+} from "../../styles/ui";
+
+const article = css({ py: "8" });
+const titleText = css({ overflowWrap: "anywhere" });
+const description = css({
+  fontSize: "sm",
+  lineHeight: "relaxed",
+  color: "muted",
+  overflowWrap: "anywhere",
+});
+const tags = css({
+  display: "flex",
+  flexWrap: "wrap",
+  justifyContent: "center",
+  columnGap: "4",
+  rowGap: "1",
+  overflowWrap: "anywhere",
+});
+const links = css({
+  display: "flex",
+  flexWrap: "wrap",
+  justifyContent: "center",
+  columnGap: "4",
+  rowGap: "1",
+});
+const body = css({ py: "8" });
+const content = css({ maxW: "none", minW: "0" });
 
 export async function getStaticPaths() {
   const works = await getCollection("works");
@@ -15,31 +49,25 @@ const { Content } = await render(work);
 ---
 
 <Layout title={work.data.title} description={work.data.description}>
-  <article class="article-column py-8" aria-labelledby="work-title">
-    <header class="page-header">
-      <h1 id="work-title" class="text-headline [overflow-wrap:anywhere]">
+  <article class:list={[articleColumn, article]} aria-labelledby="work-title">
+    <header class={pageHeader}>
+      <h1 id="work-title" class:list={[textHeadline, titleText]}>
         {work.data.title}
       </h1>
-      <p
-        class="text-sm leading-relaxed text-muted [overflow-wrap:anywhere]"
-        lang="en"
-      >
+      <p class={description} lang="en">
         {work.data.description}
       </p>
       {work.data.tags.length > 0 && (
-        <ul
-          class="text-label flex flex-wrap justify-center gap-x-4 gap-y-1 [overflow-wrap:anywhere]"
-          aria-label="使用技術"
-        >
+        <ul class:list={[textLabel, tags]} aria-label="使用技術">
           {work.data.tags.map((tag) => (
             <li>{tag}</li>
           ))}
         </ul>
       )}
-      <div class="flex flex-wrap justify-center gap-x-4 gap-y-1">
+      <div class={links}>
         <a
           href={work.data.repo}
-          class="text-action"
+          class:list={["text-action", textAction]}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -48,7 +76,7 @@ const { Content } = await render(work);
         {work.data.url && (
           <a
             href={work.data.url}
-            class="text-action"
+            class:list={["text-action", textAction]}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -57,8 +85,8 @@ const { Content } = await render(work);
         )}
       </div>
     </header>
-    <div class="py-8">
-      <div class="post-content prose prose-sm max-w-none min-w-0">
+    <div class={body}>
+      <div class:list={["post-content", "prose", "prose-sm", content]}>
         <Content />
       </div>
     </div>

@@ -1,6 +1,7 @@
 {
   "type": "module",
   "scripts": {
+    "prepare": "panda codegen",
     "dev": "astro dev",
     "build": "astro build",
     "build:cloudflare": "bun run build && cf-wrangler build",
@@ -20,7 +21,6 @@
   "dependencies": {
     "@astrojs/markdown-satteri": "^0.4.6",
     "@astrojs/mdx": "^8.1.2",
-    "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.4",
     "@pierre/highlights": "^0.3.0",
     "@resvg/resvg-js": "^2.6.2",
@@ -32,20 +32,15 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
-    "@astrojs/compiler-rs": "^0.5.2",
-    "@emnapi/core": "^1.11.3",
-    "@emnapi/runtime": "^1.11.3",
-    "@iconify-json/lucide": "^1.2.150",
-    "@iconify-json/simple-icons": "^1.2.101",
-    "@iconify/types": "^2.0.0",
+    "@pandacss/dev": "^2.5.0",
+    "@pandacss/preset-base": "^2.5.0",
+    "@pandacss/preset-panda": "^2.5.0",
+    "@pandacss/vite": "^2.5.0",
     "@types/hast": "^3.0.5",
-    "@unocss/astro": "^66.12.0",
-    "@unocss/reset": "^66.12.0",
     "cf": "1.0.0-beta.26",
     "prettier": "^3.9.10",
     "prettier-plugin-astro": "^1.1.2",
     "typescript": "^6.0.3",
-    "unocss": "^66.12.0",
     "vite": "npm:@voidzero-dev/vite-plus-core@1.6.0",
     "vite-plus": "1.6.0",
     "wrangler": "^4.156.1"

@@ -1,0 +1,6 @@
+@layer reset, base, tokens, recipes, utilities;
+
+@import "./styles/base.css" layer(base);
+@import "./styles/prose.css" layer(base);
+@import "./styles/transitions.css" layer(utilities);
+@import "./styles/external-links.css" layer(utilities);

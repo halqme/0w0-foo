@@ -1,5 +1,29 @@
 ---
 import type { MarkdownHeading } from "astro";
+import { css } from "../../../styled-system/css";
+import { linkText } from "../../styles/ui";
+
+const nav = css({ mt: "3" });
+const list = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: "1",
+  fontSize: "sm",
+  lineHeight: "1.25rem",
+});
+const item = css({ py: "1" });
+const nested = css({ py: "1", ps: "4" });
+const link = css({
+  lineHeight: "relaxed",
+  overflowWrap: "anywhere",
+  color: "ink",
+});
+const nestedLink = css({
+  lineHeight: "relaxed",
+  overflowWrap: "anywhere",
+  color: "muted",
+  _hover: { color: "ink" },
+});
 
 interface Props {
   headings: MarkdownHeading[];
@@ -16,22 +40,16 @@ const tocHeadings = headings.filter(
 );
 ---
 
-<nav aria-label="目次" class="mt-3">
-  <ul class="flex flex-col gap-1 text-sm">
+<nav aria-label="目次" class={nav}>
+  <ul class={list}>
     {tocHeadings.map((heading) => (
-      <li
-        class:list={[
-          "py-1",
-          heading.depth === TOC_HEADING_LEVEL_3 ? "ps-4" : undefined,
-        ]}
-      >
+      <li class={heading.depth === TOC_HEADING_LEVEL_3 ? nested : item}>
         <a
           href={`#${heading.slug}`}
           class:list={[
-            "link-text leading-relaxed [overflow-wrap:anywhere]",
-            heading.depth === TOC_HEADING_LEVEL_3
-              ? "text-muted hover:text-ink"
-              : "text-ink",
+            "link-text",
+            linkText,
+            heading.depth === TOC_HEADING_LEVEL_3 ? nestedLink : link,
           ]}
         >
           {heading.text}

@@ -1,6 +1,50 @@
 ---
+import { css } from "../../../styled-system/css";
 import { getLinkCardPreview } from "../../lib/link-card-build";
 import { linkCardClasses } from "../../lib/link-card";
+import { focused, linkText } from "../../styles/ui";
+
+const anchor = css({
+  position: "relative",
+  minW: "0",
+  minH: "10",
+});
+const labelLink = css({
+  textAlign: "start",
+  fontSize: "sm",
+  lineHeight: "1.25rem",
+  color: "ink",
+  overflowWrap: "break-word",
+});
+const panel = css({
+  position: "absolute",
+  insetInlineStart: "full",
+  top: "50%",
+  marginInlineStart: "3",
+  zIndex: "10",
+  w: "80",
+  maxW: "calc(100vw - 3rem)",
+  transform: "translateY(-50%)",
+});
+const card = css({
+  maxH: "60dvh",
+  overflowY: "auto",
+  overscrollBehavior: "contain",
+  borderRadius: "md",
+  borderWidth: "1px",
+  borderStyle: "solid",
+  borderColor: "line",
+  bg: "surface",
+  color: "ink",
+  boxShadow: "popup",
+});
+const commentList = css({
+  display: "grid",
+  gap: "1",
+  p: "2",
+  fontSize: "sm",
+  lineHeight: "1.75rem",
+});
 
 interface Props {
   href: string;
@@ -14,11 +58,11 @@ const source = await getLinkCardPreview(href);
 const hasPreview = Boolean(source) || comments.length > 0;
 ---
 
-<div class="link-preview relative min-w-0 min-h-10">
+<div class:list={["link-preview", anchor]}>
   <a
     {id}
     {href}
-    class="link-text text-start text-sm text-ink focused [overflow-wrap:break-word]"
+    class:list={["link-text", linkText, focused, labelLink]}
     aria-describedby={comments.length > 0 ? `${id}-preview` : undefined}
     target="_blank"
     rel="noopener noreferrer"
@@ -30,9 +74,9 @@ const hasPreview = Boolean(source) || comments.length > 0;
       id={`${id}-preview`}
       role={comments.length > 0 ? "tooltip" : undefined}
       aria-hidden={comments.length === 0 ? "true" : undefined}
-      class="preview absolute start-full top-1/2 ms-3 z-10 w-80 max-w-[calc(100vw-3rem)] -translate-y-1/2"
+      class:list={["preview", panel]}
     >
-      <div class="max-h-[60dvh] overflow-y-auto overscroll-contain rounded-md border border-line bg-surface text-ink shadow-popup">
+      <div class={card}>
         {source && (
           <span class:list={["block", linkCardClasses.imageContainer]}>
             <img
@@ -46,7 +90,7 @@ const hasPreview = Boolean(source) || comments.length > 0;
           </span>
         )}
         {comments.length > 0 && (
-          <div class="grid gap-1 p-2 text-sm leading-7">
+          <div class={commentList}>
             {comments.map((comment) => (
               <p>{comment}</p>
             ))}

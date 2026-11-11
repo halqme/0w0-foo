@@ -1,5 +1,10 @@
 ---
-export interface Props {
+import { css } from "../../../styled-system/css";
+import Icon from "./Icon.astro";
+import type { IconName } from "./Icon.astro";
+import { focused, srOnly } from "../../styles/ui";
+
+interface Props {
   path: string;
   title: string;
 }
@@ -8,58 +13,82 @@ const { path, title } = Astro.props;
 
 const url = `${Astro.site?.protocol}//${Astro.site?.host}${path}`;
 
-const shareItems = [
+const shareItems: {
+  ariaLabel: string;
+  href: string;
+  name: IconName;
+  key: string;
+  label: string;
+}[] = [
   {
     ariaLabel: "Xでシェア",
     href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(title + " " + url)}`,
-    icon: "i-simple-icons:x",
+    name: "x",
     key: "x",
     label: "Xでシェア",
   },
   {
     ariaLabel: "Blueskyでシェア",
     href: `https://bsky.app/intent/compose?text=${encodeURIComponent(title + " " + url)}`,
-    icon: "i-simple-icons:bluesky",
+    name: "bluesky",
     key: "bluesky",
     label: "Blueskyでシェア",
   },
   {
     ariaLabel: "Mastodonでシェア",
     href: `https://mastodonshare.com/?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`,
-    icon: "i-simple-icons:mastodon",
+    name: "mastodon",
     key: "mastodon",
     label: "Mastodonでシェア",
   },
   {
     ariaLabel: "はてブに追加",
     href: `https://b.hatena.ne.jp/entry/panel/?url=${encodeURIComponent(url)}&btitle=${encodeURIComponent(title)}`,
-    icon: "i-simple-icons:hatenabookmark",
+    name: "hatenabookmark",
     key: "hatena",
     label: "はてブに追加",
   },
   {
     ariaLabel: "Facebookでシェア",
     href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
-    icon: "i-simple-icons:facebook",
+    name: "facebook",
     key: "facebook",
     label: "Facebookでシェア",
   },
 ];
+
+const row = css({
+  display: "flex",
+  w: "full",
+  flexWrap: "wrap",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "2",
+});
+const button = css({
+  position: "relative",
+  display: "inline-flex",
+  h: "11",
+  w: "11",
+  flexShrink: "0",
+  alignItems: "center",
+  justifyContent: "center",
+  borderRadius: "sm",
+  color: "muted",
+  _hover: { color: "ink" },
+});
+const copyIcons = css({ display: "inline-grid" });
 ---
 
-<div
-  class="share-buttons flex w-full flex-wrap items-center justify-center gap-2"
-  role="group"
-  aria-label="記事をシェア"
->
+<div class:list={["share-buttons", row]} role="group" aria-label="記事をシェア">
   {shareItems.map((item) => (
     <button
       type="button"
       data-share-url={item.href}
-      class="share-btn relative inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-sm text-muted hover:text-ink focused"
+      class:list={["share-btn", button, focused]}
       aria-label={`${item.ariaLabel}（新しいタブで開く）`}
     >
-      <span class={`icon-md ${item.icon}`} aria-hidden="true" />
+      <Icon name={item.name} size="md" />
       <span class="share-tooltip" aria-hidden="true">
         {item.label}
       </span>
@@ -68,21 +97,25 @@ const shareItems = [
 
   <button
     type="button"
-    class="share-btn copy-btn relative inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-sm text-muted hover:text-ink focused"
+    class:list={["share-btn", "copy-btn", button, focused]}
     data-url={url}
     aria-label="URLをコピー"
   >
     <span
-      class="icon-md i-lucide:link"
+      class:list={["copy-icons", copyIcons]}
+      data-state="idle"
       data-copy-icon
-      aria-hidden="true"
-    ></span>
+    >
+      <Icon name="link" size="md" marker="link" />
+      <Icon name="check" size="md" marker="check" />
+      <Icon name="alert" size="md" marker="alert" />
+    </span>
     <span class="share-tooltip" data-copy-tooltip aria-hidden="true">
       URLをコピー
     </span>
   </button>
 </div>
-<div role="status" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+<div role="status" aria-live="polite" aria-atomic="true" class={srOnly}></div>
 
 <style>
   .share-tooltip {
@@ -125,6 +158,18 @@ const shareItems = [
   .share-buttons[data-tooltip-dismissed] .share-tooltip {
     visibility: hidden;
     opacity: 0;
+  }
+
+  .copy-icons > :global([data-icon]) {
+    grid-area: 1 / 1;
+  }
+
+  .copy-icons[data-state="idle"] > :global([data-icon]:not([data-icon="link"])),
+  .copy-icons[data-state="copied"]
+    > :global([data-icon]:not([data-icon="check"])),
+  .copy-icons[data-state="failed"]
+    > :global([data-icon]:not([data-icon="alert"])) {
+    display: none;
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -178,7 +223,7 @@ const shareItems = [
           const icon = button.querySelector<HTMLElement>("[data-copy-icon]");
           const resetCopyState = () => {
             if (label) label.textContent = "URLをコピー";
-            if (icon) icon.className = "icon-md i-lucide:link";
+            if (icon) icon.dataset.state = "idle";
             button.setAttribute("aria-label", "URLをコピー");
           };
           if (liveRegion?.getAttribute("role") === "status") {
@@ -191,7 +236,7 @@ const shareItems = [
           try {
             await navigator.clipboard.writeText(url);
             if (label) label.textContent = "コピー完了！";
-            if (icon) icon.className = "icon-md i-lucide:check";
+            if (icon) icon.dataset.state = "copied";
             button.setAttribute("aria-label", "コピー完了！");
             resetTimer = setTimeout(() => {
               resetCopyState();
@@ -203,7 +248,7 @@ const shareItems = [
           } catch (error) {
             console.error("Failed to copy URL:", error);
             if (label) label.textContent = "コピーに失敗しました";
-            if (icon) icon.className = "icon-md i-lucide:triangle-alert";
+            if (icon) icon.dataset.state = "failed";
             button.setAttribute("aria-label", "コピーに失敗しました");
             if (liveRegion?.getAttribute("role") === "status") {
               liveRegion.textContent = "コピーに失敗しました";

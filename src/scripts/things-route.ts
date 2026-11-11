@@ -8,7 +8,7 @@ function activeCategory(doc: Document, url: URL) {
   return known.includes(category) ? category : "";
 }
 
-export function applyThingsRoute(doc: Document, url: URL) {
+function applyThingsRoute(doc: Document, url: URL) {
   const active = activeCategory(doc, url);
 
   for (const item of doc.querySelectorAll<HTMLElement>("[data-thing]")) {

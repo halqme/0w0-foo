@@ -1,15 +1,42 @@
 ---
+import { css } from "../../../styled-system/css";
 import Socials from "./Socials.astro";
+import { containerMain } from "../../styles/ui";
+
+const footer = css({
+  mt: "auto",
+  textAlign: "center",
+  pt: "10",
+  pb: { base: "12", sm: "16" },
+});
+const rule = css({
+  borderTopWidth: "1px",
+  borderTopStyle: "solid",
+  borderTopColor: "line",
+  pt: "6",
+});
+const links = css({
+  mb: "4",
+  display: "flex",
+  flexWrap: "wrap",
+  justifyContent: "center",
+  columnGap: "5",
+});
+const copyright = css({
+  fontSize: "sm",
+  lineHeight: "1.25rem",
+  color: "muted",
+});
 
 const today = new Date();
 ---
 
-<footer class="container-main mt-auto text-center pt-10 pb-12 sm:pb-16">
-  <div class="border-t border-line pt-6">
-    <div class="mb-4 flex flex-wrap justify-center gap-x-5">
+<footer class:list={[containerMain, footer]}>
+  <div class={rule}>
+    <div class={links}>
       <Socials />
     </div>
-    <p class="text-sm text-muted">
+    <p class={copyright}>
       &copy; {today.getFullYear()} halqme. All rights reserved.
     </p>
   </div>

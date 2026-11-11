@@ -1,9 +1,53 @@
 ---
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
+import { css } from "../../../styled-system/css";
 import Tag from "../../components/ui/Tag.astro";
 import ThingsRoute from "../../components/things/ThingsRoute.astro";
 import Layout from "../../layouts/Layout.astro";
+import {
+  focused,
+  indexHeader,
+  listTitle,
+  textHeadline,
+  textLabel,
+} from "../../styles/ui";
+
+const section = css({ py: "8" });
+const filters = css({
+  mb: "8",
+  display: "flex",
+  flexWrap: "wrap",
+  justifyContent: "center",
+  columnGap: "6",
+  rowGap: "2",
+});
+const grid = css({
+  display: "grid",
+  rowGap: "6",
+  sm: {
+    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+    columnGap: "8",
+  },
+});
+const card = css({ minW: "0", py: "6" });
+const cardLink = css({ display: "block" });
+const frame = css({
+  display: "flex",
+  h: "40",
+  w: "full",
+  alignItems: "center",
+  justifyContent: "center",
+});
+const photo = css({
+  pointerEvents: "none",
+  h: "36",
+  w: "auto",
+  maxW: "full",
+  objectFit: "contain",
+});
+const name = css({ mt: "4" });
+const maker = css({ mt: "1", overflowWrap: "anywhere" });
 
 const things = await getCollection("things");
 
@@ -22,68 +66,63 @@ const categories = [...categoryCounts.entries()].toSorted((a, b) => {
 ---
 
 <Layout title="Things" description="気に入っているデバイスの一覧">
-  <section aria-labelledby="things-title" class="py-8">
-    <div class="index-header">
-      <h1 id="things-title" class="text-headline">
+  <section aria-labelledby="things-title" class={section}>
+    <div class={indexHeader}>
+      <h1 id="things-title" class={textHeadline}>
         Things
       </h1>
     </div>
     {things.length && (
       <div data-things-catalog>
-        <nav
-          class="mb-8 flex flex-wrap justify-center gap-x-6 gap-y-2"
-          aria-label="種別で絞り込む"
-        >
+        <nav class={filters} aria-label="種別で絞り込む">
           <Tag
             label="All"
-            class="focused"
+            class={focused}
             href="/things"
             data-thing-filter=""
             count={things.length}
             aria-current="page"
           />
-          <span class="text-muted">|</span>
+          <span class={css({ color: "muted" })}>|</span>
           {categories.map(([category, count]) => (
             <Tag
               label={category}
-              class="focused"
+              class={focused}
               href={`/things?category=${encodeURIComponent(category)}`}
               count={count}
               data-thing-filter={category}
             />
           ))}
         </nav>
-        <div class="grid gap-y-6 sm:grid-cols-3 sm:gap-x-8">
+        <div class={grid}>
           {things
             .toSorted((a, b) => a.data.title.localeCompare(b.data.title))
             .toSorted((a, b) => a.data.maker.localeCompare(b.data.maker))
             .map((thing) => (
               <article
                 transition:name={`thing-card-${thing.id}`}
-                class="thing-card min-w-0 py-6"
+                class:list={["thing-card", card]}
                 data-thing
                 data-category={thing.data.category}
               >
                 <a
                   href={`/things/${thing.id}`}
                   data-thing-link
-                  class="focused block"
+                  class:list={[focused, cardLink]}
                 >
                   <div
                     transition:name={`thing-image-${thing.id}`}
-                    class="thing-image flex h-40 w-full items-center justify-center bg-transcale"
+                    class:list={["thing-image", frame]}
                   >
                     <Image
                       src={thing.data.image}
                       alt={thing.data.title}
-                      class="pointer-events-none h-36 w-auto max-w-full object-contain"
+                      class={photo}
                       loading="eager"
                     />
                   </div>
-                  <h2 class="list-title mt-4">{thing.data.title}</h2>
-                  <p class="text-label mt-1 [overflow-wrap:anywhere]">
-                    {thing.data.maker}
-                  </p>
+                  <h2 class:list={[listTitle, name]}>{thing.data.title}</h2>
+                  <p class:list={[textLabel, maker]}>{thing.data.maker}</p>
                 </a>
               </article>
             ))}
