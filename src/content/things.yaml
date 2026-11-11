@@ -1,67 +1,14 @@
 # yaml-language-server: $schema=../../.astro/collections/things.schema.json
 
-- id: iphone-air
-  title: iPhone Air
-  maker: Apple
-  category: gadget
-  image: ./things/apple-iphone-air.webp
-  source: https://www.apple.com/jp/iphone-air/
-  description:
-    - 薄さ・軽さこそ正義だ。これだけ薄いと掴み損ねるレベル。軽い。
-
-- id: mynus-iphone-air-back-white
-  title: MYNUS iPhone Air BACK
-  maker: MYNUS
-  category: gadget
-  image: ./things/mynus-iphone-air-back-white.webp
-  source: https://www.mynus.jp/products/mynus-iphone-air-back?variant=62659931865247
-  description:
-    - Airの薄さを邪魔しない背面プレート。防御力は皆無かも。軽い。
-
+## Audio
 - id: yamaha-hs3w
   title: HS3W
   image: ./things/yamaha-hs3w.webp
   maker: YAMAHA
   source: https://jp.yamaha.com/business/audio/products/speakers/hs_3_4_inches/
-  category: audios
+  category: audio
   description:
     - 視聴用にしては奮発しすぎかもしれないが、生活は豊かになる。重い。
-
-- id: hhkb-professional-hybrid-us-sumi
-  title: HHKB Professional HYBRID
-  image: ./things/hhkb-p-us-s.webp
-  maker: HHKB
-  source: https://www.pfudirect.jp/view/item/000000001156?category_page_id=hhkb-pro
-  category: keyboard
-  description:
-    - 配列が素晴しい。過不足がなく、最高。やや軽い。
-
-- id: panasonic-dc-s5m2
-  title: Lumix S5M2
-  image: ./things/panasonic-dc-s5m2.webp
-  maker: Panasonic
-  category: gadget
-  source: https://panasonic.jp/dc/products/DC-S5M2.html
-  description:
-    - 以前はG9を使っていたが、やはりフルサイズはすごい。重い。
-
-- id: apple-macbook-pro-14inch-m4-pro
-  title: MacBook Pro 14インチ M4 Pro
-  image: ./things/apple-macbook-pro-14inch-m4-pro.webp
-  maker: Apple
-  category: gadget
-  source: https://support.apple.com/ja-jp/121553
-  description:
-    - USキー配列という拘り。性能相応にかなり重い。
-
-- id: archiss-progrestouch-retro-tkl-en
-  title: ProgresTouch RETRO TKL
-  image: ./things/archiss-progrestouch-retro-tkl-en.webp
-  maker: ARCHISS
-  category: keyboard
-  source: https://archisite.co.jp/products/archiss/progres-touch/retro-tkl-en/
-  description:
-    - 銀軸・英語配列という誰が使うねんと言われそうなキーボード。めっちゃ重い。
 
 - id: zoom-uac-232
   title: UAC 232
@@ -80,3 +27,106 @@
   category: audio
   description:
     - ぼそぼそ喋ってもちゃんと音声入力できる。意外と軽い。
+
+- id: apple-airpods-pro-2
+  title: AirPods Pro 2
+  image: ./things/apple-airpods-pro-2.webp
+  maker: Apple
+  source: https://www.apple.com/jp/shop/buy-airpods/airpods-pro-2
+  category: audio
+  description:
+    - 分離型イヤホンと言えばこれ。そろそろ新調したい。重くはない。
+
+- id: audio-technica-ath-hl7bt
+  title: ATH-HL7BT
+  image: ./things/audio-technica-ath-hl7bt.webp
+  maker: audio-technica
+  source: https://www.audio-technica.co.jp/product/ATH-HL7BT
+  category: audio
+  description:
+    - 開放型ヘッドホンでは珍しいBluetooth対応。専ら有線で使用中。軽い。
+
+## Keyboard
+
+- id: archiss-progrestouch-retro-tkl-en
+  title: ProgresTouch RETRO TKL
+  image: ./things/archiss-progrestouch-retro-tkl-en.webp
+  maker: ARCHISS
+  category: keyboard
+  source: https://archisite.co.jp/products/archiss/progres-touch/retro-tkl-en/
+  description:
+    - 銀軸・英語配列という誰が使うねんと言われそうなキーボード。めっちゃ重い。
+
+- id: hhkb-professional-hybrid-us-sumi
+  title: HHKB Professional HYBRID
+  image: ./things/hhkb-p-us-s.webp
+  maker: HHKB
+  source: https://www.pfudirect.jp/view/item/000000001156?category_page_id=hhkb-pro
+  category: keyboard
+  description:
+    - 配列が素晴しい。過不足がなく、最高。やや軽い。
+
+- id: jezailfunder-cornix-lp
+  title: Cornix LP
+  image: ./things/jezailfunder-cornix-lp.webp
+  maker: JezailFunder
+  source: https://jezailfunder.jp/products/cornix-lp-keyboard?variant=52489729933619
+  category: keyboard
+  description:
+    - 名作と謳われた分割キーボード。
+
+## Gadget
+
+- id: iphone-air
+  title: iPhone Air
+  maker: Apple
+  category: gadget
+  image: ./things/apple-iphone-air.webp
+  source: https://www.apple.com/jp/iphone-air/
+  description:
+    - 薄さ・軽さこそ正義だ。これだけ薄いと掴み損ねるレベル。軽い。
+
+- id: mynus-iphone-air-back-white
+  title: MYNUS iPhone Air BACK
+  maker: MYNUS
+  category: gadget
+  image: ./things/mynus-iphone-air-back-white.webp
+  source: https://www.mynus.jp/products/mynus-iphone-air-back?variant=62659931865247
+  description:
+    - Airの薄さを邪魔しない背面プレート。防御力は皆無かも。軽い。
+
+- id: panasonic-dc-s5m2
+  title: Lumix S5M2
+  image: ./things/panasonic-dc-s5m2.webp
+  maker: Panasonic
+  category: gadget
+  source: https://panasonic.jp/dc/products/DC-S5M2.html
+  description:
+    - 以前はG9を使っていたが、やはりフルサイズはすごい。重い。
+
+- id: apple-macbook-pro-14inch-m4-pro
+  title: MacBook Pro 14インチ M4 Pro
+  image: ./things/apple-macbook-pro-14inch-m4-pro.webp
+  maker: Apple
+  category: gadget
+  source: https://support.apple.com/ja-jp/121553
+  description:
+    - USキー配列が拘り。性能相応にかなり重い。
+
+- id: anker-prime-14-in-1-docking-station-160w
+  title: Anker Prime ドッキングステーション (14-in-1, Dual Display, 160W)
+  image: ./things/anker-prime-14-in-1-docking-station-160w.webp
+  maker: Anker
+  source: https://www.ankerjapan.com/products/a83b6
+  category: gadget
+  description:
+    - 性能的にはThunderbolt対応レベルのドッキングステーション。見た目以上に重い。
+
+- id: logitech-g304-kda
+  title: Logicool G304 KDAコラボモデル
+  image: ./things/logitech-g304-kda.webp
+  maker: Logitech
+  source: https://www.ark-pc.co.jp/i/50288509/
+  category: gadget
+  description:
+    - マウスの中では加水分解しやすい部品が少ないので好き。軽い。
