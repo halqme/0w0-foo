@@ -23,7 +23,7 @@
   image: ./things/yamaha-hs3w.webp
   maker: YAMAHA
   source: https://jp.yamaha.com/business/audio/products/speakers/hs_3_4_inches/
-  category: gadget
+  category: audios
   description:
     - 視聴用にしては奮発しすぎかもしれないが、生活は豊かになる。重い。
 
@@ -67,7 +67,7 @@
   title: UAC 232
   image: ./things/zoom-uac-232.webp
   maker: zoom
-  category: gadget
+  category: audio
   source: https://zoomcorp.com/ja/jp/audio-interface/audio-interfaces/uac-232/
   description:
     - お手軽オーディオインターフェース。軽い。
@@ -77,6 +77,6 @@
   image: ./things/audio-technica-at2035.webp
   maker: audio-technica
   source: https://www.audio-technica.co.jp/product/AT2035
-  category: gadget
+  category: audio
   description:
     - ぼそぼそ喋ってもちゃんと音声入力できる。意外と軽い。
