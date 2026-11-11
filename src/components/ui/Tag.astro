@@ -1,4 +1,6 @@
 ---
+import type { HTMLAttributes } from "astro/types";
+
 interface Props {
   label: string;
   href?: string;
@@ -6,6 +8,8 @@ interface Props {
   count?: number;
   icon?: string;
   class?: string;
+  "aria-current"?: HTMLAttributes<"a">["aria-current"];
+  [key: `data-${string}`]: string | number | boolean | null | undefined;
 }
 
 const {
@@ -13,12 +17,17 @@ const {
   href,
   active = false,
   count,
+  icon,
   class: className = "",
+  "aria-current": ariaCurrent,
+  ...attrs
 } = Astro.props;
 
+const current = ariaCurrent ?? (active ? "page" : undefined);
+
 const baseClasses = [
-  "inline-flex min-h-6 max-w-full items-baseline gap-2 py-0.5 text-sm font-normal [overflow-wrap:anywhere]",
-  active ? "text-ink underline" : "text-muted",
+  "inline-flex min-h-6 max-w-full items-baseline gap-2 py-0.5 text-sm font-normal text-muted [overflow-wrap:anywhere]",
+  "aria-[current=page]:text-ink",
   href ? "hover:text-ink" : "",
   className,
 ]
@@ -27,12 +36,12 @@ const baseClasses = [
 ---
 
 {href ? (
-  <a href={href} class={baseClasses} aria-current={active ? "page" : undefined}>
+  <a href={href} class={baseClasses} {...attrs} aria-current={current}>
     <span class="min-w-0">{label}</span>
     {count !== undefined && <span class="shrink-0 text-muted">{count}</span>}
   </a>
 ) : (
-  <span class={baseClasses}>
+  <span class={baseClasses} {...attrs} aria-current={current}>
     <span class="min-w-0">{label}</span>
     {count !== undefined && <span class="shrink-0 text-muted">{count}</span>}
   </span>

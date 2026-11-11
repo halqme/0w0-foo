@@ -1,6 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
+import Tag from "../../components/ui/Tag.astro";
 import ThingsRoute from "../../components/things/ThingsRoute.astro";
 import Layout from "../../layouts/Layout.astro";
 
@@ -18,9 +19,6 @@ const categories = [...categoryCounts.entries()].toSorted((a, b) => {
   }
   return a[0].localeCompare(b[0], "ja");
 });
-
-const filterLabel =
-  "focused inline-flex min-h-6 max-w-full items-baseline gap-2 py-0.5 text-sm font-normal text-muted [overflow-wrap:anywhere] hover:text-ink aria-[current=page]:text-ink aria-[current=page]:underline";
 ---
 
 <Layout title="Things" description="気に入っているデバイスの一覧">
@@ -36,28 +34,28 @@ const filterLabel =
           class="mb-8 flex flex-wrap justify-center gap-x-6 gap-y-2"
           aria-label="種別で絞り込む"
         >
-          <a
+          <Tag
+            label="All"
+            class="focused"
             href="/things"
             data-thing-filter=""
-            class={filterLabel}
+            count={things.length}
             aria-current="page"
-          >
-            <span class="min-w-0">すべて</span>
-            <span class="shrink-0 text-muted">{things.length}</span>
-          </a>
+          />
+          <span class="text-muted">|</span>
           {categories.map(([category, count]) => (
-            <a
+            <Tag
+              label={category}
+              class="focused"
               href={`/things?category=${encodeURIComponent(category)}`}
+              count={count}
               data-thing-filter={category}
-              class={filterLabel}
-            >
-              <span class="min-w-0">{category}</span>
-              <span class="shrink-0 text-muted">{count}</span>
-            </a>
+            />
           ))}
         </nav>
         <div class="grid gap-y-6 sm:grid-cols-3 sm:gap-x-8">
           {things
+            .toSorted((a, b) => a.data.title.localeCompare(b.data.title))
             .toSorted((a, b) => a.data.maker.localeCompare(b.data.maker))
             .map((thing) => (
               <article
