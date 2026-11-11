@@ -145,5 +145,5 @@
 
 - 色・フォント・角丸・影のトークンは [panda.config.ts](panda.config.ts)、パレットの値は [src/styles/base.css](src/styles/base.css) を参照します。2回以上使う複数プロパティのまとまりは [src/styles/ui.ts](src/styles/ui.ts) に置き、一度きりのスタイルはその場の `css()` に書きます。単一プロパティの別名は作りません。
 - `textBody` は通常本文のサイズと行高です。Pandaの `fontSize: "md"` はサイズだけを指します。
-- Pandaは `css()` のオブジェクトリテラルだけを静的に抽出します。変数やスプレッドに通したスタイルは出ません。リンクカードのクラスは [src/styles/link-card.ts](src/styles/link-card.ts) の `css()` で定義し、[src/plugins/link-card.ts](src/plugins/link-card.ts) がその文字列を生成マークアップへ渡します。
+- `css()` は `styled-system/css` から読みます。生成物への相対パスは使わず、[tsconfig.json](tsconfig.json) の `paths` を使います。Pandaは `css()` のオブジェクトリテラルだけを静的に抽出します。変数やスプレッドに通したスタイルは出ません。リンクカードのクラスは [src/styles/link-card.ts](src/styles/link-card.ts) の `css()` で定義し、[src/plugins/link-card.ts](src/plugins/link-card.ts) がその文字列を生成マークアップへ渡します。
 - 共通UIの変更では、共通レイアウトと各ページで参照箇所を分けて確認します。ルート構成と各画面の内容はページ・レイアウトの実装を基準にします。

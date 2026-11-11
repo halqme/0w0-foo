@@ -34,7 +34,7 @@ export default defineConfig({
   vite: {
     plugins: [pandacss({ transform: true })],
   },
-  integrations: [sitemap(), mdx(), rss()],
+  integrations: [sitemap(), mdx()],
   markdown: {
     // Shiki stays off. createHighlightPlugin renders fences with @pierre/highlights.
     syntaxHighlight: false,

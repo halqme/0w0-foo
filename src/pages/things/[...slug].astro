@@ -1,7 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
-import { css } from "../../../styled-system/css";
+import { css } from "styled-system/css";
 import ThingsRoute from "../../components/things/ThingsRoute.astro";
 import Layout from "../../layouts/Layout.astro";
 import {
@@ -24,7 +24,6 @@ const photo = css({
   maxW: "full",
   objectFit: "contain",
 });
-const source = css({ marginLeft: "100%" });
 const lines = css({ display: "grid", gap: "4" });
 const line = css({
   fontSize: "sm",
@@ -67,15 +66,17 @@ const { thing } = Astro.props;
           loading="eager"
         />
       </div>
-      <a
-        href={thing.data.source}
-        class:list={["text-action", textAction, source]}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={`${thing.data.title}の画像の出典`}
-      >
-        reference
-      </a>
+      <div class={css({ w: "full", display: "inline-flex", justifyContent: "flex-end" })}>
+        <a
+          href={thing.data.source}
+          class:list={["text-action", textAction]}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`${thing.data.title}の画像の出典`}
+        >
+          reference
+        </a>
+      </div>
     </figure>
     {thing.data.description.length > 0 && (
       <div class={lines}>
