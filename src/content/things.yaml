@@ -71,3 +71,12 @@
   source: https://zoomcorp.com/ja/jp/audio-interface/audio-interfaces/uac-232/
   description:
     - お手軽オーディオインターフェース。軽い。
+
+- id: audio-technica-at2035
+  title: AT2035
+  image: ./things/audio-technica-at2035.webp
+  maker: audio-technica
+  source: https://www.audio-technica.co.jp/product/AT2035
+  category: gadget
+  description:
+    - ぼそぼそ喋ってもちゃんと音声入力できる。意外と軽い。
