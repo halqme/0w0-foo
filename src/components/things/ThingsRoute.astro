@@ -1,0 +1,44 @@
+<script is:inline>
+  (() => {
+    const category = new URLSearchParams(location.search).get("category") ?? "";
+    const filters = [...document.querySelectorAll("[data-thing-filter]")];
+    const known = filters
+      .map((element) => element.getAttribute("data-thing-filter") ?? "")
+      .filter((value) => value !== "");
+    const active =
+      category === ""
+        ? ""
+        : known.length === 0 || known.includes(category)
+          ? category
+          : "";
+    for (const item of document.querySelectorAll("[data-thing]")) {
+      item.hidden =
+        active !== "" && item.getAttribute("data-category") !== active;
+    }
+    for (const link of filters) {
+      const value = link.getAttribute("data-thing-filter") ?? "";
+      if (value === active) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
+    }
+    for (const link of document.querySelectorAll("[data-thing-link]")) {
+      const path = (link.getAttribute("href") ?? "").split("?")[0];
+      link.setAttribute(
+        "href",
+        active === "" ? path : `${path}?category=${encodeURIComponent(active)}`,
+      );
+    }
+    const back = document.querySelector("[data-things-back]");
+    if (back) {
+      back.setAttribute(
+        "href",
+        active === ""
+          ? "/things"
+          : `/things?category=${encodeURIComponent(active)}`,
+      );
+    }
+  })();
+</script>
+
+<script>
+  import "../../scripts/things-route";
+</script>
