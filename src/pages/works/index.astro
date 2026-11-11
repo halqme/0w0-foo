@@ -12,12 +12,10 @@ const works = await getCollection("works");
         Works
       </h1>
     </div>
-    {works.length === 0 ? (
-      <p class="text-sm text-muted">プロジェクトはまだありません。</p>
-    ) : (
+    {works.length && (
       <div class="grid gap-y-6 sm:grid-cols-2 sm:gap-x-8">
         {works.map((work) => (
-          <article class="min-w-0 border-t border-line py-6">
+          <article class="min-w-0 py-6">
             <h2 class="list-title">
               <a href={`/works/${work.id}`} class="link-text focused">
                 {work.data.title}
