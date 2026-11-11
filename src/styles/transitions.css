@@ -1,4 +1,5 @@
 /* Keep the shell still; only the reading surface changes between pages. */
+::view-transition-group(root),
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
@@ -7,6 +8,74 @@
 /* Keep differently sized pages from stretching their text during the swap. */
 ::view-transition-group(page-content) {
   animation: none;
+}
+
+/* Category changes move each card, not the list. Image and title stay in one
+   snapshot, so they cannot drift apart. */
+.thing-card {
+  view-transition-class: thing-card;
+}
+html[data-things-filter]::view-transition-old(page-content),
+html[data-things-filter]::view-transition-new(page-content) {
+  animation: none;
+}
+::view-transition-old(.thing-card),
+::view-transition-new(.thing-card) {
+  animation: none !important;
+  mix-blend-mode: normal;
+}
+::view-transition-old(.thing-card) {
+  opacity: 0;
+}
+::view-transition-old(.thing-card):only-child {
+  animation: thing-card-fade 180ms cubic-bezier(0.2, 0, 0, 1) both !important;
+  opacity: 1;
+}
+::view-transition-new(.thing-card):only-child {
+  animation: thing-card-fade 180ms cubic-bezier(0.2, 0, 0, 1) reverse both !important;
+}
+
+/* The default crossfade blends photos with plus-lighter, so the picture
+   jitters when a page opens. Move the matched box, and fade the rest plainly. */
+.thing-image {
+  view-transition-class: thing-image;
+}
+::view-transition-group(.thing-image) {
+  overflow: clip;
+}
+::view-transition-old(.thing-image),
+::view-transition-new(.thing-image) {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  mix-blend-mode: normal;
+  overflow: clip;
+}
+::view-transition-old(.thing-image),
+::view-transition-new(.thing-image) {
+  animation: none !important;
+}
+::view-transition-old(.thing-image) {
+  opacity: 0;
+}
+::view-transition-old(.thing-image):only-child {
+  animation: thing-image-fade 180ms ease both !important;
+  opacity: 1;
+}
+::view-transition-new(.thing-image):only-child {
+  animation: thing-image-fade 180ms ease reverse both !important;
+}
+
+@keyframes thing-card-fade {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes thing-image-fade {
+  to {
+    opacity: 0;
+  }
 }
 
 @keyframes page-enter {
@@ -27,27 +96,6 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  @keyframes page-enter {
-    from {
-      opacity: 0;
-      transform: translateY(12px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  @keyframes page-exit {
-    from {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    to {
-      opacity: 0;
-      transform: translateY(-12px);
-    }
-  }
-
   [data-theme-trigger] {
     transition: scale 150ms ease-out;
     -webkit-tap-highlight-color: transparent;

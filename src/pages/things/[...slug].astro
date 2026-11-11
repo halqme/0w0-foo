@@ -1,6 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
+import ThingsRoute from "../../components/things/ThingsRoute.astro";
 import Layout from "../../layouts/Layout.astro";
 
 export async function getStaticPaths() {
@@ -26,12 +27,17 @@ const { thing } = Astro.props;
       </h1>
     </header>
     <figure class="bg-transcale">
-      <Image
-        src={thing.data.image}
-        alt=""
-        class="mx-auto block h-auto max-h-80 w-auto max-w-full object-contain"
-        loading="lazy"
-      />
+      <div
+        transition:name={`thing-image-${thing.id}`}
+        class="thing-image grid place-items-center"
+      >
+        <Image
+          src={thing.data.image}
+          alt=""
+          class="mx-auto block h-auto max-h-80 w-auto max-w-full object-contain"
+          loading="lazy"
+        />
+      </div>
       <a
         href={thing.data.source}
         class="text-action ml-full"
@@ -51,8 +57,9 @@ const { thing } = Astro.props;
         ))}
       </div>
     )}
-    <a href="/things" class="text-action mt-6">
+    <a href="/things" data-things-back class="text-action mt-6">
       ← Back to things
     </a>
+    <ThingsRoute />
   </article>
 </Layout>

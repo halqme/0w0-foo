@@ -1,6 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
+import ThingsRoute from "../../components/things/ThingsRoute.astro";
 import Layout from "../../layouts/Layout.astro";
 
 const things = await getCollection("things");
@@ -19,15 +20,7 @@ const categories = [...categoryCounts.entries()].toSorted((a, b) => {
 });
 
 const filterLabel =
-  "inline-flex min-h-6 max-w-full items-baseline gap-2 py-0.5 text-sm font-normal text-muted [overflow-wrap:anywhere] hover:text-ink has-[:checked]:text-ink has-[:checked]:underline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-focus";
-
-const filterRules = [
-  `.things-catalog:not(:has(input[value="all"]:checked)) [data-thing]{display:none}`,
-  ...categories.map(([category]) => {
-    const key = encodeURIComponent(category);
-    return `.things-catalog:has(input[value="category:${key}"]:checked) [data-thing][data-category="${key}"]{display:block}`;
-  }),
-].join("");
+  "focused inline-flex min-h-6 max-w-full items-baseline gap-2 py-0.5 text-sm font-normal text-muted [overflow-wrap:anywhere] hover:text-ink aria-[current=page]:text-ink aria-[current=page]:underline";
 ---
 
 <Layout title="Things" description="気に入っているデバイスの一覧">
@@ -38,60 +31,66 @@ const filterRules = [
       </h1>
     </div>
     {things.length && (
-      <div class="things-catalog">
-        <Fragment set:html={`<style>${filterRules}</style>`} />
-        <fieldset class="m-0 mb-8 min-w-0 border-0 p-0">
-          <legend class="sr-only">種別で絞り込む</legend>
-          <div class="flex flex-wrap justify-center gap-x-6 gap-y-2">
-            <label class={filterLabel}>
-              <input
-                class="sr-only"
-                type="radio"
-                name="things-category"
-                value="all"
-                checked
-              />
-              <span class="min-w-0">すべて</span>
-              <span class="shrink-0 text-muted">{things.length}</span>
-            </label>
-            {categories.map(([category, count]) => (
-              <label class={filterLabel}>
-                <input
-                  class="sr-only"
-                  type="radio"
-                  name="things-category"
-                  value={`category:${encodeURIComponent(category)}`}
-                />
-                <span class="min-w-0">{category}</span>
-                <span class="shrink-0 text-muted">{count}</span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
-        <div class="grid gap-y-6 sm:grid-cols-3 sm:gap-x-8">
-          {things.toSorted((a, b) => a.data.maker.localeCompare(b.data.maker)).map((thing) => (
-            <article
-              class="min-w-0 py-6"
-              data-thing
-              data-category={encodeURIComponent(thing.data.category)}
+      <div data-things-catalog>
+        <nav
+          class="mb-8 flex flex-wrap justify-center gap-x-6 gap-y-2"
+          aria-label="種別で絞り込む"
+        >
+          <a
+            href="/things"
+            data-thing-filter=""
+            class={filterLabel}
+            aria-current="page"
+          >
+            <span class="min-w-0">すべて</span>
+            <span class="shrink-0 text-muted">{things.length}</span>
+          </a>
+          {categories.map(([category, count]) => (
+            <a
+              href={`/things?category=${encodeURIComponent(category)}`}
+              data-thing-filter={category}
+              class={filterLabel}
             >
-              <a href={`/things/${thing.id}`} class="focused block">
-                <div class="grid h-40 place-items-center bg-transcale">
-                  <Image
-                    src={thing.data.image}
-                    alt=""
-                    class="pointer-events-none h-auto max-h-36 w-auto max-w-full object-contain"
-                    loading="lazy"
-                  />
-                </div>
-                <h2 class="list-title mt-4">{thing.data.title}</h2>
-                <p class="text-label mt-1 [overflow-wrap:anywhere]">
-                  {thing.data.maker}
-                </p>
-              </a>
-            </article>
+              <span class="min-w-0">{category}</span>
+              <span class="shrink-0 text-muted">{count}</span>
+            </a>
           ))}
+        </nav>
+        <div class="grid gap-y-6 sm:grid-cols-3 sm:gap-x-8">
+          {things
+            .toSorted((a, b) => a.data.maker.localeCompare(b.data.maker))
+            .map((thing) => (
+              <article
+                transition:name={`thing-card-${thing.id}`}
+                class="thing-card min-w-0 py-6"
+                data-thing
+                data-category={thing.data.category}
+              >
+                <a
+                  href={`/things/${thing.id}`}
+                  data-thing-link
+                  class="focused block"
+                >
+                  <div
+                    transition:name={`thing-image-${thing.id}`}
+                    class="thing-image flex h-40 w-full items-center justify-center bg-transcale"
+                  >
+                    <Image
+                      src={thing.data.image}
+                      alt=""
+                      class="pointer-events-none h-36 w-auto max-w-full object-contain"
+                      loading="lazy"
+                    />
+                  </div>
+                  <h2 class="list-title mt-4">{thing.data.title}</h2>
+                  <p class="text-label mt-1 [overflow-wrap:anywhere]">
+                    {thing.data.maker}
+                  </p>
+                </a>
+              </article>
+            ))}
         </div>
+        <ThingsRoute />
       </div>
     )}
   </section>
