@@ -25,6 +25,7 @@ export default defineConfig({
       "dist/",
       ".astro/",
       ".agents/",
+      ".claude/",
       ".cloudflare/",
       "node_modules/",
       ".cache/",

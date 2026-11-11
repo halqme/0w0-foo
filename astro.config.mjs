@@ -28,7 +28,7 @@ export default defineConfig({
       cssVariable: "--font-ia-writer-mono",
       name: "iA Writer Mono",
       provider: fontProviders.fontsource(),
-      weights: [400, 500],
+      weights: [400, 700],
     },
   ],
   integrations: [

@@ -1,0 +1,70 @@
+# yaml-language-server: $schema=../../.astro/collections/tools.schema.json
+- id: kawasemi4
+  name: かわせみ4
+  type: IME
+  url: https://www.monokakido.jp/ja/mac/kawasemi4/
+  comments:
+    - 日本語入力ソフト
+
+- id: zed
+  name: Zed
+  type: Editor
+  url: https://zed.dev/
+  comments:
+    - Rust製の最強エディタ
+
+- id: fx
+  name: "@vercel-labs/fx"
+  type: Coding Agent
+  url: https://fx.sh/
+  comments:
+    - Zig製コーディングエージェント
+
+- id: claude-code
+  name: Claude Code
+  type: Coding Agent
+  url: https://claude.com
+  comments:
+    - 言わずと知れたエージェント
+
+- id: cloudflare-workers
+  name: Cloudflare Workers
+  type: Platform
+  url: https://developers.cloudflare.com/workers/
+  comments:
+    - 安い
+
+- id: vivaldi
+  name: Vivaldi
+  type: Browser
+  url: https://vivaldi.com
+  comments:
+    - パワフルでプライベートなブラウザ
+
+- id: tinycast
+  name: Tinycast
+  type: Launcher
+  url: https://tinycast.dev
+  comments:
+    - Raycastオルタナティブなランチャー
+
+- id: rex
+  name: Rex
+  type: Terminal
+  url: https://www.superlogical.com/rex
+  comments:
+    - 新進気鋭のターミナル
+
+- id: linear
+  name: Linear
+  type: Issue Tracker
+  url: https://linear.app
+  comments:
+    - AIと一緒にタスクを追跡するのに使っている
+
+- id: things-3
+  name: Things 3
+  type: Issue Tracker
+  url: https://culturedcode.com/things/
+  comments:
+    - Appleプラットフォーム最高のTodoリストアプリ。

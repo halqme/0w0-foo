@@ -1,4 +1,4 @@
-import { glob } from "astro/loaders";
+import { file, glob } from "astro/loaders";
 import { z } from "astro/zod";
 import { defineCollection } from "astro:content";
 
@@ -36,4 +36,33 @@ const works = defineCollection({
   }),
 });
 
-export const collections = { blog, works };
+const tools = defineCollection({
+  loader: file("src/content/tools.yaml"),
+  schema: z
+    .object({
+      id: z.string(),
+      name: z.string(),
+      type: z.string(),
+      url: z.url(),
+      comments: z.array(z.string()).default([]),
+    })
+    .strip(),
+});
+
+const things = defineCollection({
+  loader: file("src/content/things.yaml"),
+  schema: ({ image }) =>
+    z
+      .object({
+        id: z.string(),
+        title: z.string(),
+        maker: z.string(),
+        category: z.string(),
+        image: image(),
+        source: z.url(),
+        description: z.array(z.string()).default([]),
+      })
+      .strip(),
+});
+
+export const collections = { blog, works, things, tools };

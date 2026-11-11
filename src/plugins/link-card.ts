@@ -78,6 +78,7 @@ export function createLinkCardPlugin(cards: Record<string, LinkCardData>) {
         if (!image) return;
 
         // Satteri's image-marker runs after this plugin and delegates to Astro getImage().
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion
         const astro = ctx.data.astro as
           | { localImagePaths: Set<string> }
           | undefined;

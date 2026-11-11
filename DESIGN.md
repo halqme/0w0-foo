@@ -55,7 +55,7 @@ UnoCSSの意味を持つ色はCSSカスタムプロパティ経由で参照し�
 
 - `target="_blank"` のリンクだけに `↗` を常時表示し、新しいタブで開くことを示します。URLによる判定は行いません。記号は改行禁止スペースでリンク末尾につなぎ、画像リンクでは画像右上に重ねます。表示は [external-links.css](src/styles/external-links.css) で共通化します。
 
-- [Header.astro](src/components/ui/Header.astro) は最小高さ80px、上余白24px・sm以上40pxです。左にホームへの等幅ロゴ、右にBlogリンクとテーマ選択を置きます。Blog一覧では `aria-current="page"`、記事では `aria-current="location"` を付け、ink色と下線で示します。
+- [Header.astro](src/components/ui/Header.astro) は最小高さ80px、上余白24px・sm以上40pxです。左にホームへの等幅ロゴ、右に Home・Blog・Works・Things とテーマ選択を置きます。対応する一覧では `aria-current="page"`、その配下では `aria-current="location"` を付け、ink色と下線で示します。
 - [Footer.astro](src/components/ui/Footer.astro) は上境界線を置き、中央揃えのソーシャルリンクと著作権表示を並べます。[Socials.astro](src/components/ui/Socials.astro) はGitHub・twitter・Zennのテキストリンクで、ホームのプロフィールにも使います。
 - [ThemeToggle.astro](src/components/ui/ThemeToggle.astro) はアイコンボタンとポップアップ内のauto・light・darkのラジオ選択です。選択値を `localStorage` の `theme` に保存し、auto時のみOS設定に追従します。`storage` イベントによる保存値変更も反映します。
 - テーマ選択はキーボードで開くと選択中のラジオへフォーカスし、ArrowDownでも開けます。Escapeで閉じてトリガーへ戻り、外側のポインター操作や外へのフォーカス移動でも閉じます。テーマ変更はstatusで通知します。
@@ -64,23 +64,29 @@ UnoCSSの意味を持つ色はCSSカスタムプロパティ経由で参照し�
 
 ## ページ構成
 
-| ルート             | 構成                                                                                                     |
-| ------------------ | -------------------------------------------------------------------------------------------------------- |
-| `/`                | [index.astro](src/pages/index.astro)。プロフィール → Projects → Skills → Articlesの順。Articlesは最新5件 |
-| `/works`           | [works/index.astro](src/pages/works/index.astro)。プロジェクト一覧とGitHubへのリンク                     |
-| `/works/[...slug]` | [works/[...slug].astro](src/pages/works/%5B...slug%5D.astro)。作品の説明とプロジェクトへのリンク         |
-| `/blog`            | [blog/index.astro](src/pages/blog/index.astro)。公開記事を新しい順に一覧表示し、Tagsへのリンクを置く     |
-| `/blog/[...slug]`  | [blog/[...slug].astro](src/pages/blog/%5B...slug%5D.astro)。公開記事を生成し、記事レイアウトへ渡す       |
-| `/tags`            | [tags/index.astro](src/pages/tags/index.astro)。件数付きタグ一覧と記事一覧                               |
-| `/tags/[tag]`      | [tags/[tag].astro](src/pages/tags/%5Btag%5D.astro)。選択タグの記事一覧と件数                             |
-| `/404`             | [404.astro](src/pages/404.astro)。404、見出し、日本語説明、トップへのリンク                              |
+| ルート              | 構成                                                                                                     |
+| ------------------- | -------------------------------------------------------------------------------------------------------- |
+| `/`                 | [index.astro](src/pages/index.astro)。プロフィール → Projects → Skills → Articlesの順。Articlesは最新5件 |
+| `/works`            | [works/index.astro](src/pages/works/index.astro)。プロジェクト一覧とGitHubへのリンク                     |
+| `/works/[...slug]`  | [works/[...slug].astro](src/pages/works/%5B...slug%5D.astro)。作品の説明とプロジェクトへのリンク         |
+| `/things`           | [things/index.astro](src/pages/things/index.astro)。種別で絞り込めるデバイスの画像一覧                   |
+| `/things/[...slug]` | [things/[...slug].astro](src/pages/things/%5B...slug%5D.astro)。デバイスの画像、出典、説明               |
+| `/blog`             | [blog/index.astro](src/pages/blog/index.astro)。公開記事を新しい順に一覧表示し、Tagsへのリンクを置く     |
+| `/blog/[...slug]`   | [blog/[...slug].astro](src/pages/blog/%5B...slug%5D.astro)。公開記事を生成し、記事レイアウトへ渡す       |
+| `/tags`             | [tags/index.astro](src/pages/tags/index.astro)。件数付きタグ一覧と記事一覧                               |
+| `/tags/[tag]`       | [tags/[tag].astro](src/pages/tags/%5Btag%5D.astro)。選択タグの記事一覧と件数                             |
+| `/404`              | [404.astro](src/pages/404.astro)。404、見出し、日本語説明、トップへのリンク                              |
 
 ### ホーム
 
 - [About.astro](src/components/About.astro) は56pxの丸形プロフィール画像と、`HAL` のH1・紹介文を横に並べます。趣味・分野はsm以上で右側、それより狭い幅では次の行に置きます。定義リストのラベル列は2rem、値は残りの幅を使い、左揃えで折り返します。ソーシャルリンクは下の1行にまとめ、幅に応じて折り返します。
 - [Projects.astro](src/components/Projects.astro) はプロジェクトの先頭4件を表示します。作品名へのホバー・キーボードフォーカスで、リポジトリのOGP画像をプレビューします。`/works` は [src/content/works](src/content/works) の項目を、狭い画面では1列、sm以上では2列に並べます。項目は名前、説明、技術タグを余白でまとめ、名前から各作品の詳細ページへリンクします。GitHubのリポジトリ一覧へのリンクも置きます。詳細ページは作品名、説明、技術タグ、外部リンクと本文を表示します。作品の本文はMarkdownまたはMDXで記述でき、MDXでは作品紹介用のAstroコンポーネントを使えます。画像は詳細の本文内に置きます。
-- [Tools.astro](src/components/Tools.astro) は [src/data/tools.ts](src/data/tools.ts) の項目を `名前 — 種類` の1行で表示します。名前・区切り・種類の列を揃え、長い名前や種類は折り返します。名前は公式サイトへのリンクです。ホバー・キーボードフォーカスで、共通のLinkCardによるOGP画像と本人のコメントを含むプレビューを表示します。表示と配置はCSSのみで、sm以上では名前列の右側に行の縦中央を基準として重ねて表示します。それより狭い幅では名前の下へ、列の幅の中に通常フローで置きます。画像の外側に余白を設けず、コメントの余白は8pxです。カード内へポインターを移しても表示を保ち、ホバーとキーボードフォーカスが外れると閉じます。カード幅は画面幅に合わせて制限し、高さが画面の60%を超える場合は内部をスクロールします。画像を取得できない場合はコメントのみ表示します。
+- [Tools.astro](src/components/Tools.astro) は [src/content/tools.yaml](src/content/tools.yaml) の項目を `名前 — 種類` の1行で表示します。名前・区切り・種類の列を揃え、長い名前や種類は折り返します。名前は公式サイトへのリンクです。ホバー・キーボードフォーカスで、共通のLinkCardによるOGP画像と本人のコメントを含むプレビューを表示します。表示と配置はCSSのみで、sm以上では名前列の右側に行の縦中央を基準として重ねて表示します。それより狭い幅では名前の下へ、列の幅の中に通常フローで置きます。画像の外側に余白を設けず、コメントの余白は8pxです。カード内へポインターを移しても表示を保ち、ホバーとキーボードフォーカスが外れると閉じます。カード幅は画面幅に合わせて制限し、高さが画面の60%を超える場合は内部をスクロールします。画像を取得できない場合はコメントのみ表示します。
 - [Posts.astro](src/components/Posts.astro) はArticles見出しの下に最新5記事を並べます。記事表示には共通の [BlogCard.astro](src/components/ui/BlogCard.astro) を使います。
+
+### Things
+
+- `/things` は [src/content/things.yaml](src/content/things.yaml) のデバイスを、狭い画面では1列、sm以上では2列に並べます。項目は上境界線で区切り、画像、名前、メーカーを左揃えでまとめ、項目全体から詳細ページへリンクします。画像は `surface-muted` の同じ高さの枠に収めます。説明と種別は一覧には出しません。画像ファイルはYAMLからの相対パスです。種別の絞り込みはタグと同じ文字リンクで中央に置き、件数を添え、選択中はink色と下線です。「すべて」を初期選択にします。絞り込みはラジオボタンとCSSだけで行い、選んだ種別以外を隠します。デバイスがなければ「デバイスはまだありません。」を表示します。詳細ページの見出しはメーカー、名前、「画像の出典」を中央に置きます。出典先は画像とは別のURLです。画像は本文幅いっぱいに近い `surface-muted` の面へ置き、説明は文字列の配列で本文色の左揃えです。
 
 ### ブログ一覧とタグ
 

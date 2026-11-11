@@ -1,0 +1,73 @@
+# yaml-language-server: $schema=../../.astro/collections/things.schema.json
+
+- id: iphone-air
+  title: iPhone Air
+  maker: Apple
+  category: gadget
+  image: ./things/apple-iphone-air.webp
+  source: https://www.apple.com/jp/iphone-air/
+  description:
+    - 薄さ・軽さこそ正義だ。これだけ薄いと掴み損ねるレベル。軽い。
+
+- id: mynus-iphone-air-back-white
+  title: MYNUS iPhone Air BACK
+  maker: MYNUS
+  category: gadget
+  image: ./things/mynus-iphone-air-back-white.webp
+  source: https://www.mynus.jp/products/mynus-iphone-air-back?variant=62659931865247
+  description:
+    - Airの薄さを邪魔しない背面プレート。防御力は皆無かも。軽い。
+
+- id: yamaha-hs3w
+  title: HS3W
+  image: ./things/yamaha-hs3w.webp
+  maker: YAMAHA
+  source: https://jp.yamaha.com/business/audio/products/speakers/hs_3_4_inches/
+  category: gadget
+  description:
+    - 視聴用にしては奮発しすぎかもしれないが、生活は豊かになる。重い。
+
+- id: hhkb-professional-hybrid-us-sumi
+  title: HHKB Professional HYBRID
+  image: ./things/hhkb-p-us-s.webp
+  maker: HHKB
+  source: https://www.pfudirect.jp/view/item/000000001156?category_page_id=hhkb-pro
+  category: keyboard
+  description:
+    - 配列が素晴しい。過不足がなく、最高。やや軽い。
+
+- id: panasonic-dc-s5m2
+  title: Lumix S5M2
+  image: ./things/panasonic-dc-s5m2.webp
+  maker: Panasonic
+  category: gadget
+  source: https://panasonic.jp/dc/products/DC-S5M2.html
+  description:
+    - 以前はG9を使っていたが、やはりフルサイズはすごい。重い。
+
+- id: apple-macbook-pro-14inch-m4-pro
+  title: MacBook Pro 14インチ M4 Pro
+  image: ./things/apple-macbook-pro-14inch-m4-pro.webp
+  maker: Apple
+  category: gadget
+  source: https://support.apple.com/ja-jp/121553
+  description:
+    - USキー配列という拘り。性能相応にかなり重い。
+
+- id: archiss-progrestouch-retro-tkl-en
+  title: ProgresTouch RETRO TKL
+  image: ./things/archiss-progrestouch-retro-tkl-en.webp
+  maker: ARCHISS
+  category: keyboard
+  source: https://archisite.co.jp/products/archiss/progres-touch/retro-tkl-en/
+  description:
+    - 銀軸・英語配列という誰が使うねんと言われそうなキーボード。めっちゃ重い。
+
+- id: zoom-uac-232
+  title: UAC 232
+  image: ./things/zoom-uac-232.webp
+  maker: zoom
+  category: gadget
+  source: https://zoomcorp.com/ja/jp/audio-interface/audio-interfaces/uac-232/
+  description:
+    - お手軽オーディオインターフェース。軽い。

@@ -1,8 +1,9 @@
 ---
+import { getCollection } from "astro:content";
 import Heading2 from "./ui/Heading2.astro";
 import LinkCard from "./ui/LinkCard.astro";
 
-import { tools } from "../data/tools";
+const tools = await getCollection("tools");
 ---
 
 <section class="section" aria-labelledby="skills-title" id="skills">
@@ -13,20 +14,20 @@ import { tools } from "../data/tools";
     class="grid grid-cols-[fit-content(55%)_auto_minmax(0,1fr)] auto-rows-[minmax(2.5rem,auto)] items-baseline gap-x-3 gap-y-1"
   >
     {tools
-      .toSorted((a, b) => a.type.localeCompare(b.type))
-      .map((tool, index) => (
+      .toSorted((a, b) => a.data.type.localeCompare(b.data.type))
+      .map((tool) => (
         <li class="contents" role="listitem">
           <LinkCard
-            id={`tool-${index}`}
-            href={tool.url}
-            label={tool.name}
-            comments={tool.comments}
+            id={`tool-${tool.id}`}
+            href={tool.data.url}
+            label={tool.data.name}
+            comments={tool.data.comments}
           />
           <span class="text-sm text-muted" aria-hidden="true">
             —
           </span>
           <span class="min-w-0 text-sm text-muted [overflow-wrap:anywhere]">
-            {tool.type}
+            {tool.data.type}
           </span>
         </li>
       ))}

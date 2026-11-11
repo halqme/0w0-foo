@@ -1,0 +1,58 @@
+---
+import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+
+export async function getStaticPaths() {
+  const things = await getCollection("things");
+  return things.map((thing) => ({
+    params: { slug: thing.id },
+    props: { thing },
+  }));
+}
+
+const { thing } = Astro.props;
+---
+
+<Layout
+  title={thing.data.title}
+  description={thing.data.description[0] ?? thing.data.title}
+>
+  <article class="article-column py-8" aria-labelledby="thing-title">
+    <header class="page-header">
+      <p class="text-label [overflow-wrap:anywhere]">{thing.data.maker}</p>
+      <h1 id="thing-title" class="text-headline [overflow-wrap:anywhere]">
+        {thing.data.title}
+      </h1>
+    </header>
+    <figure class="bg-transcale">
+      <Image
+        src={thing.data.image}
+        alt=""
+        class="mx-auto block h-auto max-h-80 w-auto max-w-full object-contain"
+        loading="lazy"
+      />
+      <a
+        href={thing.data.source}
+        class="text-action ml-full"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`${thing.data.title}の画像の出典`}
+      >
+        reference
+      </a>
+    </figure>
+    {thing.data.description.length > 0 && (
+      <div class="grid gap-4">
+        {thing.data.description.map((line) => (
+          <p class="text-sm leading-7 text-ink [overflow-wrap:anywhere]">
+            {line}
+          </p>
+        ))}
+      </div>
+    )}
+    <a href="/things" class="text-action mt-6">
+      ← Back to things
+    </a>
+  </article>
+</Layout>
