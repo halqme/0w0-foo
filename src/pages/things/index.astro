@@ -77,9 +77,9 @@ const filterLabel =
                   >
                     <Image
                       src={thing.data.image}
-                      alt=""
+                      alt={thing.data.title}
                       class="pointer-events-none h-36 w-auto max-w-full object-contain"
-                      loading="lazy"
+                      loading="eager"
                     />
                   </div>
                   <h2 class="list-title mt-4">{thing.data.title}</h2>
