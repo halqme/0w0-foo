@@ -67,7 +67,7 @@ const { Content } = await render(work);
       <div class={links}>
         <a
           href={work.data.repo}
-          class:list={["text-action", textAction]}
+          class={textAction}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -76,7 +76,7 @@ const { Content } = await render(work);
         {work.data.url && (
           <a
             href={work.data.url}
-            class:list={["text-action", textAction]}
+            class={textAction}
             target="_blank"
             rel="noopener noreferrer"
           >

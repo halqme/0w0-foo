@@ -62,7 +62,7 @@ const hasPreview = Boolean(source) || comments.length > 0;
   <a
     {id}
     {href}
-    class:list={["link-text", linkText, focused, labelLink]}
+    class:list={[linkText, focused, labelLink]}
     aria-describedby={comments.length > 0 ? `${id}-preview` : undefined}
     target="_blank"
     rel="noopener noreferrer"

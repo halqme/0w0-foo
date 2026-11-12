@@ -4,6 +4,7 @@ import { getCollection } from "astro:content";
 import { css } from "styled-system/css";
 import ThingsRoute from "../../components/things/ThingsRoute.astro";
 import Layout from "../../layouts/Layout.astro";
+import { thingImageTransition } from "../../styles/motion";
 import {
   articleColumn,
   pageHeader,
@@ -57,7 +58,7 @@ const { thing } = Astro.props;
     <figure>
       <div
         transition:name={`thing-image-${thing.id}`}
-        class:list={["thing-image", frame]}
+        class:list={[thingImageTransition, frame]}
       >
         <Image
           src={thing.data.image}
@@ -69,7 +70,7 @@ const { thing } = Astro.props;
       <div class={css({ w: "full", display: "inline-flex", justifyContent: "flex-end" })}>
         <a
           href={thing.data.source}
-          class:list={["text-action", textAction]}
+          class={textAction}
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`${thing.data.title}の画像の出典`}

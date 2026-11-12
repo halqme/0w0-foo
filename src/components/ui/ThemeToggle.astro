@@ -24,9 +24,54 @@ const trigger = css({
   minH: "10",
   minW: "10",
   color: "muted",
+  WebkitTapHighlightColor: "transparent",
   _hover: { color: "ink" },
+  _motionSafe: {
+    transitionProperty: "scale",
+    transitionDuration: "fast",
+    transitionTimingFunction: "ease-out",
+    "&:not(:disabled):active": { scale: "0.96" },
+  },
+});
+const iconSwap = css({
+  "--icon-swap-dur": "300ms",
+  "--icon-swap-blur": "4px",
+  "--icon-swap-start-scale": "0.25",
+  position: "relative",
+  display: "inline-grid",
+  w: "4",
+  h: "4",
+  flex: "none",
+  "& [data-icon]": {
+    gridArea: "1 / 1",
+    display: "block",
+    _motionSafe: {
+      transitionProperty: "opacity, filter, transform",
+      transitionDuration: "var(--icon-swap-dur)",
+      transitionTimingFunction: "settle",
+    },
+    _motionReduce: {
+      transition: "none!",
+      transform: "none!",
+      filter: "none!",
+    },
+  },
+  '&[data-state="auto"] [data-icon="auto"], &[data-state="light"] [data-icon="light"], &[data-state="dark"] [data-icon="dark"]':
+    {
+      opacity: "1",
+      filter: "blur(0)",
+      transform: "scale(1)",
+    },
+  '&[data-state="auto"] [data-icon]:not([data-icon="auto"]), &[data-state="light"] [data-icon]:not([data-icon="light"]), &[data-state="dark"] [data-icon]:not([data-icon="dark"])':
+    {
+      opacity: "0",
+      filter: "blur(var(--icon-swap-blur))",
+      transform: "scale(var(--icon-swap-start-scale))",
+    },
 });
 const panel = css({
+  "--dropdown-open-dur": "300ms",
+  "--dropdown-close-dur": "150ms",
   position: "absolute",
   top: "100%",
   mt: "2",
@@ -41,6 +86,31 @@ const panel = css({
   borderRadius: "lg",
   bg: "surface",
   boxShadow: "popup",
+  transform: "translateY(-8px) scale(0.96)",
+  transformOrigin: "top right",
+  opacity: "0",
+  pointerEvents: "none",
+  _motionSafe: {
+    transitionProperty: "transform, opacity",
+    transitionDuration: "var(--dropdown-open-dur)",
+    transitionTimingFunction: "settle",
+  },
+  "&.is-open": {
+    transform: "scale(1)",
+    opacity: "1",
+    pointerEvents: "auto",
+  },
+  "&.is-closing": {
+    transform: "translateY(-8px) scale(0.96)",
+    opacity: "0",
+    pointerEvents: "none",
+    _motionSafe: { transitionDuration: "var(--dropdown-close-dur)" },
+  },
+  _motionReduce: {
+    transition: "none!",
+    transform: "none!",
+    "&.is-open, &.is-closing": { transform: "none!" },
+  },
   "&[hidden]": { display: "none" },
 });
 const tight = css({ lineHeight: "tight" });
@@ -57,25 +127,25 @@ const tight = css({ lineHeight: "tight" });
     data-theme-trigger
   >
     <span
-      class="t-icon-swap"
+      class={iconSwap}
       data-state="auto"
       data-theme-icon
       aria-hidden="true"
     >
       <Icon
         name="monitor"
-        class:list={["theme-icon", themeIcon]}
+        class={themeIcon}
         marker="auto"
       />
-      <Icon name="sun" class:list={["theme-icon", themeIcon]} marker="light" />
-      <Icon name="moon" class:list={["theme-icon", themeIcon]} marker="dark" />
+      <Icon name="sun" class={themeIcon} marker="light" />
+      <Icon name="moon" class={themeIcon} marker="dark" />
     </span>
     <span class={css({ display: "none" })} data-theme-label>
       auto
     </span>
   </button>
   <fieldset
-    class:list={["t-dropdown", panel]}
+    class={panel}
     id="theme-options"
     aria-label="カラーテーマ"
     data-theme-panel
@@ -90,7 +160,7 @@ const tight = css({ lineHeight: "tight" });
         data-theme-option
         checked
       />
-      <Icon name="monitor" class:list={["theme-icon", themeIcon]} />
+      <Icon name="monitor" class={themeIcon} />
       <span class={themeOptionCopy}>
         <span class={tight}>auto</span>
       </span>
@@ -104,7 +174,7 @@ const tight = css({ lineHeight: "tight" });
         value="light"
         data-theme-option
       />
-      <Icon name="sun" class:list={["theme-icon", themeIcon]} />
+      <Icon name="sun" class={themeIcon} />
       <span class={themeOptionCopy}>
         <span class={tight}>light</span>
       </span>
@@ -118,7 +188,7 @@ const tight = css({ lineHeight: "tight" });
         value="dark"
         data-theme-option
       />
-      <Icon name="moon" class:list={["theme-icon", themeIcon]} />
+      <Icon name="moon" class={themeIcon} />
       <span class={themeOptionCopy}>
         <span class={tight}>dark</span>
       </span>

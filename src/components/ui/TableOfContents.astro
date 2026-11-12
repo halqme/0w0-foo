@@ -34,7 +34,7 @@ const TOC_HEADING_LEVEL_2 = 2;
 const TOC_HEADING_LEVEL_3 = 3;
 
 const { headings } = Astro.props;
-// link-text の下線は要素の箱に付く。block や inline-block にすると、折り返した各行ではなく箱の下に線が出る。
+// 下線は要素の箱に付く。block や inline-block にすると、折り返した各行ではなく箱の下に線が出る。
 const tocHeadings = headings.filter(
   (h) => h.depth === TOC_HEADING_LEVEL_2 || h.depth === TOC_HEADING_LEVEL_3,
 );
@@ -47,7 +47,6 @@ const tocHeadings = headings.filter(
         <a
           href={`#${heading.slug}`}
           class:list={[
-            "link-text",
             linkText,
             heading.depth === TOC_HEADING_LEVEL_3 ? nestedLink : link,
           ]}

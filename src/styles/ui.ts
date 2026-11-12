@@ -80,8 +80,45 @@ export const itemMeta = css({
   color: "muted",
 });
 
-export const linkText = css({
+const fineHover = "@media (hover: hover) and (pointer: fine)";
+const underlineShown = { backgroundSize: "100% 1px, 100% 1px" } as const;
+
+// The line is a background, so it follows each wrapped line. `block` would pin it
+// to the box instead.
+const underlineBase = css.raw({
+  "--underline-rest": "transparent",
+  boxDecorationBreak: "clone",
+  // @ts-expect-error Panda's style type omits this prefix. Unprefixed support is still new in Safari.
+  WebkitBoxDecorationBreak: "clone",
+  backgroundImage:
+    "linear-gradient(currentColor, currentColor), linear-gradient(var(--underline-rest), var(--underline-rest))",
+  backgroundPosition: "0 100%",
+  backgroundRepeat: "no-repeat",
+  backgroundSize: "0% 1px, 100% 1px",
+  _motionSafe: {
+    transitionProperty: "background-size",
+    transitionDuration: "fast",
+    transitionTimingFunction: "settle",
+  },
+  _motionReduce: { transition: "none!" },
+  _highContrast: { backgroundImage: "none" },
+});
+
+const underlineOnSelf = css.raw({
+  _focusVisible: underlineShown,
+  _active: underlineShown,
+  [fineHover]: { "&:hover": underlineShown },
+  _highContrast: {
+    textDecorationLine: "underline",
+    textUnderlineOffset: "4px",
+  },
+});
+
+export const navLabel = css(underlineBase);
+
+export const linkText = css(underlineBase, underlineOnSelf, {
   textDecoration: "none",
+  "--underline-rest": "var(--color-line)",
 });
 
 export const focused = css({
@@ -93,7 +130,10 @@ export const focused = css({
   },
 });
 
-export const textAction = css({
+export const textAction = css(underlineBase, underlineOnSelf, {
+  "--underline-rest": "var(--color-line)",
+  // Sit the line beside the text, not at the bottom of the 40px hit area.
+  backgroundPosition: "0 calc(50% + 0.7em)",
   textDecoration: "none",
   display: "inline-flex",
   minH: "10",
@@ -103,6 +143,7 @@ export const textAction = css({
   color: "muted",
   _hover: { color: "ink" },
   _focusVisible: {
+    ...underlineShown,
     outlineWidth: "2px",
     outlineStyle: "solid",
     outlineColor: "focus",

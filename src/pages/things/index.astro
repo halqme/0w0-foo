@@ -6,6 +6,10 @@ import Tag from "../../components/ui/Tag.astro";
 import ThingsRoute from "../../components/things/ThingsRoute.astro";
 import Layout from "../../layouts/Layout.astro";
 import {
+  thingCardTransition,
+  thingImageTransition,
+} from "../../styles/motion";
+import {
   focused,
   indexHeader,
   listTitle,
@@ -101,7 +105,7 @@ const categories = [...categoryCounts.entries()].toSorted((a, b) => {
             .map((thing) => (
               <article
                 transition:name={`thing-card-${thing.id}`}
-                class:list={["thing-card", card]}
+                class:list={[thingCardTransition, card]}
                 data-thing
                 data-category={thing.data.category}
               >
@@ -112,7 +116,7 @@ const categories = [...categoryCounts.entries()].toSorted((a, b) => {
                 >
                   <div
                     transition:name={`thing-image-${thing.id}`}
-                    class:list={["thing-image", frame]}
+                    class:list={[thingImageTransition, frame]}
                   >
                     <Image
                       src={thing.data.image}

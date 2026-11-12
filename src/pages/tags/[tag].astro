@@ -52,7 +52,7 @@ const { label, posts } = Astro.props;
       <h1 id="tag-title" class:list={[textHeadline, heading]}>
         {label}
       </h1>
-      <a href="/tags" class:list={["text-action", textAction]}>
+      <a href="/tags" class={textAction}>
         Tags
       </a>
     </div>

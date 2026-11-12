@@ -59,7 +59,7 @@
 - [Footer.astro](src/components/ui/Footer.astro) は上境界線を置き、中央揃えのソーシャルリンクと著作権表示を並べます。[Socials.astro](src/components/ui/Socials.astro) はGitHub・twitter・Zennのテキストリンクで、ホームのプロフィールにも使います。
 - [ThemeToggle.astro](src/components/ui/ThemeToggle.astro) はアイコンボタンとポップアップ内のauto・light・darkのラジオ選択です。選択値を `localStorage` の `theme` に保存し、auto時のみOS設定に追従します。`storage` イベントによる保存値変更も反映します。
 - テーマ選択はキーボードで開くと選択中のラジオへフォーカスし、ArrowDownでも開けます。Escapeで閉じてトリガーへ戻り、外側のポインター操作や外へのフォーカス移動でも閉じます。テーマ変更はstatusで通知します。
-- テーマポップアップはline境界、12px角丸、popup影を使います。[transitions.css](src/styles/transitions.css) で開閉とアイコン切替の動きを定義します。モーションはページ遷移とホバー・押下・状態変更に付け、初回ロードだけではコンテンツを動かしません。
+- テーマポップアップはline境界、12px角丸、popup影を使います。開閉とアイコン切替は [ThemeToggle.astro](src/components/ui/ThemeToggle.astro)、下線は [ui.ts](src/styles/ui.ts)、ページ遷移は [motion.ts](src/styles/motion.ts) です。モーションはページ遷移とホバー・押下・状態変更に付け、初回ロードだけではコンテンツを動かしません。
 - 共通レイアウトにはメインコンテンツへのスキップリンクがあります。ClientRouterによるページ遷移はAstro標準のルートアナウンサーで通知します。
 
 ## ページ構成

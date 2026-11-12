@@ -1,4 +1,7 @@
-@layer reset, base, tokens, recipes, utilities;
+/* Empty layer statement only. A block here would sit before the imports and
+   drop them. ClientRouter writes `@layer astro` in a later style tag, so this
+   order does not beat it. The view-transition overrides in motion.ts use `!`. */
+@layer reset, base, tokens, recipes, astro, utilities;
 
 @import "./styles/base.css" layer(base);
 @import "./styles/prose.css" layer(base);

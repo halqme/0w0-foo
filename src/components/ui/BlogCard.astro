@@ -27,7 +27,7 @@ const isActiveTag = (tag: string) => activeTag === slugifyTag(tag);
 
 <article class={card}>
   <h2 class={listTitle}>
-    <a href={`/blog/${post.id}/`} class:list={["link-text", linkText]}>
+    <a href={`/blog/${post.id}/`} class={linkText}>
       {post.data.title}
     </a>
   </h2>
@@ -45,7 +45,7 @@ const isActiveTag = (tag: string) => activeTag === slugifyTag(tag);
     {post.data.zenn_slug && (
       <a
         href={`https://zenn.dev/hal227/articles/${post.data.zenn_slug}`}
-        class:list={["link-text", linkText, zennLink]}
+        class:list={[linkText, zennLink]}
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`Read ${post.data.title} on Zenn`}

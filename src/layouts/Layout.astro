@@ -5,6 +5,11 @@ import Footer from "../components/ui/Footer.astro";
 import { ClientRouter } from "astro:transitions";
 import type { TransitionAnimationPair } from "astro";
 import { css } from "styled-system/css";
+import {
+  pageTransition,
+  rootTransition,
+  thingsFilterStill,
+} from "../styles/motion";
 import { containerMain } from "../styles/ui";
 
 const pageAnimation: TransitionAnimationPair = {
@@ -98,7 +103,7 @@ const absoluteOgImage = ogImage
 ---
 
 <!doctype html>
-<html lang="ja" class={root}>
+<html lang="ja" class:list={[root, rootTransition, thingsFilterStill]}>
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
@@ -173,7 +178,7 @@ const absoluteOgImage = ogImage
       id="main-content"
       transition:name="page-content"
       transition:animate={{ forwards: pageAnimation, backwards: pageAnimation }}
-      class:list={[containerMain, mainColumn]}
+      class:list={[containerMain, mainColumn, pageTransition]}
     >
       <slot />
     </main>
