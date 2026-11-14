@@ -26,6 +26,6 @@ export const linkCardClasses = {
     outlineStyle: "solid",
     outlineWidth: "1px",
     outlineOffset: "-1px",
-    outlineColor: "var(--color-image-outline)",
+    outlineColor: "line.overlay",
   }),
 } as const;

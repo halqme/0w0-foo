@@ -11,7 +11,7 @@ const still = {
 const fade = {
   animationName: "fadeOut!",
   animationDuration: "180ms!",
-  animationTimingFunction: "cubic-bezier(0.2, 0, 0, 1)!",
+  animationTimingFunction: "settle!",
   animationFillMode: "both!",
 } as const;
 

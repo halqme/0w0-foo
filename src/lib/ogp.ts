@@ -3,6 +3,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import { Resvg } from "@resvg/resvg-js";
+import { token } from "styled-system/tokens";
 
 const FONT_CACHE_DIR = join(process.cwd(), ".cache", "ogp-fonts");
 const REGULAR_FONT_PATH = join(FONT_CACHE_DIR, "noto-sans-jp-400.woff");
@@ -55,8 +56,8 @@ export async function loadFavicon(
   const svgContent = existsSync(FAVICON_PATH)
     ? await readFile(FAVICON_PATH, "utf8")
     : `<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-      <rect width="400" height="400" fill="#1a1a1a"/>
-      <text x="200" y="280" font-size="200" font-weight="bold" fill="white" text-anchor="middle">H</text>
+      <rect width="400" height="400" fill="${token("colors.graphite.925")}"/>
+      <text x="200" y="280" font-size="200" font-weight="bold" fill="${token("colors.graphite.0")}" text-anchor="middle">H</text>
     </svg>`;
   const resvg = new Resvg(svgContent, {
     fitTo: {

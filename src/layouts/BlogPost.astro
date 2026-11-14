@@ -249,22 +249,22 @@ const ogImage = `/ogp/${slug}.png`;
   }
 
   .post-content :global(:is(h1, h2, h3, h4, h5, h6)) {
-    font-family: var(--font-shippori-antique-b1);
+    font-family: var(--fonts-emphasis);
     font-weight: 400;
     line-height: 1.4;
-    margin-block: 2rem 1rem;
+    margin-block: var(--spacing-8) var(--spacing-4);
   }
 
   .post-content :global(:is(h1, h2)) {
-    font-size: 1.25rem;
+    font-size: var(--font-sizes-xl);
   }
 
   .post-content :global(h3) {
-    font-size: 1.125rem;
+    font-size: var(--font-sizes-lg);
   }
 
   .post-content :global(:is(h4, h5, h6)) {
-    font-size: 1rem;
+    font-size: var(--font-sizes-md);
   }
 
   .toc {
@@ -272,7 +272,7 @@ const ogImage = `/ogp/${slug}.png`;
   }
 
   .toc-chevron {
-    transition: transform 150ms ease-out;
+    transition: transform var(--durations-fast) ease-out;
   }
 
   .toc[open] > summary .toc-chevron {
@@ -284,8 +284,8 @@ const ogImage = `/ogp/${slug}.png`;
     height: 0;
     overflow: clip;
     transition:
-      height 150ms ease-out,
-      content-visibility 150ms allow-discrete;
+      height var(--durations-fast) ease-out,
+      content-visibility var(--durations-fast) allow-discrete;
   }
 
   .toc[open]::details-content {
@@ -294,8 +294,8 @@ const ogImage = `/ogp/${slug}.png`;
 
   .post-content :global(blockquote) {
     border: 0;
-    border-inline-start: 2px solid var(--color-muted);
-    padding-inline-start: 1rem;
+    border-inline-start: 2px solid var(--colors-muted);
+    padding-inline-start: var(--spacing-4);
     color: inherit;
     font-style: normal;
     font-weight: 400;
@@ -307,7 +307,7 @@ const ogImage = `/ogp/${slug}.png`;
   }
 
   .post-content :global(strong) {
-    font-family: var(--font-shippori-antique-b1);
+    font-family: var(--fonts-emphasis);
     font-weight: 400;
   }
 
@@ -325,9 +325,9 @@ const ogImage = `/ogp/${slug}.png`;
     position: absolute;
     inset-inline-start: -0.875rem;
     top: calc(0.5lh - 0.5px);
-    width: 0.5rem;
+    width: var(--spacing-2);
     height: 1px;
-    background: var(--color-muted);
+    background: var(--colors-muted);
   }
 
   .post-content :global(pre) {
@@ -346,7 +346,7 @@ const ogImage = `/ogp/${slug}.png`;
     .post-content :global(.code-copy-button) {
       opacity: 0;
       pointer-events: none;
-      transition: opacity 150ms ease-out;
+      transition: opacity var(--durations-fast) ease-out;
     }
 
     .post-content :global(.code-block-wrapper:hover .code-copy-button),
@@ -359,11 +359,11 @@ const ogImage = `/ogp/${slug}.png`;
   /* A one-line block is shorter than the 40px target placed 8px from the top. */
   @media (hover: none), (pointer: coarse) {
     .post-content :global(pre) {
-      min-height: calc(0.5rem + 2.5rem + 0.5rem);
+      min-height: calc(var(--spacing-2) + var(--sizes-10) + var(--spacing-2));
     }
 
     .post-content :global(.code-copy-button) {
-      min-height: 2.5rem;
+      min-height: var(--sizes-10);
     }
   }
 </style>

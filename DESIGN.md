@@ -20,22 +20,23 @@
 
 ## 色と文字
 
-色は [src/styles/base.css](src/styles/base.css) のカスタムプロパティで、Pandaのセマンティックカラーはそこを参照します。ルートの `dark` クラスでライト／ダークのパレットを切り替えます。
+色と影は [panda.config.ts](panda.config.ts) の `semanticTokens` で、ライトの値を `base`、ダークの値を `_dark` に定義します。ルートの `dark` クラスでパレットが切り替わります。[src/styles/base.css](src/styles/base.css) は色を `@property` に登録し、テーマ切替時に補間します。素のCSSからは `var(--colors-ink)` のようにPandaの変数で参照します。セマンティックトークンの値は、同じファイルの `tokens.colors` にある生の色（`graphite`・`jade`・`blush`・`ivory`）を参照します。CSS変数を使えないOGP画像は、`styled-system/tokens` の `token()` でこの生の色を読みます。
 
-| トークン                               | ライト    | ダーク    |
-| -------------------------------------- | --------- | --------- |
-| canvas（ページ背景）                   | `#fcfcfc` | `#151515` |
-| surface（面）                          | `#ffffff` | `#1d1d1d` |
-| surface-muted（控えめな面）            | `#f4f4f4` | `#262626` |
-| ink（本文・見出し）                    | `#242424` | `#ededed` |
-| muted（補助文字）                      | `#686868` | `#a3a3a3` |
-| line（境界線）                         | `#e4e4e4` | `#363636` |
-| accent（アクセント）                   | `#242424` | `#ededed` |
-| focus（フォーカス輪郭）                | `#14664f` | `#a8dfc6` |
-| selection（選択背景）                  | `#bfe9d9` | `#365d4c` |
-| selection-ink（選択文字）              | `#163c31` | `#f5f5e9` |
-| signal-success（成功通知用）           | `#176b47` | `#a5dfbc` |
-| signal-success-surface（成功通知面用） | `#e1f2e8` | `#244a35` |
+| トークン                               | ライト               | ダーク               |
+| -------------------------------------- | -------------------- | -------------------- |
+| canvas（ページ背景）                   | `#fcfcfc`            | `#151515`            |
+| surface（面）                          | `#ffffff`            | `#1d1d1d`            |
+| surface-muted（控えめな面）            | `#f4f4f4`            | `#262626`            |
+| ink（本文・見出し）                    | `#242424`            | `#ededed`            |
+| muted（補助文字）                      | `#686868`            | `#a3a3a3`            |
+| line（境界線）                         | `#e4e4e4`            | `#363636`            |
+| line.overlay（画像に重ねる縁）         | `oklch(0 0 0 / 0.1)` | `oklch(1 0 0 / 0.1)` |
+| accent（アクセント）                   | inkと同じ            | inkと同じ            |
+| focus（フォーカス輪郭）                | `#14664f`            | `#a8dfc6`            |
+| selection（選択背景）                  | `#bfe9d9`            | `#365d4c`            |
+| selection-ink（選択文字）              | `#163c31`            | `#f5f5e9`            |
+| signal-success（成功通知用）           | `#176b47`            | `#a5dfbc`            |
+| signal-success-surface（成功通知面用） | `#e1f2e8`            | `#244a35`            |
 
 通常のリンクは継承色、記事本文のリンクはウェイト400です。本文リンクと現在ページのナビゲーションにも本文と同系統の色を使い、下線や文字色で操作状態を示します。
 
@@ -142,7 +143,7 @@
 | `codeCopyButton`    | コード領域のコピーボタン。配置と基本スタイルを共通化し、表示条件はBlogPostで定義                       |
 
 - リンクの下線は [src/styles/recipes/link.ts](src/styles/recipes/link.ts) の `link` recipeにまとめ、`styled-system/recipes` から読みます。`link()` は本文中のリンク、`link({ kind: "action" })` は14px・最小高さ40px・muted色の操作です。祖先の状態で下線を出すときは、祖先に `group` クラスを付けて `link({ trigger: "group", rest: "none" })` を使います（ヘッダーのナビゲーション）。
-- 色・フォント・角丸・影のトークンは [panda.config.ts](panda.config.ts)、パレットの値は [src/styles/base.css](src/styles/base.css) を参照します。2回以上使う複数プロパティのまとまりは [src/styles/ui.ts](src/styles/ui.ts) に置き、一度きりのスタイルはその場の `css()` に書きます。単一プロパティの別名は作りません。
+- 色・フォント・角丸・影のトークンとパレットの値は [panda.config.ts](panda.config.ts) を参照します。2回以上使う複数プロパティのまとまりは [src/styles/ui.ts](src/styles/ui.ts) に置き、一度きりのスタイルはその場の `css()` に書きます。単一プロパティの別名は作りません。
 - `textBody` は通常本文のサイズと行高です。Pandaの `fontSize: "md"` はサイズだけを指します。
 - `css()` は `styled-system/css` から読みます。生成物への相対パスは使わず、[tsconfig.json](tsconfig.json) の `paths` を使います。Pandaは `css()` のオブジェクトリテラルだけを静的に抽出します。変数やスプレッドに通したスタイルは出ません。リンクカードのクラスは [src/styles/link-card.ts](src/styles/link-card.ts) の `css()` で定義し、[src/plugins/link-card.ts](src/plugins/link-card.ts) がその文字列を生成マークアップへ渡します。
 - 共通UIの変更では、共通レイアウトと各ページで参照箇所を分けて確認します。ルート構成と各画面の内容はページ・レイアウトの実装を基準にします。

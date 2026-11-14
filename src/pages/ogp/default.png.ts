@@ -5,6 +5,7 @@ import type { APIRoute } from "astro";
 import satori from "satori";
 
 import { loadBoldFont, loadFavicon } from "../../lib/ogp";
+import { token } from "styled-system/tokens";
 
 const FAVICON_CACHE_DIR = join(process.cwd(), "dist", ".cache", "favicon-png");
 export const GET: APIRoute = async () => {
@@ -35,7 +36,7 @@ export const GET: APIRoute = async () => {
             props: {
               children: "halqme",
               style: {
-                color: "#ffffff",
+                color: token("colors.graphite.0"),
                 fontSize: "72px",
                 fontWeight: 700,
                 letterSpacing: "-0.02em",
@@ -48,7 +49,7 @@ export const GET: APIRoute = async () => {
             props: {
               children: "Portfolio & Blog",
               style: {
-                color: "#999999",
+                color: token("colors.graphite.450"),
                 fontSize: "32px",
                 marginBottom: 0,
                 marginTop: "20px",
@@ -61,7 +62,7 @@ export const GET: APIRoute = async () => {
               children: "0w0.foo",
               style: {
                 bottom: "40px",
-                color: "#666666",
+                color: token("colors.graphite.650"),
                 fontSize: "24px",
                 position: "absolute",
               },
@@ -71,7 +72,7 @@ export const GET: APIRoute = async () => {
         ],
         style: {
           alignItems: "center",
-          backgroundColor: "#1a1a1a",
+          backgroundColor: token("colors.graphite.925"),
           display: "flex",
           flexDirection: "column",
           fontFamily: "Noto Sans JP",

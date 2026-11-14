@@ -8,6 +8,7 @@ import { getPublishedPosts } from "../../lib/blog";
 import satori from "satori";
 
 import { loadFavicon, loadFonts } from "../../lib/ogp";
+import { token } from "styled-system/tokens";
 
 const CACHE_DIR = join(process.cwd(), ".cache");
 const IMAGE_CACHE_DIR = join(CACHE_DIR, "ogp-images");
@@ -74,7 +75,7 @@ export const GET: APIRoute = async ({ params, props }) => {
                   props: {
                     children: truncatedTitle,
                     style: {
-                      color: "#1a1a1a",
+                      color: token("colors.graphite.925"),
                       fontSize: "48px",
                       fontWeight: 700,
                       letterSpacing: "-0.02em",
@@ -114,7 +115,7 @@ export const GET: APIRoute = async ({ params, props }) => {
                         props: {
                           children: "halqme",
                           style: {
-                            color: "#666666",
+                            color: token("colors.graphite.650"),
                             fontSize: "28px",
                             fontWeight: 400,
                           },
@@ -134,7 +135,7 @@ export const GET: APIRoute = async ({ params, props }) => {
                   props: {
                     children: "0w0.foo",
                     style: {
-                      color: "#999999",
+                      color: token("colors.graphite.450"),
                       fontSize: "24px",
                       fontWeight: 400,
                     },
@@ -144,7 +145,7 @@ export const GET: APIRoute = async ({ params, props }) => {
               ],
               style: {
                 alignItems: "center",
-                borderTop: "3px solid #1a1a1a",
+                borderTop: `3px solid ${token("colors.graphite.925")}`,
                 display: "flex",
                 justifyContent: "space-between",
                 marginTop: "40px",
@@ -155,7 +156,7 @@ export const GET: APIRoute = async ({ params, props }) => {
           },
         ],
         style: {
-          backgroundColor: "#ffffff",
+          backgroundColor: token("colors.graphite.0"),
           display: "flex",
           flexDirection: "column",
           fontFamily: "Noto Sans JP",

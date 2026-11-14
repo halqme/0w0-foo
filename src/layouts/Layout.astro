@@ -5,6 +5,7 @@ import Footer from "../components/ui/Footer.astro";
 import { ClientRouter } from "astro:transitions";
 import type { TransitionAnimationPair } from "astro";
 import { css } from "styled-system/css";
+import { token } from "styled-system/tokens";
 import {
   pageTransition,
   rootTransition,
@@ -15,16 +16,16 @@ import { containerMain } from "../styles/ui";
 const pageAnimation: TransitionAnimationPair = {
   old: {
     name: "page-exit",
-    duration: "150ms",
+    duration: token("durations.fast"),
     easing: "ease-out",
     fillMode: "both",
   },
   new: {
     name: "page-enter",
-    duration: "300ms",
+    duration: token("durations.slow"),
     easing: "ease-out",
     fillMode: "both",
-    delay: "100ms",
+    delay: token("durations.faster"),
   },
 };
 

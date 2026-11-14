@@ -3,7 +3,7 @@ a[target="_blank"] {
     content: "\00a0↗";
     content: "\00a0↗" / "（新しいタブで開く）";
     white-space: nowrap;
-    font-family: var(--font-ia-writer-mono), monospace;
+    font-family: var(--fonts-mono), monospace;
     font-size: 1em;
     line-height: 1;
     text-decoration: none;
@@ -17,15 +17,15 @@ a[target="_blank"] {
       content: "↗";
       content: "↗" / "（新しいタブで開く）";
       position: absolute;
-      inset-block-start: 8px;
-      inset-inline-end: 8px;
+      inset-block-start: var(--spacing-2);
+      inset-inline-end: var(--spacing-2);
       margin: 0;
-      padding: 4px;
-      border: 1px solid var(--color-line);
-      border-radius: 4px;
-      background: var(--color-surface);
-      color: var(--color-ink);
-      font-size: 14px;
+      padding: var(--spacing-1);
+      border: 1px solid var(--colors-line);
+      border-radius: var(--radii-sm);
+      background: var(--colors-surface);
+      color: var(--colors-ink);
+      font-size: var(--font-sizes-sm);
     }
   }
 }

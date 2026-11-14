@@ -1,138 +1,93 @@
-/* Registered colors interpolate on the root without replacing live UI with snapshots. */
-@property --color-canvas {
+/* Panda semantic tokens set the palette (panda.config.ts). Registering the colors
+   lets the root interpolate them without replacing live UI with snapshots. */
+@property --colors-canvas {
   syntax: "<color>";
   inherits: true;
-  initial-value: #fcfcfc;
+  initial-value: transparent;
 }
-@property --color-surface {
+@property --colors-surface {
   syntax: "<color>";
   inherits: true;
-  initial-value: #ffffff;
+  initial-value: transparent;
 }
-@property --color-surface-muted {
+@property --colors-surface-muted {
   syntax: "<color>";
   inherits: true;
-  initial-value: #f4f4f4;
+  initial-value: transparent;
 }
-@property --color-ink {
+@property --colors-ink {
   syntax: "<color>";
   inherits: true;
-  initial-value: #242424;
+  initial-value: transparent;
 }
-@property --color-muted {
+@property --colors-muted {
   syntax: "<color>";
   inherits: true;
-  initial-value: #686868;
+  initial-value: transparent;
 }
-@property --color-line {
+@property --colors-line {
   syntax: "<color>";
   inherits: true;
-  initial-value: #e4e4e4;
+  initial-value: transparent;
 }
-@property --color-accent {
+@property --colors-line-overlay {
   syntax: "<color>";
   inherits: true;
-  initial-value: #242424;
+  initial-value: transparent;
 }
-@property --color-focus {
+@property --colors-focus {
   syntax: "<color>";
   inherits: true;
-  initial-value: #14664f;
+  initial-value: transparent;
 }
-@property --color-pink {
+@property --colors-pink {
   syntax: "<color>";
   inherits: true;
-  initial-value: #f4d7dc;
+  initial-value: transparent;
 }
-@property --color-mint {
+@property --colors-mint {
   syntax: "<color>";
   inherits: true;
-  initial-value: #c6eadb;
+  initial-value: transparent;
 }
-@property --color-selection {
+@property --colors-selection {
   syntax: "<color>";
   inherits: true;
-  initial-value: #bfe9d9;
+  initial-value: transparent;
 }
-@property --color-selection-ink {
+@property --colors-selection-ink {
   syntax: "<color>";
   inherits: true;
-  initial-value: #163c31;
+  initial-value: transparent;
 }
-@property --color-image-outline {
+@property --colors-signal-success {
   syntax: "<color>";
   inherits: true;
-  initial-value: oklch(0 0 0 / 0.1);
+  initial-value: transparent;
 }
-@property --color-signal-success {
+@property --colors-signal-success-surface {
   syntax: "<color>";
   inherits: true;
-  initial-value: #176b47;
-}
-@property --color-signal-success-surface {
-  syntax: "<color>";
-  inherits: true;
-  initial-value: #e1f2e8;
+  initial-value: transparent;
 }
 
 @media (prefers-reduced-motion: no-preference) {
   :root[data-theme-transition] {
-    transition:
-      --color-canvas 300ms cubic-bezier(0.2, 0, 0, 1),
-      --color-surface 300ms cubic-bezier(0.2, 0, 0, 1),
-      --color-surface-muted 300ms cubic-bezier(0.2, 0, 0, 1),
-      --color-ink 300ms cubic-bezier(0.2, 0, 0, 1),
-      --color-muted 300ms cubic-bezier(0.2, 0, 0, 1),
-      --color-line 300ms cubic-bezier(0.2, 0, 0, 1),
-      --color-accent 300ms cubic-bezier(0.2, 0, 0, 1),
-      --color-focus 300ms cubic-bezier(0.2, 0, 0, 1),
-      --color-pink 300ms cubic-bezier(0.2, 0, 0, 1),
-      --color-mint 300ms cubic-bezier(0.2, 0, 0, 1),
-      --color-selection 300ms cubic-bezier(0.2, 0, 0, 1),
-      --color-selection-ink 300ms cubic-bezier(0.2, 0, 0, 1),
-      --color-image-outline 300ms cubic-bezier(0.2, 0, 0, 1),
-      --color-signal-success 300ms cubic-bezier(0.2, 0, 0, 1),
-      --color-signal-success-surface 300ms cubic-bezier(0.2, 0, 0, 1);
+    transition-property:
+      --colors-canvas, --colors-surface, --colors-surface-muted, --colors-ink,
+      --colors-muted, --colors-line, --colors-line-overlay, --colors-focus,
+      --colors-pink, --colors-mint, --colors-selection, --colors-selection-ink,
+      --colors-signal-success, --colors-signal-success-surface;
+    transition-duration: var(--durations-slow);
+    transition-timing-function: var(--easings-settle);
   }
 }
 
 :root {
-  --color-canvas: #fcfcfc;
-  --color-surface: #ffffff;
-  --color-surface-muted: #f4f4f4;
-  --color-ink: #242424;
-  --color-muted: #686868;
-  --color-line: #e4e4e4;
-  --color-accent: #242424;
-  --color-focus: #14664f;
-  --color-pink: #f4d7dc;
-  --color-mint: #c6eadb;
-  --color-selection: #bfe9d9;
-  --color-selection-ink: #163c31;
-  --color-elevation: 0 4px 12px rgb(48 47 45 / 0.12);
-  --color-image-outline: oklch(0 0 0 / 0.1);
-  --color-signal-success: #176b47;
-  --color-signal-success-surface: #e1f2e8;
   color-scheme: light;
 }
 
 :root.dark {
-  --color-canvas: #151515;
-  --color-surface: #1d1d1d;
-  --color-surface-muted: #262626;
-  --color-ink: #ededed;
-  --color-muted: #a3a3a3;
-  --color-line: #363636;
-  --color-accent: #ededed;
-  --color-focus: #a8dfc6;
-  --color-pink: #49393c;
-  --color-mint: #416253;
-  --color-selection: #365d4c;
-  --color-selection-ink: #f5f5e9;
-  --color-elevation: 0 4px 12px rgb(0 0 0 / 0.35);
-  --color-image-outline: oklch(1 0 0 / 0.1);
-  --color-signal-success: #a5dfbc;
-  --color-signal-success-surface: #244a35;
   color-scheme: dark;
 }
 
@@ -148,13 +103,13 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-focus);
+  outline: 2px solid var(--colors-focus);
   outline-offset: 3px;
 }
 
 ::selection {
-  background: var(--color-selection);
-  color: var(--color-selection-ink);
+  background: var(--colors-selection);
+  color: var(--colors-selection-ink);
 }
 
 a {
