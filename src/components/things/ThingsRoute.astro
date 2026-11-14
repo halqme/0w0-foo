@@ -24,7 +24,7 @@
       const path = (link.getAttribute("href") ?? "").split("?")[0];
       link.setAttribute(
         "href",
-        active === "" ? path : `${path}?category=${encodeURIComponent(active)}`,
+        active === "" ? path : `${path}/?category=${encodeURIComponent(active)}`,
       );
     }
     const back = document.querySelector("[data-things-back]");

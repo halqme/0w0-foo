@@ -77,7 +77,7 @@ const projects = (await getCollection("works")).slice(0, 4);
           {project.data.description}
           <a
             class:list={[linkText, focused, detailLink]}
-            href={`/works/${project.id}`}
+            href={`/works/${project.id}/`}
           >
             [more detail]
           </a>

@@ -1,10 +1,10 @@
 ---
 import { css } from "styled-system/css";
-import { getPublishedPosts, sortPostsNewestFirst } from "../../lib/blog";
-import BlogCard from "../../components/ui/BlogCard.astro";
-import { slugifyTag } from "../../lib/tag";
-import Layout from "../../layouts/Layout.astro";
-import { indexHeader, textAction, textHeadline } from "../../styles/ui";
+import { getPublishedPosts, sortPostsNewestFirst } from "../../../lib/blog";
+import BlogCard from "../../../components/ui/BlogCard.astro";
+import { slugifyTag } from "../../../lib/tag";
+import Layout from "../../../layouts/Layout.astro";
+import { indexHeader, textAction, textHeadline } from "../../../styles/ui";
 
 const section = css({ py: "8" });
 const heading = css({ minW: "0", overflowWrap: "anywhere" });
@@ -52,7 +52,7 @@ const { label, posts } = Astro.props;
       <h1 id="tag-title" class:list={[textHeadline, heading]}>
         {label}
       </h1>
-      <a href="/tags" class={textAction}>
+      <a href="/blog/tags/" class={textAction}>
         Tags
       </a>
     </div>

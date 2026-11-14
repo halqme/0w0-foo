@@ -73,7 +73,7 @@ const categories = [...categoryCounts.entries()].toSorted((a, b) => {
           <Tag
             label="All"
             class={focused}
-            href="/things"
+            href="/things/"
             data-thing-filter=""
             count={things.length}
             aria-current="page"
@@ -83,7 +83,7 @@ const categories = [...categoryCounts.entries()].toSorted((a, b) => {
             <Tag
               label={category}
               class={focused}
-              href={`/things?category=${encodeURIComponent(category)}`}
+              href={`/things/?category=${encodeURIComponent(category)}`}
               count={count}
               data-thing-filter={category}
             />
@@ -95,7 +95,7 @@ const categories = [...categoryCounts.entries()].toSorted((a, b) => {
             .toSorted((a, b) => a.data.maker.localeCompare(b.data.maker))
             .map((thing) => (
               <a
-                href={`/things/${thing.id}`}
+                href={`/things/${thing.id}/`}
                 transition:name={`thing-card-${thing.id}`}
                 data-thing-link
                 data-thing

@@ -95,7 +95,7 @@ const ogImage = `/ogp/${slug}.png`;
         <ul class={tags}>
           {topics.map((tag: string) => (
             <li class={tagItem}>
-              <Tag label={tag} href={`/tags/${slugifyTag(tag)}`} />
+              <Tag label={tag} href={`/blog/tags/${slugifyTag(tag)}/`} />
             </li>
           ))}
         </ul>

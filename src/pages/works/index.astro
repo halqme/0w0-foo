@@ -54,7 +54,7 @@ const works = await getCollection("works");
           <article class={card}>
             <h2 class={listTitle}>
               <a
-                href={`/works/${work.id}`}
+                href={`/works/${work.id}/`}
                 class:list={[linkText, focused]}
               >
                 {work.data.title}

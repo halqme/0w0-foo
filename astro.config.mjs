@@ -48,4 +48,8 @@ export default defineConfig({
     }),
   },
   site: "https://0w0.foo",
+  trailingSlash: "always",
+  build: {
+    format: "directory",
+  },
 });
