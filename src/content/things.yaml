@@ -73,7 +73,7 @@
   source: https://jezailfunder.jp/products/cornix-lp-keyboard?variant=52489729933619
   category: keyboard
   description:
-    - 名作と謳われた分割キーボード。
+    - 名作と謳われた分割キーボード。程よい重み。
 
 ## Gadget
 
@@ -130,3 +130,12 @@
   category: gadget
   description:
     - マウスの中では加水分解しやすい部品が少ないので好き。軽い。
+
+- id: aqara-hub-m3
+  title: Hub M3
+  image: ./things/aqara-hub-m3.webp
+  maker: Aqara
+  source: https://www.aqara.com/jp/product/hub-m3/
+  category: gadget
+  description:
+    - スマートハブ機器。Apple HomeKitと相性が良い。けっこう軽い。
