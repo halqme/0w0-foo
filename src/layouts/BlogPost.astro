@@ -2,6 +2,7 @@
 import type { MarkdownHeading } from "astro";
 import type { CollectionEntry } from "astro:content";
 import { css } from "styled-system/css";
+import { link } from "styled-system/recipes";
 
 import Icon from "../components/ui/Icon.astro";
 import ShareButtons from "../components/ui/ShareButtons.astro";
@@ -13,7 +14,6 @@ import {
   articleColumn,
   disclosureTrigger,
   pageHeader,
-  textAction,
   textHeadline,
 } from "../styles/ui";
 
@@ -103,7 +103,7 @@ const ogImage = `/ogp/${slug}.png`;
       {zenn_slug && (
         <a
           href={`https://zenn.dev/hal227/articles/${zenn_slug}`}
-          class={textAction}
+          class={link({ kind: "action" })}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -130,7 +130,7 @@ const ogImage = `/ogp/${slug}.png`;
       <ShareButtons path={Astro.url.pathname} title={title} />
       <button
         type="button"
-        class:list={[toTop, textAction]}
+        class:list={[toTop, link({ kind: "action" })]}
         aria-label="ページ先頭へ戻る"
         onclick="if (location.hash) history.replaceState(history.state, '', location.pathname + location.search); window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })"
       >

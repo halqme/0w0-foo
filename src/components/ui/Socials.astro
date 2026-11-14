@@ -1,5 +1,5 @@
 ---
-import { textAction } from "../../styles/ui";
+import { link } from "styled-system/recipes";
 
 const socialLinks: { ariaLabel: string; href: string; name: string }[] = [
   {
@@ -25,14 +25,14 @@ const socialLinks: { ariaLabel: string; href: string; name: string }[] = [
 ];
 ---
 
-{socialLinks.map((link) => (
+{socialLinks.map((item) => (
   <a
-    href={link.href}
+    href={item.href}
     target="_blank"
     rel="noopener noreferrer"
-    class={textAction}
-    aria-label={link.ariaLabel}
+    class={link({ kind: "action" })}
+    aria-label={item.ariaLabel}
   >
-    {link.name}
+    {item.name}
   </a>
 ))}

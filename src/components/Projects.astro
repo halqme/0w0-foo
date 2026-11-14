@@ -1,9 +1,10 @@
 ---
 import { getCollection } from "astro:content";
 import { css } from "styled-system/css";
+import { link } from "styled-system/recipes";
 import Heading2 from "./ui/Heading2.astro";
 import LinkCard from "./ui/LinkCard.astro";
-import { focused, linkText, section, textLabel } from "../styles/ui";
+import { focused, section, textLabel } from "../styles/ui";
 
 const projectList = css({
   display: "grid",
@@ -76,7 +77,7 @@ const projects = (await getCollection("works")).slice(0, 4);
         <p class={description} lang="en">
           {project.data.description}
           <a
-            class:list={[linkText, focused, detailLink]}
+            class:list={[link(), focused, detailLink]}
             href={`/works/${project.id}/`}
           >
             [more detail]

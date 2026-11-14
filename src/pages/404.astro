@@ -1,7 +1,8 @@
 ---
 import { css } from "styled-system/css";
+import { link } from "styled-system/recipes";
 import Layout from "../layouts/Layout.astro";
-import { textAction, textBody, textHeadline } from "../styles/ui";
+import { textBody, textHeadline } from "../styles/ui";
 
 const section = css({ py: "8", textAlign: "center" });
 const code = css({
@@ -26,7 +27,7 @@ const back = css({ mt: "8" });
     <p class:list={[textBody, message]}>
       お探しのページは見つかりませんでした。
     </p>
-    <a href="/" class:list={[back, textAction]}>
+    <a href="/" class:list={[back, link({ kind: "action" })]}>
       Back to Top
     </a>
   </section>

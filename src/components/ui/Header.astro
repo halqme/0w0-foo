@@ -1,10 +1,8 @@
 ---
 import { css } from "styled-system/css";
+import { link } from "styled-system/recipes";
 import ThemeToggle from "../ui/ThemeToggle.astro";
-import { containerMain, navLabel } from "../../styles/ui";
-
-const lineShown = { backgroundSize: "100% 1px, 100% 1px" } as const;
-const fineHover = "@media (hover: hover) and (pointer: fine)";
+import { containerMain } from "../../styles/ui";
 
 const bar = css({
   display: "flex",
@@ -31,20 +29,7 @@ const headerLink = css({
   lineHeight: "none",
   color: "muted",
   _hover: { color: "ink" },
-  "&[aria-current=page], &[aria-current=location]": {
-    color: "ink",
-    "& [data-nav-label]": lineShown,
-  },
-  "&:focus-visible [data-nav-label], &:active [data-nav-label]": lineShown,
-  [fineHover]: {
-    "&:hover [data-nav-label]": lineShown,
-  },
-  _highContrast: {
-    "&:is(:hover, :focus-visible, [aria-current]) [data-nav-label]": {
-      textDecorationLine: "underline",
-      textUnderlineOffset: "4px",
-    },
-  },
+  "&[aria-current=page], &[aria-current=location]": { color: "ink" },
 });
 
 const links: { href: string; label: string }[] = [
@@ -61,21 +46,21 @@ const pathname = Astro.url.pathname;
   <div class={cluster}>
     <nav class={row} aria-label="メインナビゲーション">
       <ul class={cluster}>
-        {links.map((link) => (
+        {links.map((item) => (
           <li class={row}>
             <a
-              href={link.href}
-              class={headerLink}
+              href={item.href}
+              class:list={["group", headerLink]}
               aria-current={
-                pathname === link.href || pathname === `${link.href}/`
+                pathname === item.href || pathname === `${item.href}/`
                   ? "page"
-                  : pathname.startsWith(`${link.href}/`)
+                  : pathname.startsWith(`${item.href}/`)
                     ? "location"
                     : undefined
               }
             >
-              <span class={navLabel} data-nav-label>
-                {link.label}
+              <span class={link({ trigger: "group", rest: "none" })}>
+                {item.label}
               </span>
             </a>
           </li>

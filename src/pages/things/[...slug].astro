@@ -2,13 +2,13 @@
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import { css } from "styled-system/css";
+import { link } from "styled-system/recipes";
 import ThingsRoute from "../../components/things/ThingsRoute.astro";
 import Layout from "../../layouts/Layout.astro";
 import { thingImageTransition } from "../../styles/motion";
 import {
   articleColumn,
   pageHeader,
-  textAction,
   textHeadline,
   textLabel,
 } from "../../styles/ui";
@@ -70,7 +70,7 @@ const { thing } = Astro.props;
       <div class={css({ w: "full", display: "inline-flex", justifyContent: "flex-end" })}>
         <a
           href={thing.data.source}
-          class={textAction}
+          class={link({ kind: "action" })}
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`${thing.data.title}の画像の出典`}

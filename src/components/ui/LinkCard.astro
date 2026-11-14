@@ -1,8 +1,9 @@
 ---
 import { css } from "styled-system/css";
+import { link } from "styled-system/recipes";
 import { getLinkCardPreview } from "../../lib/link-card-build";
 import { linkCardClasses } from "../../lib/link-card";
-import { focused, linkText } from "../../styles/ui";
+import { focused } from "../../styles/ui";
 
 const anchor = css({
   position: "relative",
@@ -62,7 +63,7 @@ const hasPreview = Boolean(source) || comments.length > 0;
   <a
     {id}
     {href}
-    class:list={[linkText, focused, labelLink]}
+    class:list={[link(), focused, labelLink]}
     aria-describedby={comments.length > 0 ? `${id}-preview` : undefined}
     target="_blank"
     rel="noopener noreferrer"

@@ -1,4 +1,5 @@
 import { defineConfig } from "@pandacss/dev";
+import { link } from "./src/styles/recipes/link";
 
 export default defineConfig({
   presets: ["@pandacss/preset-base", "@pandacss/preset-panda"],
@@ -6,6 +7,10 @@ export default defineConfig({
   include: ["./src/**/*.{js,jsx,ts,tsx,astro}"],
   exclude: [],
   outdir: "styled-system",
+  globalCss: {
+    // Color for the preset's `focusRing` and `focusVisibleRing` utilities.
+    ":root": { "--global-color-focus-ring": "token(colors.focus)" },
+  },
   theme: {
     extend: {
       keyframes: {
@@ -62,6 +67,7 @@ export default defineConfig({
           },
         },
       },
+      recipes: { link },
     },
   },
 });

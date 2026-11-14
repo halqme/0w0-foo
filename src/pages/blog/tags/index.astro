@@ -1,5 +1,6 @@
 ---
 import { css } from "styled-system/css";
+import { link } from "styled-system/recipes";
 import { getPublishedPosts, sortPostsNewestFirst } from "../../../lib/blog";
 import BlogCard from "../../../components/ui/BlogCard.astro";
 import Tag from "../../../components/ui/Tag.astro";
@@ -7,7 +8,6 @@ import { slugifyTag } from "../../../lib/tag";
 import Layout from "../../../layouts/Layout.astro";
 import {
   indexHeader,
-  textAction,
   textBody,
   textHeadline,
 } from "../../../styles/ui";
@@ -51,7 +51,7 @@ const sortedTags = [...tagCounts.entries()].toSorted((a, b) => {
       <h1 id="tags-title" class={textHeadline}>
         Tags
       </h1>
-      <a href="/blog/" class={textAction}>
+      <a href="/blog/" class={link({ kind: "action" })}>
         Blog
       </a>
     </div>

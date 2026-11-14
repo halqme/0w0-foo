@@ -1,19 +1,14 @@
 import { css } from "styled-system/css";
+import { focused } from "./ui";
 
 export const linkCardClasses = {
-  card: css({
+  card: `${css({
     display: "flex",
     flexDirection: "column",
     overflow: "hidden",
     color: "ink",
     textDecoration: "none",
-    _focusVisible: {
-      outlineWidth: "2px",
-      outlineStyle: "solid",
-      outlineColor: "focus",
-      outlineOffset: "2px",
-    },
-  }),
+  })} ${focused}`,
   imageContainer: css({
     display: "block",
     position: "relative",
@@ -32,45 +27,5 @@ export const linkCardClasses = {
     outlineWidth: "1px",
     outlineOffset: "-1px",
     outlineColor: "var(--color-image-outline)",
-  }),
-  info: css({ py: "4" }),
-  title: css({
-    mb: "1",
-    fontFamily: "sans",
-    fontSize: "md",
-    fontWeight: "normal",
-    lineHeight: "relaxed",
-    color: "ink",
-    textDecorationLine: "underline",
-    textUnderlineOffset: "4px",
-    lineClamp: "2",
-  }),
-  description: css({
-    mb: "3",
-    fontSize: "sm",
-    lineHeight: "relaxed",
-    color: "muted",
-    lineClamp: "2",
-  }),
-  host: css({
-    display: "flex",
-    alignItems: "center",
-    gap: "1.5",
-    fontSize: "sm",
-    lineHeight: "1.25rem",
-    color: "muted",
-  }),
-  favicon: css({
-    display: "inline-block",
-    w: "4",
-    h: "4",
-    flexShrink: "0",
-    verticalAlign: "middle",
-    borderRadius: "xs",
-  }),
-  displayUrl: css({
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
   }),
 } as const;

@@ -1,7 +1,7 @@
 ---
 import type { MarkdownHeading } from "astro";
 import { css } from "styled-system/css";
-import { linkText } from "../../styles/ui";
+import { link } from "styled-system/recipes";
 
 const nav = css({ mt: "3" });
 const list = css({
@@ -13,7 +13,7 @@ const list = css({
 });
 const item = css({ py: "1" });
 const nested = css({ py: "1", ps: "4" });
-const link = css({
+const topLink = css({
   lineHeight: "relaxed",
   overflowWrap: "anywhere",
   color: "ink",
@@ -47,8 +47,8 @@ const tocHeadings = headings.filter(
         <a
           href={`#${heading.slug}`}
           class:list={[
-            linkText,
-            heading.depth === TOC_HEADING_LEVEL_3 ? nestedLink : link,
+            link(),
+            heading.depth === TOC_HEADING_LEVEL_3 ? nestedLink : topLink,
           ]}
         >
           {heading.text}

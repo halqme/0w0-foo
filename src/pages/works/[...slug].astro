@@ -1,11 +1,11 @@
 ---
 import { getCollection, render } from "astro:content";
 import { css } from "styled-system/css";
+import { link } from "styled-system/recipes";
 import Layout from "../../layouts/Layout.astro";
 import {
   articleColumn,
   pageHeader,
-  textAction,
   textHeadline,
   textLabel,
 } from "../../styles/ui";
@@ -67,7 +67,7 @@ const { Content } = await render(work);
       <div class={links}>
         <a
           href={work.data.repo}
-          class={textAction}
+          class={link({ kind: "action" })}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -76,7 +76,7 @@ const { Content } = await render(work);
         {work.data.url && (
           <a
             href={work.data.url}
-            class={textAction}
+            class={link({ kind: "action" })}
             target="_blank"
             rel="noopener noreferrer"
           >

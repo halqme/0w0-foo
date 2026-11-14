@@ -1,9 +1,10 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import { css } from "styled-system/css";
+import { link } from "styled-system/recipes";
 import Tag from "./Tag.astro";
 import { slugifyTag } from "../../lib/tag";
-import { itemMeta, linkText, listTitle } from "../../styles/ui";
+import { itemMeta, listTitle } from "../../styles/ui";
 
 const card = css({ py: "4" });
 const zennLink = css({
@@ -27,7 +28,7 @@ const isActiveTag = (tag: string) => activeTag === slugifyTag(tag);
 
 <article class={card}>
   <h2 class={listTitle}>
-    <a href={`/blog/${post.id}/`} class={linkText}>
+    <a href={`/blog/${post.id}/`} class={link()}>
       {post.data.title}
     </a>
   </h2>
@@ -45,7 +46,7 @@ const isActiveTag = (tag: string) => activeTag === slugifyTag(tag);
     {post.data.zenn_slug && (
       <a
         href={`https://zenn.dev/hal227/articles/${post.data.zenn_slug}`}
-        class:list={[linkText, zennLink]}
+        class:list={[link(), zennLink]}
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`Read ${post.data.title} on Zenn`}

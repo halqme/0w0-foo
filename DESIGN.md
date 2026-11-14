@@ -59,7 +59,7 @@
 - [Footer.astro](src/components/ui/Footer.astro) は上境界線を置き、中央揃えのソーシャルリンクと著作権表示を並べます。[Socials.astro](src/components/ui/Socials.astro) はGitHub・twitter・Zennのテキストリンクで、ホームのプロフィールにも使います。
 - [ThemeToggle.astro](src/components/ui/ThemeToggle.astro) はアイコンボタンとポップアップ内のauto・light・darkのラジオ選択です。選択値を `localStorage` の `theme` に保存し、auto時のみOS設定に追従します。`storage` イベントによる保存値変更も反映します。
 - テーマ選択はキーボードで開くと選択中のラジオへフォーカスし、ArrowDownでも開けます。Escapeで閉じてトリガーへ戻り、外側のポインター操作や外へのフォーカス移動でも閉じます。テーマ変更はstatusで通知します。
-- テーマポップアップはline境界、12px角丸、popup影を使います。開閉とアイコン切替は [ThemeToggle.astro](src/components/ui/ThemeToggle.astro)、下線は [ui.ts](src/styles/ui.ts)、ページ遷移は [motion.ts](src/styles/motion.ts) です。モーションはページ遷移とホバー・押下・状態変更に付け、初回ロードだけではコンテンツを動かしません。
+- テーマポップアップはline境界、12px角丸、popup影を使います。開閉とアイコン切替は [ThemeToggle.astro](src/components/ui/ThemeToggle.astro)、下線は [link.ts](src/styles/recipes/link.ts)、ページ遷移は [motion.ts](src/styles/motion.ts) です。モーションはページ遷移とホバー・押下・状態変更に付け、初回ロードだけではコンテンツを動かしません。
 - 共通レイアウトにはメインコンテンツへのスキップリンクがあります。ClientRouterによるページ遷移はAstro標準のルートアナウンサーで通知します。
 
 ## ページ構成
@@ -117,16 +117,16 @@
 
 ## 寸法・境界・動き
 
-| 設定                 | 値・使い方                                                                                                                                                          |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 余白スケール         | 2、4、8、12、16、24、32pxを共通設定に定義                                                                                                                           |
-| 角丸トークン         | xs 2px、sm 4px、md 8px、lg 12px、full 9999px                                                                                                                        |
-| ホームのセクション   | 上下32px、最初の上余白は0。区切りは余白で表現                                                                                                                       |
-| 共通ボタン           | 専用の共通スタイルは置かない。操作の最小高さはテキスト操作の行を参照                                                                                                |
-| テキスト操作         | ソーシャル・共有・トップリンクは最小高さ40px。開閉トリガーも最小高さ40px。タグは最小高さ24px                                                                        |
-| キーボードフォーカス | `:focus-visible` は2pxのfocus色アウトライン、3pxオフセット。`focused` は2pxオフセット                                                                               |
-| リンクの下線         | `link-text`・`text-action` はline色の常設線に、hover・focus・押下で文字色の線を重ねます。hover対応端末では150msで伸長。ヘッダーはhover・focusと現在位置に下線を表示 |
-| 軽減モーション       | CSSのスムーズスクロールを無効にし、transitionとanimationを極短時間にして繰り返しを止める。テーマ切替の変形・ぼかしも無効                                            |
+| 設定                 | 値・使い方                                                                                                                                                                            |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 余白スケール         | 2、4、8、12、16、24、32pxを共通設定に定義                                                                                                                                             |
+| 角丸トークン         | xs 2px、sm 4px、md 8px、lg 12px、full 9999px                                                                                                                                          |
+| ホームのセクション   | 上下32px、最初の上余白は0。区切りは余白で表現                                                                                                                                         |
+| 共通ボタン           | 専用の共通スタイルは置かない。操作の最小高さはテキスト操作の行を参照                                                                                                                  |
+| テキスト操作         | ソーシャル・共有・トップリンクは最小高さ40px。開閉トリガーも最小高さ40px。タグは最小高さ24px                                                                                          |
+| キーボードフォーカス | `:focus-visible` は2pxのfocus色アウトライン、3pxオフセット。`focused` と操作リンクはPandaの `focusVisibleRing: "outside"`（2px幅・2pxオフセット）で、色は `globalCss` から渡すfocus色 |
+| リンクの下線         | `link` recipeはline色の常設線に、hover・focus・押下で文字色の線を重ねます。hover対応端末では150msで伸長。ヘッダーはhover・focusと現在位置に下線を表示                                 |
+| 軽減モーション       | CSSのスムーズスクロールを無効にし、transitionとanimationを極短時間にして繰り返しを止める。テーマ切替の変形・ぼかしも無効                                                              |
 
 ## スタイル実装の約束
 
@@ -138,11 +138,10 @@
 | `articleColumn`     | 記事と作品詳細の列。最大40rem、シェル内で中央、本文は左揃え                                            |
 | `listTitle`         | 16px・400、ink色、長い語の折り返し                                                                     |
 | `itemMeta`          | 上余白8px、14px・muted色、横12px・縦4px間隔で折り返し                                                  |
-| `linkText`          | 下線とhover時の下線色。下線のCSSはクラス名 `link-text` を残す                                          |
-| `textAction`        | `link-text` を使う14pxの操作、最小高さ40px、muted色、hoverでink色、フォーカス輪郭                      |
 | `disclosureTrigger` | ネイティブの開閉操作。ブラウザの三角は出さない。最小高さ40px・上下余白8px、14px・muted色、hoverでink色 |
 | `codeCopyButton`    | コード領域のコピーボタン。配置と基本スタイルを共通化し、表示条件はBlogPostで定義                       |
 
+- リンクの下線は [src/styles/recipes/link.ts](src/styles/recipes/link.ts) の `link` recipeにまとめ、`styled-system/recipes` から読みます。`link()` は本文中のリンク、`link({ kind: "action" })` は14px・最小高さ40px・muted色の操作です。祖先の状態で下線を出すときは、祖先に `group` クラスを付けて `link({ trigger: "group", rest: "none" })` を使います（ヘッダーのナビゲーション）。
 - 色・フォント・角丸・影のトークンは [panda.config.ts](panda.config.ts)、パレットの値は [src/styles/base.css](src/styles/base.css) を参照します。2回以上使う複数プロパティのまとまりは [src/styles/ui.ts](src/styles/ui.ts) に置き、一度きりのスタイルはその場の `css()` に書きます。単一プロパティの別名は作りません。
 - `textBody` は通常本文のサイズと行高です。Pandaの `fontSize: "md"` はサイズだけを指します。
 - `css()` は `styled-system/css` から読みます。生成物への相対パスは使わず、[tsconfig.json](tsconfig.json) の `paths` を使います。Pandaは `css()` のオブジェクトリテラルだけを静的に抽出します。変数やスプレッドに通したスタイルは出ません。リンクカードのクラスは [src/styles/link-card.ts](src/styles/link-card.ts) の `css()` で定義し、[src/plugins/link-card.ts](src/plugins/link-card.ts) がその文字列を生成マークアップへ渡します。

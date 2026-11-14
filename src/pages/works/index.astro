@@ -1,11 +1,11 @@
 ---
 import { getCollection } from "astro:content";
 import { css } from "styled-system/css";
+import { link } from "styled-system/recipes";
 import Layout from "../../layouts/Layout.astro";
 import {
   focused,
   indexHeader,
-  linkText,
   listTitle,
   textHeadline,
   textLabel,
@@ -55,7 +55,7 @@ const works = await getCollection("works");
             <h2 class={listTitle}>
               <a
                 href={`/works/${work.id}/`}
-                class:list={[linkText, focused]}
+                class:list={[link(), focused]}
               >
                 {work.data.title}
               </a>
