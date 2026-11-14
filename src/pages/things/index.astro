@@ -5,10 +5,7 @@ import { css } from "styled-system/css";
 import Tag from "../../components/ui/Tag.astro";
 import ThingsRoute from "../../components/things/ThingsRoute.astro";
 import Layout from "../../layouts/Layout.astro";
-import {
-  thingCardTransition,
-  thingImageTransition,
-} from "../../styles/motion";
+import { thingCardTransition, thingImageTransition } from "../../styles/motion";
 import {
   focused,
   indexHeader,
@@ -31,15 +28,11 @@ const grid = css({
   rowGap: "6",
   sm: {
     gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-    columnGap: "8",
   },
+  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
 });
-const card = css({ minW: "0", py: "6" });
-const cardLink = css({ display: "block" });
 const frame = css({
   display: "flex",
-  h: "40",
-  w: "full",
   alignItems: "center",
   justifyContent: "center",
 });
@@ -50,8 +43,6 @@ const photo = css({
   maxW: "full",
   objectFit: "contain",
 });
-const name = css({ mt: "4" });
-const maker = css({ mt: "1", overflowWrap: "anywhere" });
 
 const things = await getCollection("things");
 
@@ -103,32 +94,22 @@ const categories = [...categoryCounts.entries()].toSorted((a, b) => {
             .toSorted((a, b) => a.data.title.localeCompare(b.data.title))
             .toSorted((a, b) => a.data.maker.localeCompare(b.data.maker))
             .map((thing) => (
-              <article
+              <a
+                href={`/things/${thing.id}`}
                 transition:name={`thing-card-${thing.id}`}
-                class:list={[thingCardTransition, card]}
+                data-thing-link
                 data-thing
                 data-category={thing.data.category}
+                class:list={[focused, frame]}
               >
-                <a
-                  href={`/things/${thing.id}`}
-                  data-thing-link
-                  class:list={[focused, cardLink]}
-                >
-                  <div
-                    transition:name={`thing-image-${thing.id}`}
-                    class:list={[thingImageTransition, frame]}
-                  >
-                    <Image
-                      src={thing.data.image}
-                      alt={thing.data.title}
-                      class={photo}
-                      loading="eager"
-                    />
-                  </div>
-                  <h2 class:list={[listTitle, name]}>{thing.data.title}</h2>
-                  <p class:list={[textLabel, maker]}>{thing.data.maker}</p>
-                </a>
-              </article>
+                <Image
+                  transition:name={`thing-image-${thing.id}`}
+                  src={thing.data.image}
+                  alt={thing.data.title}
+                  class={photo}
+                  loading="eager"
+                />
+              </a>
             ))}
         </div>
         <ThingsRoute />
