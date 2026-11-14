@@ -20,7 +20,7 @@
 
 ## 色と文字
 
-色と影は [panda.config.ts](panda.config.ts) の `semanticTokens` で、ライトの値を `base`、ダークの値を `_dark` に定義します。ルートの `dark` クラスでパレットが切り替わります。[src/styles/base.css](src/styles/base.css) は色を `@property` に登録し、テーマ切替時に補間します。素のCSSからは `var(--colors-ink)` のようにPandaの変数で参照します。セマンティックトークンの値は、同じファイルの `tokens.colors` にある生の色（`graphite`・`jade`・`blush`・`ivory`）を参照します。CSS変数を使えないOGP画像は、`styled-system/tokens` の `token()` でこの生の色を読みます。
+色と影は [panda.config.ts](panda.config.ts) の `semanticTokens` で、ライトの値を `base`、ダークの値を `_dark` に定義します。値そのものは [palette.ts](src/styles/palette.ts) にあります。ルートの `dark` クラスでパレットが切り替わります。テーマ切替時は [ThemeToggle.astro](src/components/ui/ThemeToggle.astro) が、毎フレームすべての色変数をルートのインラインスタイルに書き、終わったら外します。CSSアニメーションで色変数を動かすと、Chromeではクライアント側の遷移後に訪問済みリンク内の文字が親の色で描かれるためです。途中の色は [theme-fade.ts](src/styles/theme-fade.ts) が計算します。色の値ではなく、下地に対するコントラスト比の対数が一定の速さで変わるように各色を逆算します。文字の明暗が逆転する瞬間は、コントラストがちょうど1:1になります。速さは時間の最初の6割で一定、残りで均等に減速して止まります。素のCSSからは `var(--colors-ink)` のようにPandaの変数で参照します。セマンティックトークンの値は、`tokens.colors` にある生の色（`graphite`・`jade`・`blush`・`ivory`）を参照します。CSS変数を使えないOGP画像は、`styled-system/tokens` の `token()` でこの生の色を読みます。
 
 | トークン                               | ライト               | ダーク               |
 | -------------------------------------- | -------------------- | -------------------- |

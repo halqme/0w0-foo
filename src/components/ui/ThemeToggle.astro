@@ -126,17 +126,8 @@ const tight = css({ lineHeight: "tight" });
     aria-controls="theme-options"
     data-theme-trigger
   >
-    <span
-      class={iconSwap}
-      data-state="auto"
-      data-theme-icon
-      aria-hidden="true"
-    >
-      <Icon
-        name="monitor"
-        class={themeIcon}
-        marker="auto"
-      />
+    <span class={iconSwap} data-state="auto" data-theme-icon aria-hidden="true">
+      <Icon name="monitor" class={themeIcon} marker="auto" />
       <Icon name="sun" class={themeIcon} marker="light" />
       <Icon name="moon" class={themeIcon} marker="dark" />
     </span>
@@ -205,6 +196,13 @@ const tight = css({ lineHeight: "tight" });
 ></p>
 
 <script>
+  import {
+    themeFadeColors,
+    themeFadeEase,
+    themeFadeTimeAt,
+    themeFadeVariables,
+  } from "../../styles/theme-fade";
+
   const themes = ["auto", "light", "dark"] as const;
   type Theme = (typeof themes)[number];
   const isTheme = (value: string | null | undefined): value is Theme =>
@@ -307,25 +305,57 @@ const tight = css({ lineHeight: "tight" });
       });
   };
 
-  let themeTransitionTimer: number | undefined;
+  // The fade runs here rather than as a CSS animation: each frame sets every
+  // palette variable on the root. After a client-side navigation, Chrome loses
+  // animated custom properties inside visited links, so their text would show
+  // the link's color until the animation ends. Positions run from light (0) to
+  // dark (1).
+  const fadeNames = themeFadeColors.map((color) => `--${color.name}`);
+  let fade: { frame: number; position: number } | undefined;
   const stopThemeTransition = () => {
-    window.clearTimeout(themeTransitionTimer);
-    themeTransitionTimer = undefined;
-    delete document.documentElement.dataset.themeTransition;
+    if (!fade) return;
+    cancelAnimationFrame(fade.frame);
+    fade = undefined;
+    const style = document.documentElement.style;
+    for (const name of fadeNames) style.removeProperty(name);
+  };
+  const startThemeTransition = (dark: boolean, from: number) => {
+    const root = document.documentElement;
+    const slow = getComputedStyle(root)
+      .getPropertyValue("--durations-slow")
+      .trim();
+    const duration =
+      Number.parseFloat(slow) * (slow.endsWith("ms") ? 1 : 1000) || 300;
+    // A switch that reverses partway continues from where the colors are.
+    const start =
+      performance.now() - themeFadeTimeAt(dark ? from : 1 - from) * duration;
+    const step = () => {
+      const time = Math.min(1, (performance.now() - start) / duration);
+      if (time === 1) {
+        stopThemeTransition();
+        return;
+      }
+      const eased = themeFadeEase(time);
+      const position = dark ? eased : 1 - eased;
+      for (const [name, value] of themeFadeVariables(position)) {
+        root.style.setProperty(name, value);
+      }
+      fade = { frame: requestAnimationFrame(step), position };
+    };
+    step();
   };
   const changeTheme = (next: Theme) => {
-    window.clearTimeout(themeTransitionTimer);
     const root = document.documentElement;
-    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      root.dataset.themeTransition = "";
-      // Commit the current palette before changing its transition target.
-      getComputedStyle(root).getPropertyValue("--colors-canvas");
-      themeTransitionTimer = window.setTimeout(stopThemeTransition, 350);
-    } else {
-      stopThemeTransition();
-    }
+    const wasDark = root.classList.contains("dark");
+    const position = fade?.position ?? (wasDark ? 1 : 0);
     applyTheme(next);
     syncSelection();
+    const dark = root.classList.contains("dark");
+    // A fade already heading to the same mode keeps running.
+    if (dark === wasDark) return;
+    stopThemeTransition();
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    startThemeTransition(dark, position);
   };
 
   document.addEventListener("astro:before-preparation", stopThemeTransition);
