@@ -18,7 +18,7 @@ const labelLink = css({
 });
 const panel = css({
   position: "absolute",
-  insetInlineStart: "full",
+  insetInlineStart: "100%",
   top: "50%",
   marginInlineStart: "3",
   zIndex: "10",
@@ -78,7 +78,7 @@ const hasPreview = Boolean(source) || comments.length > 0;
     >
       <div class={card}>
         {source && (
-          <span class:list={["block", linkCardClasses.imageContainer]}>
+          <span class={linkCardClasses.imageContainer}>
             <img
               src={source}
               width={1200}

@@ -15,6 +15,7 @@ export const linkCardClasses = {
     },
   }),
   imageContainer: css({
+    display: "block",
     position: "relative",
     aspectRatio: "1200 / 630",
     overflow: "hidden",
